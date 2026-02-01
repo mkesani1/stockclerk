@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@stocksync/backend/*": ["packages/backend/src/*"],
+      "@stocksync/integrations/*": ["packages/integrations/src/*"],
+      "@stocksync/frontend/*": ["packages/frontend/src/*"],
+      "@stocksync/sync-engine/*": ["packages/sync-engine/src/*"]
+    }
+  },
+  "references": [
+    { "path": "packages/backend" },
+    { "path": "packages/integrations" },
+    { "path": "packages/frontend" },
+    { "path": "packages/sync-engine" }
+  ],
+  "exclude": ["node_modules", "**/dist/**", "**/build/**"]
+}

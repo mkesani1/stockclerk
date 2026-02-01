@@ -1,0 +1,199 @@
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Co-Elevator Design System Colors */
+  --color-primary: #8B7355;
+  --color-primary-dark: #6B5344;
+  --color-primary-light: #C9B8A8;
+  --color-background: #FAF8F5;
+  --color-background-alt: #F5F2ED;
+  --color-text: #2D2A26;
+  --color-text-muted: #6B6560;
+  --color-success: #5D8B55;
+  --color-warning: #C9A86C;
+  --color-error: #B85C5C;
+
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  * {
+    @apply border-bronze-200;
+  }
+
+  body {
+    @apply bg-background text-text;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-text;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+
+  p {
+    @apply text-text-muted;
+  }
+
+  a {
+    @apply text-primary hover:text-primary-dark transition-colors;
+  }
+}
+
+@layer components {
+  /* Status indicator pulse animation */
+  .status-pulse {
+    @apply relative;
+  }
+
+  .status-pulse::before {
+    content: '';
+    @apply absolute inset-0 rounded-full animate-ping;
+    animation-duration: 2s;
+  }
+
+  .status-pulse.online::before {
+    @apply bg-success/30;
+  }
+
+  .status-pulse.syncing::before {
+    @apply bg-warning/30;
+  }
+
+  .status-pulse.error::before {
+    @apply bg-error/30;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-bronze-100 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-bronze-300 rounded-full hover:bg-bronze-400;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .card-hover:hover {
+    @apply shadow-medium -translate-y-0.5;
+  }
+
+  /* Input focus ring */
+  .input-focus {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary;
+  }
+
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-dark active:bg-primary-dark/90;
+  }
+
+  .btn-secondary {
+    @apply btn bg-background-alt text-text hover:bg-bronze-200 active:bg-bronze-300;
+  }
+
+  .btn-ghost {
+    @apply btn text-text-muted hover:bg-background-alt hover:text-text;
+  }
+
+  .btn-danger {
+    @apply btn bg-error text-white hover:bg-error/90;
+  }
+
+  /* Agent icons */
+  .agent-icon {
+    @apply flex items-center justify-center w-10 h-10 rounded-xl font-mono text-lg;
+  }
+
+  /* Channel icons */
+  .channel-icon {
+    @apply flex items-center justify-center w-8 h-8 rounded-lg font-mono;
+  }
+}
+
+@layer utilities {
+  /* Text gradients */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-dark;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-bronze-200 rounded;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Truncate with ellipsis */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
