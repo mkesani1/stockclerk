@@ -1,101 +1,105 @@
 {
-  "name": "@stockclerk/backend",
-  "version": "1.0.0",
-  "description": "StockClerk Backend - Real-time inventory synchronization platform",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --format=cjs --external:pg --external:drizzle-orm --external:bullmq --external:ioredis --external:bcryptjs --external:@fastify/* --external:fastify --external:pino-pretty --external:ws --external:zod --external:@stockclerk/integrations --external:axios --external:form-data",
-    "build:types": "tsc",
-    "start": "node dist/index.js",
-    "test": "vitest run",
-    "test:unit": "vitest run --exclude='**/__tests__/integration/**'",
-    "test:integration": "vitest run --include='**/__tests__/integration/**'",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx drizzle/seed.ts"
-  },
-  "dependencies": {
-    "@fastify/cors": "^9.0.1",
-    "@fastify/jwt": "^8.0.1",
-    "@fastify/websocket": "^10.0.1",
-    "bcryptjs": "^2.4.3",
-    "bullmq": "^5.12.0",
-    "drizzle-orm": "^0.33.0",
-    "fastify": "^4.28.1",
-    "ioredis": "^5.4.1",
-    "pg": "^8.12.0",
-    "pino-pretty": "^11.2.1",
-    "ws": "^8.18.0",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20.14.10",
-    "@types/pg": "^8.11.6",
-    "@types/ws": "^8.5.10",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
-    "drizzle-kit": "^0.24.0",
-    "esbuild": "^0.27.2",
-    "eslint": "^8.55.0",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.16.2",
-    "typescript": "^5.5.3",
-    "vitest": "^1.1.0"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/exports.d.ts",
-      "import": "./dist/exports.js",
-      "require": "./dist/exports.js"
+    "name": "@stockclerk/backend",
+    "version": "1.0.0",
+    "description": "StockClerk Backend - Real-time inventory synchronization platform",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+          "dev": "tsx watch src/index.ts",
+          "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --format=cjs --external:pg --external:drizzle-orm --external:bullmq --external:ioredis --external:bcryptjs --external:@fastify/* --external:fastify --external:pino-pretty --external:ws --external:zod",
+          "build:types": "tsc",
+          "start": "node dist/index.js",
+          "test": "vitest run",
+          "test:unit": "vitest run --exclude='**/__tests__/integration/**'",
+          "test:integration": "vitest run --include='**/__tests__/integration/**'",
+          "test:watch": "vitest",
+          "test:coverage": "vitest run --coverage",
+          "typecheck": "tsc --noEmit",
+          "lint": "eslint src --ext .ts",
+          "db:generate": "drizzle-kit generate",
+          "db:migrate": "drizzle-kit migrate",
+          "db:push": "drizzle-kit push",
+          "db:studio": "drizzle-kit studio",
+          "db:seed": "tsx drizzle/seed.ts"
     },
-    "./types": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/types/index.js",
-      "require": "./dist/types/index.js"
+    "dependencies": {
+          "@fastify/cors": "^9.0.1",
+          "@fastify/jwt": "^8.0.1",
+          "@fastify/websocket": "^10.0.1",
+          "@stockclerk/integrations": "*",
+          "axios": "^1.6.2",
+          "bcryptjs": "^2.4.3",
+          "bullmq": "^5.12.0",
+          "drizzle-orm": "^0.33.0",
+          "fastify": "^4.28.1",
+          "ioredis": "^5.4.1",
+          "p-queue": "^8.0.1",
+          "p-retry": "^6.2.0",
+          "pg": "^8.12.0",
+          "pino-pretty": "^11.2.1",
+          "ws": "^8.18.0",
+          "zod": "^3.23.8"
     },
-    "./db": {
-      "types": "./dist/db/index.d.ts",
-      "import": "./dist/db/index.js",
-      "require": "./dist/db/index.js"
+    "devDependencies": {
+          "@types/bcryptjs": "^2.4.6",
+          "@types/node": "^20.14.10",
+          "@types/pg": "^8.11.6",
+          "@types/ws": "^8.5.10",
+          "@typescript-eslint/eslint-plugin": "^6.14.0",
+          "@typescript-eslint/parser": "^6.14.0",
+          "drizzle-kit": "^0.24.0",
+          "esbuild": "^0.27.2",
+          "eslint": "^8.55.0",
+          "ts-node": "^10.9.2",
+          "tsx": "^4.16.2",
+          "typescript": "^5.5.3",
+          "vitest": "^1.1.0"
     },
-    "./db/schema": {
-      "types": "./dist/db/schema.d.ts",
-      "import": "./dist/db/schema.js",
-      "require": "./dist/db/schema.js"
-    },
-    "./config": {
-      "types": "./dist/config/index.d.ts",
-      "import": "./dist/config/index.js",
-      "require": "./dist/config/index.js"
-    },
-    "./middleware": {
-      "types": "./dist/middleware/auth.d.ts",
-      "import": "./dist/middleware/auth.js",
-      "require": "./dist/middleware/auth.js"
-    },
-    "./websocket": {
-      "types": "./dist/websocket/index.d.ts",
-      "import": "./dist/websocket/index.js",
-      "require": "./dist/websocket/index.js"
-    },
-    "./queues": {
-      "types": "./dist/queues/index.d.ts",
-      "import": "./dist/queues/index.js",
-      "require": "./dist/queues/index.js"
-    },
-    "./routes": {
-      "types": "./dist/routes/index.d.ts",
-      "import": "./dist/routes/index.js",
-      "require": "./dist/routes/index.js"
+    "exports": {
+          ".": {
+                  "types": "./dist/exports.d.ts",
+                  "import": "./dist/exports.js",
+                  "require": "./dist/exports.js"
+          },
+          "./types": {
+                  "types": "./dist/types/index.d.ts",
+                  "import": "./dist/types/index.js",
+                  "require": "./dist/types/index.js"
+          },
+          "./db": {
+                  "types": "./dist/db/index.d.ts",
+                  "import": "./dist/db/index.js",
+                  "require": "./dist/db/index.js"
+          },
+          "./db/schema": {
+                  "types": "./dist/db/schema.d.ts",
+                  "import": "./dist/db/schema.js",
+                  "require": "./dist/db/schema.js"
+          },
+          "./config": {
+                  "types": "./dist/config/index.d.ts",
+                  "import": "./dist/config/index.js",
+                  "require": "./dist/config/index.js"
+          },
+          "./middleware": {
+                  "types": "./dist/middleware/auth.d.ts",
+                  "import": "./dist/middleware/auth.js",
+                  "require": "./dist/middleware/auth.js"
+          },
+          "./websocket": {
+                  "types": "./dist/websocket/index.d.ts",
+                  "import": "./dist/websocket/index.js",
+                  "require": "./dist/websocket/index.js"
+          },
+          "./queues": {
+                  "types": "./dist/queues/index.d.ts",
+                  "import": "./dist/queues/index.js",
+                  "require": "./dist/queues/index.js"
+          },
+          "./routes": {
+                  "types": "./dist/routes/index.d.ts",
+                  "import": "./dist/routes/index.js",
+                  "require": "./dist/routes/index.js"
+          }
     }
-  }
 }
