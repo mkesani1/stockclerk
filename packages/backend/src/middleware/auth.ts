@@ -56,7 +56,12 @@ export function getTenantId(request: FastifyRequest): string {
 // Register JWT plugin configuration
 export function configureJWT(app: FastifyInstance): void {
   app.register(import('@fastify/jwt'), {
-    secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production',
+    secret: process.env.JWT_SECRET ?? (() => {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('JWT_SECRET environment variable is required in production');
+      }
+      return 'stockclerk-development-secret-key-32chars';
+    })(),
     sign: {
       expiresIn: '7d', // Token expires in 7 days
     },

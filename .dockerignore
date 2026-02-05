@@ -1,0 +1,38 @@
+node_modules
+dist
+build
+coverage
+.nyc_output
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Docker volumes
+docker/volumes
+
+# Tests
+e2e/test-results
+e2e/playwright-report
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

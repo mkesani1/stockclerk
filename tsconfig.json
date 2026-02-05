@@ -16,10 +16,10 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@stocksync/backend/*": ["packages/backend/src/*"],
-      "@stocksync/integrations/*": ["packages/integrations/src/*"],
-      "@stocksync/frontend/*": ["packages/frontend/src/*"],
-      "@stocksync/sync-engine/*": ["packages/sync-engine/src/*"]
+      "@stockclerk/backend/*": ["packages/backend/src/*"],
+      "@stockclerk/integrations/*": ["packages/integrations/src/*"],
+      "@stockclerk/frontend/*": ["packages/frontend/src/*"],
+      "@stockclerk/sync-engine/*": ["packages/sync-engine/src/*"]
     }
   },
   "references": [

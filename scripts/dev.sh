@@ -72,17 +72,17 @@ if command -v npx &> /dev/null && npx concurrently --version &> /dev/null 2>&1; 
         --names "backend,frontend" \
         --prefix-colors "blue,green" \
         --kill-others-on-fail \
-        "cd packages/backend && pnpm dev" \
-        "cd packages/frontend && pnpm dev"
+        "cd packages/backend && npm run dev" \
+        "cd packages/frontend && npm run dev"
 else
     # Fallback to running in background
-    echo "Starting Backend on http://localhost:3001 ..."
-    cd packages/backend && pnpm dev &
+    echo "Starting Backend on http://localhost:3000 ..."
+    cd packages/backend && npm run dev &
     BACKEND_PID=$!
     cd ../..
 
     echo "Starting Frontend on http://localhost:5173 ..."
-    cd packages/frontend && pnpm dev &
+    cd packages/frontend && npm run dev &
     FRONTEND_PID=$!
     cd ../..
 
@@ -92,9 +92,9 @@ else
     echo "============================================="
     echo ""
     echo "  Frontend: http://localhost:5173"
-    echo "  Backend:  http://localhost:3001"
-    echo "  API:      http://localhost:3001/api"
-    echo "  WebSocket: ws://localhost:3001/ws"
+    echo "  Backend:  http://localhost:3000"
+    echo "  API:      http://localhost:3000/api"
+    echo "  WebSocket: ws://localhost:3000/ws"
     echo ""
     echo "Press Ctrl+C to stop all servers"
     echo ""

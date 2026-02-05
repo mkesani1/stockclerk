@@ -4,9 +4,21 @@
   "description": "StockClerk Third-party API Integrations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "require": "./dist/types.js"
+    }
+  },
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc",
+    "build": "tsc -b --force",
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:watch": "vitest",

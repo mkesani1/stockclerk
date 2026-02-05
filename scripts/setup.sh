@@ -18,19 +18,14 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-if ! command -v pnpm &> /dev/null; then
-    echo "Installing pnpm..."
-    npm install -g pnpm
-fi
-
 NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-if [ "$NODE_VERSION" -lt 18 ]; then
-    echo "Error: Node.js version 18 or higher is required"
+if [ "$NODE_VERSION" -lt 20 ]; then
+    echo "Error: Node.js version 20 or higher is required"
     exit 1
 fi
 
 echo "  - Node.js: $(node -v)"
-echo "  - pnpm: $(pnpm -v)"
+echo "  - npm: $(npm -v)"
 echo ""
 
 # Navigate to project root
@@ -42,7 +37,7 @@ echo ""
 
 # Install dependencies
 echo "Installing dependencies..."
-pnpm install
+npm install
 echo ""
 
 # Create .env file if it doesn't exist
@@ -64,7 +59,7 @@ JWT_EXPIRES_IN=7d
 
 # Server Configuration
 NODE_ENV=development
-PORT=3001
+PORT=3000
 HOST=0.0.0.0
 
 # CORS Configuration
@@ -107,7 +102,7 @@ echo ""
 
 # Build packages
 echo "Building packages..."
-pnpm run build 2>/dev/null || echo "  Build step skipped (may need TypeScript setup)"
+npm run build 2>/dev/null || echo "  Build step skipped (may need TypeScript setup)"
 echo ""
 
 # Run database migrations
@@ -122,7 +117,7 @@ echo ""
 # Seed database
 echo "Seeding database with demo data..."
 cd packages/backend
-pnpm run db:seed 2>/dev/null || echo "  Seeding skipped (database may not be ready)"
+npm run db:seed 2>/dev/null || echo "  Seeding skipped (database may not be ready)"
 cd ../..
 echo ""
 
@@ -134,8 +129,8 @@ echo "To start the development servers, run:"
 echo "  ./scripts/dev.sh"
 echo ""
 echo "Or start individually:"
-echo "  pnpm --filter @stockclerk/backend dev        # Backend on :3001"
-echo "  pnpm --filter @stockclerk/frontend dev       # Frontend on :5173"
+echo "  npm run dev:backend       # Backend on :3000"
+echo "  npm run dev:frontend      # Frontend on :5173"
 echo ""
 echo "Demo credentials:"
 echo "  Email: demo@stockclerk.local"
