@@ -2,26 +2,29 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copy package files
+# Copy ALL workspace package.json files so npm ci can resolve the full lockfile
 COPY package.json package-lock.json ./
 COPY packages/backend/package.json ./packages/backend/
+COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/integrations/package.json ./packages/integrations/
 COPY packages/sync-engine/package.json ./packages/sync-engine/
 
-# Install dependencies
-RUN npm ci --only=production
+# Install production dependencies only
+RUN npm ci --omit=dev --ignore-scripts
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files and install all dependencies (including dev)
+# Copy ALL workspace package.json files for lockfile integrity
 COPY package.json package-lock.json ./
 COPY packages/backend/package.json ./packages/backend/
+COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/integrations/package.json ./packages/integrations/
 COPY packages/sync-engine/package.json ./packages/sync-engine/
 
-RUN npm ci
+# Install deps with reduced memory: skip frontend workspace install
+RUN NODE_OPTIONS="--max-old-space-size=512" npm ci --ignore-scripts
 
 # Copy source code
 COPY tsconfig.json ./
