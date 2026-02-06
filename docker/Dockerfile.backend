@@ -9,7 +9,7 @@ COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/integrations/package.json ./packages/integrations/
 COPY packages/sync-engine/package.json ./packages/sync-engine/
 
-# Install production dependencies only
+# Install production dependencies only (hoisted to root node_modules)
 RUN npm ci --omit=dev --ignore-scripts
 
 # Stage 2: Builder
@@ -23,7 +23,7 @@ COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/integrations/package.json ./packages/integrations/
 COPY packages/sync-engine/package.json ./packages/sync-engine/
 
-# Install deps with reduced memory: skip frontend workspace install
+# Install deps with reduced memory
 RUN NODE_OPTIONS="--max-old-space-size=512" npm ci --ignore-scripts
 
 # Copy source code
@@ -45,11 +45,8 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 stockclerk
 
-# Copy production dependencies
+# Copy production dependencies (npm workspaces hoists to root)
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/backend/node_modules ./packages/backend/node_modules
-COPY --from=deps /app/packages/integrations/node_modules ./packages/integrations/node_modules
-COPY --from=deps /app/packages/sync-engine/node_modules ./packages/sync-engine/node_modules
 
 # Copy built application
 COPY --from=builder /app/packages/backend/dist ./packages/backend/dist
