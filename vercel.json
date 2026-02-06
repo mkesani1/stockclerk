@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://stockclerk-api.railway.app/api/:path*"
+      "destination": "https://stockclerk-production-7dd0.up.railway.app/api/:path*"
     },
     {
       "source": "/(.*)",
