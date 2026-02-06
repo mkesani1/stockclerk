@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build --workspace=packages/frontend",
+  "buildCommand": "npm run build --workspace=packages/frontend && mv packages/frontend/dist/index.html packages/frontend/dist/app.html",
   "outputDirectory": "packages/frontend/dist",
   "framework": "vite",
   "rewrites": [
@@ -14,7 +14,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/app.html"
     }
   ],
   "headers": [
