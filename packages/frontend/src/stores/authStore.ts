@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, UserSettings } from '../types';
+import { authApi, clearStoredToken, type AuthResponse, type BackendSafeUser } from '../api/client';
+import type { Tenant } from '../types';
 
 interface AuthState {
   user: User | null;
@@ -17,21 +19,39 @@ interface AuthState {
   completeOnboarding: () => void;
 }
 
-// Mock user for development
-const mockUser: User = {
-  id: '1',
-  email: 'demo@stockclerk.ai',
-  name: 'Demo User',
-  businessName: 'Demo Business',
-  onboardingComplete: true,
-  settings: {
-    lowStockThreshold: 10,
-    defaultBufferStock: 5,
-    notificationsEnabled: true,
-    emailAlerts: true,
-    syncInterval: 5,
-  },
+// Default settings for new users (backend doesn't store these yet)
+const defaultSettings: UserSettings = {
+  lowStockThreshold: 10,
+  defaultBufferStock: 5,
+  notificationsEnabled: true,
+  emailAlerts: true,
+  syncInterval: 5,
 };
+
+// Map backend user + tenant to frontend User type
+function mapToFrontendUser(backendUser: BackendSafeUser, tenant: Tenant): User {
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    name: backendUser.name || backendUser.email.split('@')[0],
+    businessName: tenant.name,
+    onboardingComplete: backendUser.onboardingComplete ?? false,
+    role: backendUser.role,
+    isSuperAdmin: backendUser.isSuperAdmin ?? false,
+    settings: defaultSettings,
+  };
+}
+
+// Helper to slugify business name for tenant slug
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 100);
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -41,46 +61,57 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
 
-      login: async (email: string, _password: string) => {
+      login: async (email: string, password: string) => {
         set({ isLoading: true });
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+          const response: AuthResponse = await authApi.login({ email, password });
 
-        // Mock successful login
-        set({
-          user: { ...mockUser, email },
-          token: 'mock-jwt-token',
-          isAuthenticated: true,
-          isLoading: false,
-        });
+          const frontendUser = mapToFrontendUser(response.user, response.tenant);
+
+          set({
+            user: frontendUser,
+            token: response.tokens.accessToken,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
       },
 
-      register: async (email: string, _password: string, name: string, businessName: string) => {
+      register: async (email: string, password: string, name: string, businessName: string) => {
         set({ isLoading: true });
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+          const response: AuthResponse = await authApi.register({
+            tenantName: businessName,
+            tenantSlug: slugify(businessName),
+            email,
+            password,
+            name,
+          });
 
-        // Mock successful registration
-        const newUser: User = {
-          ...mockUser,
-          id: Math.random().toString(36).substr(2, 9),
-          email,
-          name,
-          businessName,
-          onboardingComplete: false,
-        };
+          const frontendUser = mapToFrontendUser(response.user, response.tenant);
+          // New registrations always start with onboarding incomplete
+          frontendUser.onboardingComplete = false;
 
-        set({
-          user: newUser,
-          token: 'mock-jwt-token',
-          isAuthenticated: true,
-          isLoading: false,
-        });
+          set({
+            user: frontendUser,
+            token: response.tokens.accessToken,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
       },
 
       logout: () => {
+        // Clear the API client's stored token
+        clearStoredToken();
         set({
           user: null,
           token: null,

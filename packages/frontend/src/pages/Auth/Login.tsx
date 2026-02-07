@@ -25,7 +25,7 @@ export const Login: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err instanceof Error ? err.message : 'Invalid email or password');
     }
   };
 
@@ -35,7 +35,7 @@ export const Login: React.FC = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">SC</span>
+            <span className="text-white text-3xl">{String.fromCodePoint(0x25C9)}</span>
           </div>
           <h1 className="text-2xl font-bold text-text">Welcome back</h1>
           <p className="text-text-muted mt-1">Sign in to your StockClerk account</p>

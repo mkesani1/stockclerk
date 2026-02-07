@@ -105,6 +105,8 @@ export interface User {
   businessName: string;
   avatar?: string;
   onboardingComplete: boolean;
+  role?: string;
+  isSuperAdmin?: boolean;
   settings: UserSettings;
 }
 

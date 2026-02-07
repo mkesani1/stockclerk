@@ -38,7 +38,7 @@ export const Register: React.FC = () => {
       await register(email, password, name, businessName);
       navigate('/onboarding');
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     }
   };
 
@@ -48,7 +48,7 @@ export const Register: React.FC = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">SC</span>
+            <span className="text-white text-3xl">{String.fromCodePoint(0x25C9)}</span>
           </div>
           <h1 className="text-2xl font-bold text-text">Create your account</h1>
           <p className="text-text-muted mt-1">Get started with StockClerk</p>

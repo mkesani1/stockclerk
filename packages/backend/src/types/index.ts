@@ -38,6 +38,7 @@ export const registerSchema = z.object({
   tenantSlug: z.string().min(2).max(100).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
   email: z.string().email(),
   password: z.string().min(8).max(100),
+  name: z.string().min(1).max(255).optional(),
 });
 
 export const loginSchema = z.object({
@@ -255,6 +256,7 @@ export interface JWTPayload {
   tenantId: string;
   email: string;
   role: UserRole;
+  isSuperAdmin?: boolean;
   iat?: number;
   exp?: number;
 }

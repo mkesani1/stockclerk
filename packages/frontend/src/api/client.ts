@@ -52,10 +52,23 @@ export interface RegisterData {
   tenantSlug: string;
   email: string;
   password: string;
+  name?: string;
+}
+
+// Backend user shape (differs from frontend User type)
+export interface BackendSafeUser {
+  id: string;
+  tenantId: string;
+  email: string;
+  name: string | null;
+  role: string;
+  onboardingComplete: boolean;
+  isSuperAdmin: boolean;
+  createdAt: string;
 }
 
 export interface AuthResponse {
-  user: Omit<User, 'passwordHash'>;
+  user: BackendSafeUser;
   tenant: Tenant;
   tokens: {
     accessToken: string;
@@ -479,6 +492,37 @@ export const dashboardApi = {
     }>;
   }> {
     const response = await apiClient.get<ApiResponse<any>>('/dashboard/stock-overview');
+    return response.data.data!;
+  },
+};
+
+// ============================================================================
+// Admin API
+// ============================================================================
+
+export const adminApi = {
+  async getStats(): Promise<any> {
+    const response = await apiClient.get<ApiResponse<any>>('/admin/stats');
+    return response.data.data!;
+  },
+
+  async getTenants(params?: { page?: number; limit?: number }): Promise<any> {
+    const response = await apiClient.get<ApiResponse<any>>('/admin/tenants', { params });
+    return response.data.data!;
+  },
+
+  async getTenant(id: string): Promise<any> {
+    const response = await apiClient.get<ApiResponse<any>>(`/admin/tenants/${id}`);
+    return response.data.data!;
+  },
+
+  async getSyncEvents(params?: { page?: number; limit?: number; status?: string; tenantId?: string }): Promise<any> {
+    const response = await apiClient.get<ApiResponse<any>>('/admin/sync-events', { params });
+    return response.data.data!;
+  },
+
+  async getSystemHealth(): Promise<any> {
+    const response = await apiClient.get<ApiResponse<any>>('/admin/system-health');
     return response.data.data!;
   },
 };

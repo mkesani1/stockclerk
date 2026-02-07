@@ -33,7 +33,10 @@ export const users = pgTable('users', {
     .references(() => tenants.id, { onDelete: 'cascade' }),
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('password_hash').notNull(),
+  name: varchar('name', { length: 255 }),
   role: userRoleEnum('role').notNull().default('staff'),
+  onboardingComplete: boolean('onboarding_complete').notNull().default(false),
+  isSuperAdmin: boolean('is_super_admin').notNull().default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

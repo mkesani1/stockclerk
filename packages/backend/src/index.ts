@@ -12,6 +12,7 @@ import { alertRoutes } from './routes/alerts.js';
 import { syncRoutes } from './routes/sync.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { dashboardRoutes } from './routes/dashboard.js';
+import { adminRoutes } from './routes/admin.js';
 import { registerWebSocketRoutes, closeAllConnections } from './websocket/index.js';
 import { initializeQueues, closeQueues } from './queues/index.js';
 import {
@@ -74,6 +75,7 @@ async function registerRoutes() {
   await app.register(alertRoutes, { prefix: '/api/alerts' });
   await app.register(syncRoutes, { prefix: '/api/sync' });
   await app.register(dashboardRoutes, { prefix: '/api/dashboard' });
+  await app.register(adminRoutes, { prefix: '/api/admin' });
 
   // Webhook routes (unprotected - use signature verification)
   await app.register(webhookRoutes, { prefix: '/webhooks' });

@@ -5,6 +5,7 @@ import { queryClient } from './hooks/useApi';
 import { useAuth } from './hooks/useAuth';
 import { Layout } from './components/layout/Layout';
 import { FullPageSpinner } from './components/ui/Spinner';
+import { AdminLayout } from './components/layout/AdminLayout';
 
 // Lazy load pages for code splitting
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -15,6 +16,13 @@ const Sync = lazy(() => import('./pages/Sync'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Login = lazy(() => import('./pages/Auth/Login'));
 const Register = lazy(() => import('./pages/Auth/Register'));
+
+// Admin pages - lazy loaded
+const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
+const AdminTenants = lazy(() => import('./pages/Admin/Tenants'));
+const AdminTenantDetail = lazy(() => import('./pages/Admin/TenantDetail'));
+const AdminSyncMonitor = lazy(() => import('./pages/Admin/SyncMonitor'));
+const AdminSystemHealth = lazy(() => import('./pages/Admin/SystemHealth'));
 
 // Protected Route wrapper
 const ProtectedRoute: React.FC = () => {
@@ -72,6 +80,21 @@ const OnboardingRoute: React.FC = () => {
   );
 };
 
+// Admin Route wrapper - checks for super admin status
+const AdminRoute: React.FC = () => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user?.isSuperAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <AdminLayout />;
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -95,6 +118,15 @@ function App() {
             <Route path="/channels" element={<Channels />} />
             <Route path="/sync" element={<Sync />} />
             <Route path="/settings" element={<Settings />} />
+          </Route>
+
+          {/* Admin routes */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/tenants" element={<AdminTenants />} />
+            <Route path="/admin/tenants/:id" element={<AdminTenantDetail />} />
+            <Route path="/admin/sync-monitor" element={<AdminSyncMonitor />} />
+            <Route path="/admin/system-health" element={<AdminSystemHealth />} />
           </Route>
 
           {/* Catch all - redirect to home */}

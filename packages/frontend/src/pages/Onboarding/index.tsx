@@ -98,7 +98,7 @@ export const Onboarding: React.FC = () => {
     setError(null);
 
     try {
-      if (selectedChannel === 'wix') { if (import.meta.env.VITE_USE_REAL_API !== 'true') { setConnectedChannelId('mock-wix'); setCurrentStep('import'); return; }
+      if (selectedChannel === 'wix') {
         // Start Wix OAuth flow - redirect to Wix authorization
         const { authUrl } = await channelsApi.startWixOAuth();
         window.location.href = authUrl;
@@ -120,7 +120,7 @@ export const Onboarding: React.FC = () => {
     setError(null);
 
     try {
-      if (import.meta.env.VITE_USE_REAL_API !== 'true') { setConnectedChannelId('mock-' + selectedChannel); setCurrentStep('import'); return; } const channel = await channelsApi.create({
+      const channel = await channelsApi.create({
         type: selectedChannel as 'eposnow' | 'wix' | 'deliveroo',
         name: selectedChannel === 'eposnow' ? 'Eposnow POS' : 'Deliveroo',
         credentials: {
@@ -149,7 +149,7 @@ export const Onboarding: React.FC = () => {
 
     try {
       // Trigger a full sync for the connected channel
-      if (import.meta.env.VITE_USE_REAL_API !== 'true') { setImportComplete(true); setIsImporting(false); return; } await syncApi.triggerChannelSync(connectedChannelId);
+      await syncApi.triggerChannelSync(connectedChannelId);
 
       // For now, simulate completion after a delay if WebSocket doesn't respond
       setTimeout(() => {
@@ -175,7 +175,7 @@ export const Onboarding: React.FC = () => {
       <header className="h-16 border-b border-bronze-200 bg-white flex items-center px-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">SC</span>
+            <span className="text-white text-lg">{String.fromCodePoint(0x25C9)}</span>
           </div>
           <span className="font-semibold text-text">StockClerk</span>
         </div>
@@ -277,7 +277,7 @@ const WelcomeStep: React.FC<{ onNext: () => void }> = ({ onNext }) => (
   <div className="text-center animate-fade-in">
     <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
       <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
-        <span className="text-white font-bold text-2xl">SC</span>
+        <span className="text-white text-4xl">{String.fromCodePoint(0x25C9)}</span>
       </div>
     </div>
     <h1 className="text-3xl font-bold text-text mb-4">

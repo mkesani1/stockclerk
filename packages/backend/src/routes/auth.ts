@@ -49,7 +49,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           } satisfies ApiResponse);
         }
 
-        const { tenantName, tenantSlug, email, password } = validation.data;
+        const { tenantName, tenantSlug, email, password, name } = validation.data;
 
         // Check if tenant slug already exists
         const existingTenant = await db.query.tenants.findFirst({
@@ -98,7 +98,9 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
               tenantId: newTenant.id,
               email,
               passwordHash,
+              name: name || null,
               role: 'owner',
+              onboardingComplete: false,
             })
             .returning();
 
@@ -111,6 +113,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           tenantId: result.tenant.id,
           email: result.user.email,
           role: result.user.role,
+          isSuperAdmin: result.user.isSuperAdmin,
         };
 
         const accessToken = app.jwt.sign(payload);
@@ -189,6 +192,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           tenantId: user.tenantId,
           email: user.email,
           role: user.role,
+          isSuperAdmin: user.isSuperAdmin,
         };
 
         const accessToken = app.jwt.sign(payload);
@@ -297,6 +301,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           tenantId: user.tenantId,
           email: user.email,
           role: user.role,
+          isSuperAdmin: user.isSuperAdmin,
         };
 
         const accessToken = app.jwt.sign(payload);
