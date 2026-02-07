@@ -140,7 +140,8 @@ export const Onboarding: React.FC = () => {
 
   const handleImportProducts = async () => {
     if (!connectedChannelId) {
-      setError('No channel connected');
+      // No channel connected — skip import gracefully
+      setImportComplete(true);
       return;
     }
 
@@ -159,8 +160,10 @@ export const Onboarding: React.FC = () => {
         }
       }, 10000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to import products');
+      // Don't block onboarding if sync fails — mark as complete so user can proceed
+      console.warn('Sync trigger failed during onboarding:', err);
       setIsImporting(false);
+      setImportComplete(true);
     }
   };
 
@@ -253,6 +256,7 @@ export const Onboarding: React.FC = () => {
               importProgress={importProgress}
               onNext={handleNext}
               onBack={handleBack}
+              onSkip={() => { setImportComplete(true); }}
             />
           )}
           {currentStep === 'buffer' && (
@@ -472,7 +476,8 @@ const ImportStep: React.FC<{
   importProgress: { current: number; total: number };
   onNext: () => void;
   onBack: () => void;
-}> = ({ onImport, isImporting, importComplete, importProgress, onNext, onBack }) => (
+  onSkip?: () => void;
+}> = ({ onImport, isImporting, importComplete, importProgress, onNext, onBack, onSkip }) => (
   <div className="animate-fade-in">
     <div className="text-center mb-8">
       <h2 className="text-2xl font-bold text-text mb-2">
@@ -537,9 +542,16 @@ const ImportStep: React.FC<{
       <Button variant="ghost" onClick={onBack} disabled={isImporting}>
         Back
       </Button>
-      <Button onClick={onNext} disabled={!importComplete}>
-        Continue
-      </Button>
+      <div className="flex items-center gap-3">
+        {!importComplete && !isImporting && onSkip && (
+          <Button variant="ghost" onClick={onSkip}>
+            Skip for now
+          </Button>
+        )}
+        <Button onClick={onNext} disabled={!importComplete}>
+          Continue
+        </Button>
+      </div>
     </div>
   </div>
 );

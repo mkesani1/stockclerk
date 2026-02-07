@@ -98,13 +98,6 @@ export const Login: React.FC = () => {
           </div>
         </Card>
 
-        {/* Demo Credentials */}
-        <Card className="mt-4" variant="outlined">
-          <div className="text-center">
-            <p className="text-sm text-text-muted mb-2">Demo credentials:</p>
-            <p className="text-sm font-mono text-text">demo@stockclerk.ai / demo123</p>
-          </div>
-        </Card>
       </div>
     </div>
   );
