@@ -7,7 +7,7 @@ import type { StockChangeData } from '../components/products';
 import type { ChannelType } from '../types';
 
 // Extended WebSocket event types
-export type WSEventType
+export type WSEventType =
   | 'sync_update'
   | 'stock_change'
   | 'channel_status'
