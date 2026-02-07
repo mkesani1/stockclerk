@@ -167,8 +167,8 @@ export const Onboarding: React.FC = () => {
     }
   };
 
-  const handleComplete = () => {
-    completeOnboarding();
+  const handleComplete = async () => {
+    await completeOnboarding();
     navigate('/');
   };
 

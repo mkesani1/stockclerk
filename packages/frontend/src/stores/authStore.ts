@@ -16,7 +16,7 @@ interface AuthState {
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
-  completeOnboarding: () => void;
+  completeOnboarding: () => Promise<void>;
 }
 
 // Default settings for new users (backend doesn't store these yet)
@@ -138,10 +138,18 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      completeOnboarding: () => {
+      completeOnboarding: async () => {
         const { user } = get();
         if (user) {
+          // Update local state immediately for responsive UI
           set({ user: { ...user, onboardingComplete: true } });
+          // Persist to backend so it survives logout/login
+          try {
+            await authApi.completeOnboarding();
+          } catch (err) {
+            console.warn('Failed to persist onboarding status to backend:', err);
+            // Local state is already updated, so user can proceed
+          }
         }
       },
     }),

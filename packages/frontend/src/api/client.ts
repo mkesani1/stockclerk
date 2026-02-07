@@ -283,6 +283,10 @@ export const authApi = {
     }
     return response.data.data!;
   },
+
+  async completeOnboarding(): Promise<void> {
+    await apiClient.patch<ApiResponse<{ onboardingComplete: boolean }>>('/auth/onboarding-complete');
+  },
 };
 
 // ============================================================================

@@ -269,6 +269,50 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
   );
 
+  // PATCH /auth/onboarding-complete - Mark onboarding as complete (protected route)
+  app.patch(
+    '/onboarding-complete',
+    { preHandler: [authenticateRequest] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        if (!request.user) {
+          return reply.code(401).send({
+            success: false,
+            error: 'Unauthorized',
+          } satisfies ApiResponse);
+        }
+
+        // Update user's onboarding status in the database
+        const [updatedUser] = await db
+          .update(users)
+          .set({ onboardingComplete: true })
+          .where(eq(users.id, request.user.userId))
+          .returning();
+
+        if (!updatedUser) {
+          return reply.code(404).send({
+            success: false,
+            error: 'Not found',
+            message: 'User not found',
+          } satisfies ApiResponse);
+        }
+
+        return reply.code(200).send({
+          success: true,
+          data: { onboardingComplete: true },
+          message: 'Onboarding marked as complete',
+        } satisfies ApiResponse);
+      } catch (error) {
+        console.error('Onboarding complete error:', error);
+        return reply.code(500).send({
+          success: false,
+          error: 'Internal server error',
+          message: 'Failed to update onboarding status',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
   // POST /auth/refresh - Refresh JWT token (protected route)
   app.post(
     '/refresh',
