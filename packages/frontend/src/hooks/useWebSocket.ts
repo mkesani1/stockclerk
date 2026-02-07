@@ -7,7 +7,7 @@ import type { StockChangeData } from '../components/products';
 import type { ChannelType } from '../types';
 
 // Extended WebSocket event types
-export type WSEventType =
+export type WSEventType
   | 'sync_update'
   | 'stock_change'
   | 'channel_status'
@@ -153,7 +153,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
 
   const connect = useCallback(() => {
     // Don't connect in development if no WS server
-    if (!url || url.includes('undefined')) {
+    if (!url || url.includes('undefined') || import.meta.env.VITE_USE_REAL_API !== 'true') {
       console.log('[WebSocket] No URL configured, using mock mode');
       setIsConnected(true);
       return;
