@@ -329,8 +329,6 @@ const ChannelStep: React.FC<{
       description: 'Connect your delivery menu',
       color: 'text-teal-600',
       bgColor: 'bg-teal-50',
-      
-      
     },
   ];
 
@@ -349,13 +347,10 @@ const ChannelStep: React.FC<{
         {channels.map((channel) => (
           <button
             key={channel.id}
-            onClick={() => !channel.disabled && onSelectChannel(channel.id)}
-            disabled={channel.disabled}
+            onClick={() => onSelectChannel(channel.id)}
             className={cn(
               'w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left',
-              channel.disabled
-                ? 'border-bronze-100 bg-bronze-50 cursor-not-allowed opacity-60'
-                : selectedChannel === channel.id
+              selectedChannel === channel.id
                 ? 'border-primary bg-primary/5'
                 : 'border-bronze-200 hover:border-primary/50'
             )}
@@ -366,16 +361,14 @@ const ChannelStep: React.FC<{
             <div className="flex-1">
               <h4 className="font-semibold text-text">{channel.name}</h4>
               <p className="text-sm text-text-muted">
-                {channel.disabled ? channel.disabledText : channel.description}
+                {channel.description}
               </p>
             </div>
             <div className={cn(
               'w-6 h-6 rounded-full border-2 flex items-center justify-center',
-              channel.disabled
-                ? 'border-bronze-200'
-                : selectedChannel === channel.id ? 'border-primary bg-primary' : 'border-bronze-300'
+              selectedChannel === channel.id ? 'border-primary bg-primary' : 'border-bronze-300'
             )}>
-              {selectedChannel === channel.id && !channel.disabled && (
+              {selectedChannel === channel.id && (
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
