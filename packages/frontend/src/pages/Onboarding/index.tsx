@@ -98,7 +98,7 @@ export const Onboarding: React.FC = () => {
     setError(null);
 
     try {
-      if (selectedChannel === 'wix') {
+      if (selectedChannel === 'wix') { if (import.meta.env.VITE_USE_REAL_API !== 'true') { setConnectedChannelId('mock-wix'); setCurrentStep('import'); return; }
         // Start Wix OAuth flow - redirect to Wix authorization
         const { authUrl } = await channelsApi.startWixOAuth();
         window.location.href = authUrl;
@@ -120,7 +120,7 @@ export const Onboarding: React.FC = () => {
     setError(null);
 
     try {
-      const channel = await channelsApi.create({
+      if (import.meta.env.VITE_USE_REAL_API !== 'true') { setConnectedChannelId('mock-' + selectedChannel); setCurrentStep('import'); return; } const channel = await channelsApi.create({
         type: selectedChannel as 'eposnow' | 'wix' | 'deliveroo',
         name: selectedChannel === 'eposnow' ? 'Eposnow POS' : 'Deliveroo',
         credentials: {
@@ -149,7 +149,7 @@ export const Onboarding: React.FC = () => {
 
     try {
       // Trigger a full sync for the connected channel
-      await syncApi.triggerChannelSync(connectedChannelId);
+      if (import.meta.env.VITE_USE_REAL_API !== 'true') { setImportComplete(true); setIsImporting(false); return; } await syncApi.triggerChannelSync(connectedChannelId);
 
       // For now, simulate completion after a delay if WebSocket doesn't respond
       setTimeout(() => {
@@ -329,8 +329,8 @@ const ChannelStep: React.FC<{
       description: 'Connect your delivery menu',
       color: 'text-teal-600',
       bgColor: 'bg-teal-50',
-      disabled: true,
-      disabledText: 'Coming soon',
+      
+      
     },
   ];
 
