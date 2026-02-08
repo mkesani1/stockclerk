@@ -336,4 +336,13 @@ export interface WixClientConfig {
   instanceId?: string;
   timeout?: number;
   retryAttempts?: number;
+  authMode?: 'basic' | 'advanced';
 }
+
+export interface WixBasicOAuthConfig {
+  appId: string;
+  appSecret: string;
+  instanceId: string;
+}
+
+export type WixCatalogVersion = 'V1' | 'V3';

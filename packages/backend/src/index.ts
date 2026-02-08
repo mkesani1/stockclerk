@@ -13,6 +13,8 @@ import { syncRoutes } from './routes/sync.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { dashboardRoutes } from './routes/dashboard.js';
 import { adminRoutes } from './routes/admin.js';
+import { wixMarketplaceRoutes } from './routes/wix-marketplace.js';
+import { eposnowAppStoreRoutes } from './routes/eposnow-appstore.js';
 import { registerWebSocketRoutes, closeAllConnections } from './websocket/index.js';
 import { initializeQueues, closeQueues } from './queues/index.js';
 import {
@@ -83,6 +85,12 @@ async function registerRoutes() {
   // OAuth callback routes (unprotected - handles OAuth redirects)
   await app.register(wixOAuthPublicRoutes, { prefix: '/api/oauth' });
 
+  // Marketplace routes (unprotected - uses Wix webhook signature / instance token verification)
+  await app.register(wixMarketplaceRoutes, { prefix: '/marketplace' });
+
+  // Eposnow App Store landing routes (mixed auth - some protected, some unprotected)
+  await app.register(eposnowAppStoreRoutes, { prefix: '/api/connect' });
+
   // WebSocket routes
   await registerWebSocketRoutes(app);
 
@@ -101,7 +109,9 @@ async function registerRoutes() {
         alerts: '/api/alerts',
         sync: '/api/sync',
         dashboard: '/api/dashboard',
+        admin: '/api/admin',
         webhooks: '/webhooks',
+        marketplace: '/marketplace',
         websocket: '/ws',
       },
     };
@@ -207,7 +217,9 @@ async function start() {
     app.log.info('  - Alerts:    /api/alerts');
     app.log.info('  - Sync:      /api/sync');
     app.log.info('  - Dashboard: /api/dashboard');
+    app.log.info('  - Admin:     /api/admin');
     app.log.info('  - Webhooks:  /webhooks');
+    app.log.info('  - Marketplace: /marketplace');
     app.log.info('  - WebSocket: /ws');
 
     // Register shutdown handlers

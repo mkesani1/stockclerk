@@ -66,6 +66,10 @@ async function getChannelByExternalId(
   channelType: ChannelType,
   externalIdentifier: string
 ): Promise<{ id: string; tenantId: string; webhookSecret?: string } | null> {
+  if (!externalIdentifier) {
+    return null;
+  }
+
   // Check cache first
   const cacheKey = `${channelType}:${externalIdentifier}`;
   const cached = channelSecretCache.get(cacheKey);
@@ -73,6 +77,7 @@ async function getChannelByExternalId(
     const channel = await db.query.channels.findFirst({
       where: and(
         eq(channels.type, channelType),
+        eq(channels.externalInstanceId, externalIdentifier),
         eq(channels.isActive, true)
       ),
       columns: {
@@ -90,9 +95,31 @@ async function getChannelByExternalId(
     }
   }
 
-  // Query database - in production, you'd need to decrypt and parse credentials
-  // to find the matching channel by external ID
+  // Query database by external instance ID for proper multi-tenant routing
   const channel = await db.query.channels.findFirst({
+    where: and(
+      eq(channels.type, channelType),
+      eq(channels.externalInstanceId, externalIdentifier),
+      eq(channels.isActive, true)
+    ),
+    columns: {
+      id: true,
+      tenantId: true,
+      credentialsEncrypted: true,
+    },
+  });
+
+  if (channel) {
+    // Cache for future lookups
+    channelSecretCache.set(cacheKey, {
+      tenantId: channel.tenantId,
+      webhookSecret: '', // Will be populated when credentials are decrypted
+    });
+    return { id: channel.id, tenantId: channel.tenantId };
+  }
+
+  // Fallback: try finding any active channel of this type (for backwards compatibility)
+  const fallbackChannel = await db.query.channels.findFirst({
     where: and(
       eq(channels.type, channelType),
       eq(channels.isActive, true)
@@ -104,7 +131,7 @@ async function getChannelByExternalId(
     },
   });
 
-  return channel ? { id: channel.id, tenantId: channel.tenantId } : null;
+  return fallbackChannel ? { id: fallbackChannel.id, tenantId: fallbackChannel.tenantId } : null;
 }
 
 // Eposnow webhook payload types

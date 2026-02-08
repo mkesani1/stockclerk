@@ -6,4 +6,6 @@ export { productRoutes } from './products.js';
 export { alertRoutes, getAlertRulesForTenant, getLowStockThresholds } from './alerts.js';
 export { syncRoutes } from './sync.js';
 export { webhookRoutes } from './webhooks.js';
+export { wixMarketplaceRoutes } from './wix-marketplace.js';
+export { eposnowAppStoreRoutes } from './eposnow-appstore.js';
 export { dashboardRoutes, updateAgentStatus, getAgentStatus } from './dashboard.js';

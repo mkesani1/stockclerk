@@ -20,6 +20,8 @@ import type {
   WixInventoryBulkUpdate,
   WixWebhookConfig,
   WixWebhookEventType,
+  WixBasicOAuthConfig,
+  WixCatalogVersion,
 } from './types.js';
 
 // Rate limit: 100 requests per minute for Wix API
@@ -168,6 +170,35 @@ export class WixApiClient {
     };
   }
 
+  /**
+   * Authenticate using Basic OAuth (recommended by Wix)
+   * Uses app_id + app_secret + instanceId to get an access token
+   * No redirects required - simpler than Advanced OAuth
+   */
+  async authenticateBasic(config: WixBasicOAuthConfig): Promise<WixOAuthState> {
+    const response = await axios.post<WixOAuthTokens>(
+      `${WIX_OAUTH_URL}/access`,
+      {
+        grant_type: 'client_credentials',
+        client_id: config.appId,
+        client_secret: config.appSecret,
+        instance_id: config.instanceId,
+      }
+    );
+
+    const tokens = response.data;
+
+    this.oauthState = {
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token || '',
+      expiresAt: new Date(Date.now() + (tokens.expires_in || 14400) * 1000), // Default 4 hours
+      instanceId: config.instanceId,
+    };
+
+    this.connected = true;
+    return this.oauthState;
+  }
+
   private extractInstanceId(accessToken: string): string {
     // Wix access tokens contain instance ID in the payload
     try {
@@ -187,6 +218,16 @@ export class WixApiClient {
   // ============================================================================
 
   async connect(): Promise<void> {
+    // Try Basic OAuth if configured (recommended by Wix)
+    if (this.config.authMode === 'basic' && this.config.instanceId && this.config.clientId && this.config.clientSecret) {
+      await this.authenticateBasic({
+        appId: this.config.clientId,
+        appSecret: this.config.clientSecret,
+        instanceId: this.config.instanceId,
+      });
+      return;
+    }
+
     if (this.oauthState?.accessToken) {
       // Verify token is valid
       try {
@@ -203,7 +244,7 @@ export class WixApiClient {
       }
     }
 
-    throw new WixAuthError('No valid credentials provided. Use exchangeCodeForTokens() first.');
+    throw new WixAuthError('No valid credentials provided. Use exchangeCodeForTokens() or authenticateBasic() first.');
   }
 
   async disconnect(): Promise<void> {
@@ -508,6 +549,105 @@ export class WixApiClient {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  // ============================================================================
+  // Catalog Version Detection
+  // ============================================================================
+
+  /**
+   * Detect whether a Wix store uses Catalog V1 or V3
+   * MUST be called before using inventory APIs to ensure correct endpoint usage
+   */
+  async getCatalogVersion(): Promise<WixCatalogVersion> {
+    try {
+      const response = await this.rateLimitedRequest<{ catalogVersion: string }>(
+        () => this.httpClient.get('/stores/v1/catalog/version')
+      );
+      return response.catalogVersion === 'V3' ? 'V3' : 'V1';
+    } catch {
+      // Default to V1 for backwards compatibility if version check fails
+      return 'V1';
+    }
+  }
+
+  // ============================================================================
+  // V3 Inventory Operations (for stores on Catalog V3)
+  // ============================================================================
+
+  /**
+   * Get inventory items using V3 API
+   * Use getCatalogVersion() first to determine which API to call
+   */
+  async getInventoryV3(): Promise<WixInventoryItem[]> {
+    const items: WixInventoryItem[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.rateLimitedRequest<WixPaginatedResponse<WixInventoryItem>>(
+        () => this.httpClient.post('/stores/v3/inventoryItems/query', {
+          query: {
+            paging: { limit, offset },
+          },
+        })
+      );
+
+      items.push(...response.items);
+      hasMore = response.metadata.hasNext;
+      offset += limit;
+    }
+
+    return items;
+  }
+
+  /**
+   * Update inventory using V3 API
+   */
+  async updateInventoryV3(
+    inventoryItemId: string,
+    variantId: string,
+    update: WixInventoryUpdateRequest
+  ): Promise<void> {
+    await this.rateLimitedRequest(
+      () => this.httpClient.post(
+        `/stores/v3/inventoryItems/${inventoryItemId}/updateInventoryVariants`,
+        {
+          inventoryItem: {
+            variants: [{
+              variantId,
+              ...update,
+            }],
+          },
+        }
+      )
+    );
+  }
+
+  /**
+   * Smart inventory getter - auto-detects catalog version and uses correct API
+   */
+  async getInventoryAuto(): Promise<{ version: WixCatalogVersion; items: WixInventoryItem[] }> {
+    const version = await this.getCatalogVersion();
+    const items = version === 'V3' ? await this.getInventoryV3() : await this.getInventory();
+    return { version, items };
+  }
+
+  /**
+   * Smart inventory updater - auto-detects catalog version and uses correct API
+   */
+  async updateInventoryAuto(
+    inventoryItemId: string,
+    variantId: string,
+    update: WixInventoryUpdateRequest
+  ): Promise<void> {
+    const version = await this.getCatalogVersion();
+    if (version === 'V3') {
+      await this.updateInventoryV3(inventoryItemId, variantId, update);
+    } else {
+      await this.updateInventory(inventoryItemId, variantId, update);
     }
   }
 

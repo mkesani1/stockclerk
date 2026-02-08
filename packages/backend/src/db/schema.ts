@@ -22,6 +22,7 @@ export const tenants = pgTable('tenants', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 100 }).notNull().unique(),
+  source: varchar('source', { length: 50 }).notNull().default('direct'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -37,6 +38,7 @@ export const users = pgTable('users', {
   role: userRoleEnum('role').notNull().default('staff'),
   onboardingComplete: boolean('onboarding_complete').notNull().default(false),
   isSuperAdmin: boolean('is_super_admin').notNull().default(false),
+  authMethod: varchar('auth_method', { length: 50 }).notNull().default('password'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -51,6 +53,7 @@ export const channels = pgTable('channels', {
   credentialsEncrypted: text('credentials_encrypted'),
   isActive: boolean('is_active').notNull().default(true),
   lastSyncAt: timestamp('last_sync_at'),
+  externalInstanceId: varchar('external_instance_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

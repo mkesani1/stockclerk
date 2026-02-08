@@ -96,6 +96,7 @@ export interface CreateChannelData {
   type: ChannelType;
   name: string;
   credentials?: Record<string, unknown>;
+  externalInstanceId?: string;
 }
 
 export interface UpdateChannelData {
@@ -362,11 +363,23 @@ export const channelsApi = {
   },
 
   /**
-   * Start Wix OAuth flow - returns authorization URL
+   * Start Wix OAuth flow - returns authorization URL (Advanced OAuth)
    */
   async startWixOAuth(): Promise<{ authUrl: string; state: string }> {
     const response = await apiClient.get<ApiResponse<{ authUrl: string; state: string }>>(
       '/channels/wix/oauth-start'
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Authenticate Wix channel using Basic OAuth (Client Credentials)
+   * Used for marketplace installs where instanceId is already known
+   */
+  async connectWixBasicOAuth(instanceId: string): Promise<Channel> {
+    const response = await apiClient.post<ApiResponse<Channel>>(
+      '/channels/wix/basic-auth',
+      { instanceId }
     );
     return response.data.data!;
   },

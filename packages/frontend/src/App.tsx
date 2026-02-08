@@ -17,6 +17,9 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Login = lazy(() => import('./pages/Auth/Login'));
 const Register = lazy(() => import('./pages/Auth/Register'));
 
+// Connect pages (marketplace landing) - lazy loaded
+const EposnowConnect = lazy(() => import('./pages/Connect/EposnowConnect'));
+
 // Admin pages - lazy loaded
 const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
 const AdminTenants = lazy(() => import('./pages/Admin/Tenants'));
@@ -105,6 +108,16 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Route>
+
+          {/* Marketplace connect routes (standalone - no auth wrapper) */}
+          <Route
+            path="/connect/eposnow"
+            element={
+              <Suspense fallback={<FullPageSpinner />}>
+                <EposnowConnect />
+              </Suspense>
+            }
+          />
 
           {/* Onboarding route */}
           <Route element={<OnboardingRoute />}>

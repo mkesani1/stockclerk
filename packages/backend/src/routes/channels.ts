@@ -156,6 +156,9 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         // Encrypt credentials if provided
         const credentialsEncrypted = credentials ? encryptCredentials(credentials) : null;
 
+        // Extract externalInstanceId if provided
+        const externalInstanceId = (request.body as Record<string, unknown>).externalInstanceId as string | undefined;
+
         const [newChannel] = await db
           .insert(channels)
           .values({
@@ -163,6 +166,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             type,
             name,
             credentialsEncrypted,
+            externalInstanceId: externalInstanceId || null,
           })
           .returning();
 
@@ -389,6 +393,120 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
   });
 
   /**
+   * POST /channels/wix/basic-auth
+   * Authenticate with Wix using Basic OAuth (Client Credentials)
+   * Used for marketplace installs where instanceId is already known
+   */
+  app.post<{ Body: { instanceId: string } }>(
+    '/wix/basic-auth',
+    async (
+      request: FastifyRequest<{ Body: { instanceId: string } }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const tenantId = getTenantId(request);
+        const { instanceId } = request.body;
+
+        if (!instanceId) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: 'instanceId is required',
+          } satisfies ApiResponse);
+        }
+
+        if (!WIX_CLIENT_ID || !WIX_CLIENT_SECRET) {
+          return reply.code(500).send({
+            success: false,
+            error: 'Configuration error',
+            message: 'Wix OAuth not configured',
+          } satisfies ApiResponse);
+        }
+
+        // Get access token using Basic OAuth (Client Credentials)
+        const tokenResponse = await axios.post<{
+          access_token: string;
+          refresh_token?: string;
+          expires_in: number;
+          token_type: string;
+        }>(`${WIX_OAUTH_URL}/access`, {
+          grant_type: 'client_credentials',
+          client_id: WIX_CLIENT_ID,
+          client_secret: WIX_CLIENT_SECRET,
+          instance_id: instanceId,
+        });
+
+        const { access_token, refresh_token, expires_in } = tokenResponse.data;
+
+        // Store credentials
+        const credentials = {
+          accessToken: access_token,
+          refreshToken: refresh_token || '',
+          expiresAt: new Date(Date.now() + (expires_in || 14400) * 1000).toISOString(),
+          instanceId,
+          authMode: 'basic',
+        };
+
+        // Check if a Wix channel already exists for this instance
+        const existingChannel = await db.query.channels.findFirst({
+          where: and(
+            eq(channels.tenantId, tenantId),
+            eq(channels.type, 'wix'),
+            eq(channels.externalInstanceId, instanceId)
+          ),
+        });
+
+        if (existingChannel) {
+          // Update existing channel credentials
+          const [updatedChannel] = await db
+            .update(channels)
+            .set({
+              credentialsEncrypted: encryptCredentials(credentials),
+              isActive: true,
+            })
+            .where(eq(channels.id, existingChannel.id))
+            .returning();
+
+          const { credentialsEncrypted: _, ...safeChannel } = updatedChannel;
+          return reply.code(200).send({
+            success: true,
+            data: safeChannel,
+            message: 'Wix channel credentials updated',
+          } satisfies ApiResponse);
+        }
+
+        // Create new Wix channel
+        const [newChannel] = await db
+          .insert(channels)
+          .values({
+            tenantId,
+            type: 'wix',
+            name: 'Wix Store',
+            credentialsEncrypted: encryptCredentials(credentials),
+            externalInstanceId: instanceId,
+            isActive: true,
+          })
+          .returning();
+
+        const { credentialsEncrypted: _, ...safeChannel } = newChannel;
+        return reply.code(201).send({
+          success: true,
+          data: safeChannel,
+          message: 'Wix channel connected via Basic OAuth',
+        } satisfies ApiResponse);
+      } catch (error) {
+        console.error('Wix Basic OAuth error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return reply.code(500).send({
+          success: false,
+          error: 'OAuth error',
+          message: `Failed to authenticate with Wix: ${errorMessage}`,
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  /**
    * GET /channels/wix/oauth-callback
    * Handle the Wix OAuth callback - exchanges code for tokens
    */
@@ -475,6 +593,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             type: 'wix',
             name: 'Wix Store',
             credentialsEncrypted: encryptCredentials(credentials),
+            externalInstanceId: instanceId || null,
             isActive: true,
           })
           .returning();
@@ -582,6 +701,7 @@ export async function wixOAuthPublicRoutes(app: FastifyInstance): Promise<void> 
             type: 'wix',
             name: 'Wix Store',
             credentialsEncrypted: encryptCredentials(credentials),
+            externalInstanceId: instanceId || null,
             isActive: true,
           })
           .returning();

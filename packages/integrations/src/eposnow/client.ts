@@ -19,6 +19,9 @@ import type {
   EposnowApiResponse,
   EposnowWebhookConfig,
   EposnowWebhookEvent,
+  EposnowTransaction,
+  EposnowTransactionItem,
+  EposnowTransactionQuery,
 } from './types.js';
 
 // Rate limit: 60 requests per minute for Eposnow API
@@ -324,6 +327,106 @@ export class EposnowApiClient {
       }
       throw error;
     }
+  }
+
+  // ============================================================================
+  // Transaction Operations (for Watcher Agent sales detection)
+  // ============================================================================
+
+  /**
+   * Fetch completed transactions for sales detection
+   * The Watcher agent polls this to detect stock changes from POS sales
+   */
+  async getTransactions(query?: EposnowTransactionQuery): Promise<EposnowTransaction[]> {
+    await this.ensureAuthenticated();
+
+    const transactions: EposnowTransaction[] = [];
+    let page = query?.page || 1;
+    const pageSize = query?.pageSize || 50;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.rateLimitedRequest<EposnowApiResponse<EposnowTransaction[]>>(
+        () => this.httpClient.get('/api/v4/Transaction', {
+          params: {
+            page,
+            pageSize,
+            startDate: query?.startDate,
+            endDate: query?.endDate,
+            locationId: query?.locationId,
+            status: query?.status || 'Complete',
+          },
+        })
+      );
+
+      transactions.push(...response.data);
+
+      if (response.meta) {
+        hasMore = page * pageSize < response.meta.total;
+      } else {
+        hasMore = response.data.length === pageSize;
+      }
+
+      page++;
+    }
+
+    return transactions;
+  }
+
+  /**
+   * Fetch transactions since a given timestamp
+   * Used by Watcher agent for incremental polling
+   */
+  async getTransactionsSince(since: Date, locationId?: number): Promise<EposnowTransaction[]> {
+    return this.getTransactions({
+      startDate: since.toISOString(),
+      endDate: new Date().toISOString(),
+      locationId: locationId || this.config.locationId,
+      status: 'Complete',
+    });
+  }
+
+  /**
+   * Fetch line items for a specific transaction
+   * Used to identify which products were sold/adjusted
+   */
+  async getTransactionItems(transactionId: number): Promise<EposnowTransactionItem[]> {
+    await this.ensureAuthenticated();
+
+    const response = await this.rateLimitedRequest<EposnowApiResponse<EposnowTransactionItem[]>>(
+      () => this.httpClient.get(`/api/v4/TransactionItem`, {
+        params: {
+          transactionId,
+        },
+      })
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get recent sales with their line items for stock change detection
+   * Convenience method combining getTransactionsSince + getTransactionItems
+   */
+  async getRecentSalesWithItems(
+    since: Date,
+    locationId?: number
+  ): Promise<Array<EposnowTransaction & { items: EposnowTransactionItem[] }>> {
+    const transactions = await this.getTransactionsSince(since, locationId);
+
+    const transactionsWithItems = await Promise.all(
+      transactions.map(async (txn) => {
+        // If Items are already populated (some API responses include them)
+        if (txn.Items && txn.Items.length > 0) {
+          return { ...txn, items: txn.Items };
+        }
+        // Otherwise fetch items separately
+        const items = await this.getTransactionItems(txn.Id);
+        return { ...txn, items };
+      })
+    );
+
+    return transactionsWithItems;
   }
 
   // ============================================================================
