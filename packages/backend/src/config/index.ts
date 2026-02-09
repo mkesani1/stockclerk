@@ -35,6 +35,12 @@ const envSchema = z.object({
   RECONCILIATION_INTERVAL_MS: z.coerce.number().default(900000),
   DRIFT_AUTO_REPAIR_THRESHOLD: z.coerce.number().default(5),
   LOW_STOCK_THRESHOLD: z.coerce.number().default(10),
+
+  // Stripe
+  STRIPE_SECRET_KEY: z.string().default(''),
+  STRIPE_WEBHOOK_SECRET: z.string().default(''),
+  STRIPE_PRICE_STARTER: z.string().default(''),
+  STRIPE_PRICE_GROWTH: z.string().default(''),
 });
 
 // Parse and validate environment variables

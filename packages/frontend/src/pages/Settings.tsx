@@ -9,10 +9,11 @@ import { Toggle } from '../components/ui/Toggle';
 import { Badge } from '../components/ui/Badge';
 import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
+import { BillingSettings } from '../components/BillingSettings';
 
 export const Settings: React.FC = () => {
   const { user, updateUser, updateSettings } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'alerts' | 'sync' | 'notifications'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'alerts' | 'sync' | 'notifications' | 'billing'>('profile');
   const [isSaving, setIsSaving] = useState(false);
 
   // Form states
@@ -50,6 +51,7 @@ export const Settings: React.FC = () => {
     { id: 'alerts' as const, label: 'Alert Thresholds', icon: '🔔' },
     { id: 'sync' as const, label: 'Sync Settings', icon: '🔄' },
     { id: 'notifications' as const, label: 'Notifications', icon: '📬' },
+    { id: 'billing' as const, label: 'Billing', icon: '💳' },
   ];
 
   return (
@@ -343,6 +345,10 @@ export const Settings: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {activeTab === 'billing' && (
+              <BillingSettings />
             )}
           </div>
         </div>

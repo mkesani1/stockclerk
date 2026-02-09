@@ -15,6 +15,7 @@ import { dashboardRoutes } from './routes/dashboard.js';
 import { adminRoutes } from './routes/admin.js';
 import { wixMarketplaceRoutes } from './routes/wix-marketplace.js';
 import { eposnowAppStoreRoutes } from './routes/eposnow-appstore.js';
+import { billingRoutes, stripeWebhookRoutes } from './routes/billing.js';
 import { registerWebSocketRoutes, closeAllConnections } from './websocket/index.js';
 import { initializeQueues, closeQueues } from './queues/index.js';
 import {
@@ -78,9 +79,11 @@ async function registerRoutes() {
   await app.register(syncRoutes, { prefix: '/api/sync' });
   await app.register(dashboardRoutes, { prefix: '/api/dashboard' });
   await app.register(adminRoutes, { prefix: '/api/admin' });
+  await app.register(billingRoutes, { prefix: '/api/billing' });
 
   // Webhook routes (unprotected - use signature verification)
   await app.register(webhookRoutes, { prefix: '/webhooks' });
+  await app.register(stripeWebhookRoutes, { prefix: '/webhooks' });
 
   // OAuth callback routes (unprotected - handles OAuth redirects)
   await app.register(wixOAuthPublicRoutes, { prefix: '/api/oauth' });
@@ -110,6 +113,7 @@ async function registerRoutes() {
         sync: '/api/sync',
         dashboard: '/api/dashboard',
         admin: '/api/admin',
+        billing: '/api/billing',
         webhooks: '/webhooks',
         marketplace: '/marketplace',
         websocket: '/ws',
@@ -218,6 +222,7 @@ async function start() {
     app.log.info('  - Sync:      /api/sync');
     app.log.info('  - Dashboard: /api/dashboard');
     app.log.info('  - Admin:     /api/admin');
+    app.log.info('  - Billing:   /api/billing');
     app.log.info('  - Webhooks:  /webhooks');
     app.log.info('  - Marketplace: /marketplace');
     app.log.info('  - WebSocket: /ws');

@@ -164,6 +164,15 @@ export interface EngineStatus {
   };
 }
 
+export interface BillingStatus {
+  plan: string;
+  planStatus: string;
+  shopLimit: number;
+  currentShopCount: number;
+  trialEndsAt: string | null;
+  canAddShop: boolean;
+}
+
 // ============================================================================
 // Token Storage
 // ============================================================================
@@ -564,6 +573,32 @@ export const healthApi = {
   }> {
     const response = await apiClient.get('/health/detailed');
     return response.data;
+  },
+};
+
+// ============================================================================
+// Billing API
+// ============================================================================
+
+export const billingApi = {
+  async getStatus(): Promise<BillingStatus> {
+    const response = await apiClient.get<ApiResponse<BillingStatus>>('/billing/status');
+    return response.data.data!;
+  },
+
+  async createCheckout(plan: 'starter' | 'growth'): Promise<{ url: string }> {
+    const response = await apiClient.post<ApiResponse<{ url: string }>>(
+      '/billing/checkout',
+      { plan }
+    );
+    return response.data.data!;
+  },
+
+  async openPortal(): Promise<{ url: string }> {
+    const response = await apiClient.post<ApiResponse<{ url: string }>>(
+      '/billing/portal'
+    );
+    return response.data.data!;
   },
 };
 

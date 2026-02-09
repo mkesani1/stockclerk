@@ -23,6 +23,12 @@ export const tenants = pgTable('tenants', {
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 100 }).notNull().unique(),
   source: varchar('source', { length: 50 }).notNull().default('direct'),
+  stripeCustomerId: varchar('stripe_customer_id', { length: 255 }),
+  stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }),
+  plan: varchar('plan', { length: 50 }).notNull().default('trial'),
+  planStatus: varchar('plan_status', { length: 50 }).notNull().default('trialing'),
+  planShopLimit: integer('plan_shop_limit').notNull().default(3),
+  trialEndsAt: timestamp('trial_ends_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
