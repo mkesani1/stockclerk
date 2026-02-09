@@ -551,6 +551,16 @@ export const adminApi = {
     const response = await apiClient.get<ApiResponse<any>>('/admin/system-health');
     return response.data.data!;
   },
+
+  async getEnquiries(): Promise<any[]> {
+    const response = await apiClient.get<ApiResponse<any[]>>('/admin/enquiries');
+    return response.data.data!;
+  },
+
+  async updateEnquiryStatus(id: string, status: string): Promise<any> {
+    const response = await apiClient.patch<ApiResponse<any>>(`/admin/enquiries/${id}`, { status });
+    return response.data.data!;
+  },
 };
 
 // ============================================================================

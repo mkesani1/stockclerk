@@ -82,12 +82,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
         // Create tenant and user in a transaction
         const result = await db.transaction(async (tx) => {
+          // Set trial to end 14 days from now
+          const trialEndsAt = new Date();
+          trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
           // Create tenant
           const [newTenant] = await tx
             .insert(tenants)
             .values({
               name: tenantName,
               slug: tenantSlug,
+              trialEndsAt,
             })
             .returning();
 

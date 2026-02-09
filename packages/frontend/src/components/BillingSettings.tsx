@@ -199,12 +199,11 @@ export const BillingSettings: React.FC = () => {
             {isOnTrial && billingStatus.trialEndsAt && (
               <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                 <p className="text-sm font-medium text-text">
-                  Free trial ends in{' '}
                   {Math.ceil(
                     (new Date(billingStatus.trialEndsAt).getTime() - Date.now()) /
                       (1000 * 60 * 60 * 24)
                   )}{' '}
-                  days
+                  days remaining in your 14-day free trial
                 </p>
               </div>
             )}
@@ -310,7 +309,7 @@ export const BillingSettings: React.FC = () => {
                   className="w-full"
                   loading={checkoutLoading === 'starter'}
                 >
-                  {checkoutLoading === 'starter' ? 'Loading...' : 'Start Free Trial'}
+                  {checkoutLoading === 'starter' ? 'Loading...' : 'Subscribe Now'}
                 </Button>
               </CardFooter>
             </Card>
@@ -361,7 +360,7 @@ export const BillingSettings: React.FC = () => {
                   className="w-full"
                   loading={checkoutLoading === 'growth'}
                 >
-                  {checkoutLoading === 'growth' ? 'Loading...' : 'Start Free Trial'}
+                  {checkoutLoading === 'growth' ? 'Loading...' : 'Subscribe Now'}
                 </Button>
               </CardFooter>
             </Card>

@@ -1310,7 +1310,7 @@
                 Four AI agents watch your Eposnow till 24/7 and automatically keep your Wix shop and Deliveroo menu in perfect sync. No more overselling.
             </p>
             <div class="hero-cta">
-                <a href="/register" class="btn btn-primary">Get Started →</a>
+                <a href="/register" class="btn btn-primary">Start 14-Day Free Trial →</a>
                 <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
             </div>
             <div class="stats-row">
@@ -1712,7 +1712,7 @@
                 <p class="section-subtitle">Start free, upgrade when ready. No contracts.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 700px; margin: 0 auto 60px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; margin: 0 auto 60px;">
                 <!-- Starter Plan -->
                 <div class="pricing-card">
                     <div class="pricing-name">Starter</div>
@@ -1725,7 +1725,7 @@
                         <li>Email alerts</li>
                         <li>Standard support</li>
                     </ul>
-                    <a href="/register" class="btn btn-secondary" style="width: 100%;">Start Free Trial</a>
+                    <a href="/register" class="btn btn-secondary" style="width: 100%;">Try Free for 14 Days</a>
                 </div>
 
                 <!-- Growth Plan -->
@@ -1736,20 +1736,73 @@
                     <div class="pricing-desc">For growing shops</div>
                     <ul class="pricing-features">
                         <li>4–10 shops</li>
+                        <li>Everything in Starter</li>
                         <li>Priority sync processing</li>
                         <li>Advanced analytics</li>
                         <li>Phone support</li>
-                        <li>Dedicated account manager</li>
                     </ul>
-                    <a href="/register" class="btn btn-primary" style="width: 100%;">Start Free Trial</a>
+                    <a href="/register" class="btn btn-primary" style="width: 100%;">Try Free for 14 Days</a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="pricing-card" style="background: linear-gradient(135deg, rgba(107, 83, 68, 0.05) 0%, rgba(139, 115, 85, 0.05) 100%); border: 1px solid var(--primary-light);">
+                    <div class="pricing-name">Enterprise</div>
+                    <div class="pricing-price">Custom<span style="font-size: 14px;"></span></div>
+                    <div class="pricing-desc">For large operations</div>
+                    <ul class="pricing-features">
+                        <li>10+ shops</li>
+                        <li>Everything in Growth</li>
+                        <li>Dedicated account manager</li>
+                        <li>Custom integrations</li>
+                        <li>SLA guarantee</li>
+                    </ul>
+                    <a href="#enterprise-enquiry" class="btn btn-secondary" style="width: 100%; background: var(--primary); color: white;">Enquire Now</a>
                 </div>
             </div>
 
             <!-- Trial Notice -->
             <div style="text-align: center; padding: 20px 24px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 40px;">
                 <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">
-                    <strong>All plans include a 14-day free trial.</strong> No credit card required.
+                    <strong>Try risk-free for 14 days.</strong> No credit card required.
                 </p>
+            </div>
+
+            <!-- Enterprise Enquiry Form -->
+            <div id="enterprise-enquiry" style="max-width: 600px; margin: 0 auto; padding: 40px 32px; background: var(--card); border: 1px solid var(--border); border-radius: 16px;">
+                <h3 style="font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; text-align: center;">Request a Quote</h3>
+                <form id="enquiry-form" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Business Name *</label>
+                        <input type="text" name="businessName" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Contact Name *</label>
+                        <input type="text" name="contactName" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Email *</label>
+                        <input type="email" name="email" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Phone (optional)</label>
+                        <input type="tel" name="phone" style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Number of Shops *</label>
+                        <select name="shopCount" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; background: white;">
+                            <option value="">Select range...</option>
+                            <option value="11-20">11–20 shops</option>
+                            <option value="21-50">21–50 shops</option>
+                            <option value="50+">50+ shops</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Message (optional)</label>
+                        <textarea name="message" rows="4" style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: none;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Request a Quote</button>
+                    <div id="enquiry-message" style="display: none; text-align: center; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                </form>
             </div>
         </div>
     </section>
@@ -1757,8 +1810,8 @@
     <!-- CTA -->
     <section class="cta-section">
         <h2>Ready to stop worrying about stock?</h2>
-        <p>Setup takes 15 minutes. Your AI stock clerk handles the rest.</p>
-        <a href="/register" class="btn btn-primary">Start Your Free Trial →</a>
+        <p>Start your 14-day risk-free trial. Setup takes 15 minutes. Your AI stock clerk handles the rest.</p>
+        <a href="/register" class="btn btn-primary">Start Your 14-Day Free Trial →</a>
     </section>
 
     <!-- Footer -->
@@ -1782,6 +1835,55 @@
                 }
             });
         });
+
+        // Enterprise Enquiry Form Handler
+        const enquiryForm = document.getElementById('enquiry-form');
+        if (enquiryForm) {
+            enquiryForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    businessName: document.querySelector('input[name="businessName"]').value,
+                    contactName: document.querySelector('input[name="contactName"]').value,
+                    email: document.querySelector('input[name="email"]').value,
+                    phone: document.querySelector('input[name="phone"]').value || null,
+                    shopCount: document.querySelector('select[name="shopCount"]').value,
+                    message: document.querySelector('textarea[name="message"]').value || null,
+                };
+
+                try {
+                    const response = await fetch('/api/enquiries/enterprise', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const messageEl = document.getElementById('enquiry-message');
+
+                    if (response.ok) {
+                        messageEl.style.display = 'block';
+                        messageEl.style.background = 'rgba(93, 139, 85, 0.1)';
+                        messageEl.style.color = 'var(--success)';
+                        messageEl.textContent = 'Thank you! We\'ll be in touch within 24 hours.';
+                        enquiryForm.style.display = 'none';
+                    } else {
+                        messageEl.style.display = 'block';
+                        messageEl.style.background = 'rgba(184, 92, 92, 0.1)';
+                        messageEl.style.color = 'var(--error)';
+                        messageEl.textContent = 'Something went wrong. Please try again.';
+                    }
+                } catch (error) {
+                    console.error('Enquiry submission error:', error);
+                    const messageEl = document.getElementById('enquiry-message');
+                    messageEl.style.display = 'block';
+                    messageEl.style.background = 'rgba(184, 92, 92, 0.1)';
+                    messageEl.style.color = 'var(--error)';
+                    messageEl.textContent = 'Error submitting form. Please try again later.';
+                }
+            });
+        }
     </script>
 </body>
 </html>

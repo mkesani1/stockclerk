@@ -121,6 +121,19 @@ export const alerts = pgTable('alerts', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Enterprise enquiries table
+export const enquiries = pgTable('enquiries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  businessName: varchar('business_name', { length: 255 }).notNull(),
+  contactName: varchar('contact_name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }),
+  shopCount: varchar('shop_count', { length: 50 }).notNull(),
+  message: text('message'),
+  status: varchar('status', { length: 50 }).notNull().default('new'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const tenantsRelations = relations(tenants, ({ many }) => ({
   users: many(users),
@@ -209,6 +222,9 @@ export type NewSyncEvent = typeof syncEvents.$inferInsert;
 
 export type Alert = typeof alerts.$inferSelect;
 export type NewAlert = typeof alerts.$inferInsert;
+
+export type Enquiry = typeof enquiries.$inferSelect;
+export type NewEnquiry = typeof enquiries.$inferInsert;
 
 // Enum types
 export type ChannelType = 'eposnow' | 'wix' | 'deliveroo';

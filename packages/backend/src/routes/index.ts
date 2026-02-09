@@ -10,3 +10,4 @@ export { wixMarketplaceRoutes } from './wix-marketplace.js';
 export { eposnowAppStoreRoutes } from './eposnow-appstore.js';
 export { dashboardRoutes, updateAgentStatus, getAgentStatus } from './dashboard.js';
 export { billingRoutes, stripeWebhookRoutes } from './billing.js';
+export { enquiryPublicRoutes, enquiryAdminRoutes } from './enquiries.js';

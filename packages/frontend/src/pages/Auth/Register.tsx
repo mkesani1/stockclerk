@@ -51,7 +51,7 @@ export const Register: React.FC = () => {
             <span className="text-white text-3xl">{String.fromCodePoint(0x25C9)}</span>
           </div>
           <h1 className="text-2xl font-bold text-text">Create your account</h1>
-          <p className="text-text-muted mt-1">Get started with StockClerk</p>
+          <p className="text-text-muted mt-1">Start your 14-day free trial with StockClerk</p>
         </div>
 
         <Card variant="elevated">
