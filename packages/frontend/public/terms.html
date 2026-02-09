@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - StockClerk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6B5344;
+            --primary-light: #C9B8A8;
+            --muted: #E8E4DD;
+            --background: #FAF8F5;
+            --background-alt: #F5F2ED;
+            --border: #E8E4DD;
+            --text: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B958E;
+            --card: #FFFFFF;
+            --success: #5D8B55;
+            --warning: #C9A86C;
+            --error: #B85C5C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Main Content */
+        .content {
+            padding: 120px 32px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 48px;
+        }
+
+        .page-title {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .last-updated {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            margin-top: 32px;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .section-text {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .section-list {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .section-list li {
+            padding: 10px 0 10px 28px;
+            position: relative;
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .section-list li:before {
+            content: '•';
+            position: absolute;
+            left: 8px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .emphasis {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 48px 0;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 48px 32px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 48px;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 100px 24px 60px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="logo">
+                <div class="logo-icon">◉</div>
+                StockClerk
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/#features">Features</a>
+                <a href="/#pricing">Pricing</a>
+                <a href="/login">Log In</a>
+            </div>
+            <a href="/register" class="nav-cta">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">Terms of Service</h1>
+            <p class="last-updated">Last updated: February 2026</p>
+        </div>
+
+        <div class="section">
+            <p class="section-text">
+                These Terms of Service ("Terms") constitute a legal agreement between you ("User" or "Customer") and StockClerk ("Company," "we," "us," or "our"), governing your use of the StockClerk service, website, and related applications (collectively, the "Service").
+            </p>
+            <p class="section-text">
+                By accessing and using StockClerk, you agree to be bound by these Terms. If you do not agree to abide by the above, please do not use this service.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">1. Service Description</h2>
+            <p class="section-text">
+                StockClerk is a Software-as-a-Service (SaaS) platform that provides inventory synchronization between your Eposnow POS system and Wix e-commerce store (and optionally other sales channels such as Deliveroo). The Service uses AI agents to monitor stock levels, detect sales, and automatically synchronize inventory across connected channels.
+            </p>
+            <p class="section-text">
+                The Service is provided on an "as-is" basis. We reserve the right to modify, suspend, or discontinue any part of the Service at any time, with or without notice.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">2. User Accounts</h2>
+            <p class="section-text">
+                To use StockClerk, you must create an account. You are responsible for maintaining the confidentiality of your account credentials and are responsible for all activities that occur under your account.
+            </p>
+            <p class="section-text">
+                You agree to:
+            </p>
+            <ul class="section-list">
+                <li>Provide accurate, current, and complete information during registration</li>
+                <li>Maintain the security of your password and account</li>
+                <li>Promptly notify us of any unauthorized use of your account</li>
+                <li>Accept responsibility for all activities conducted through your account</li>
+                <li>Not share your account credentials with unauthorized third parties</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">3. Channel Integration and Credentials</h2>
+            <p class="section-text">
+                To use StockClerk, you must connect your Eposnow POS system, Wix store, and optionally other sales channels. You are solely responsible for:
+            </p>
+            <ul class="section-list">
+                <li>Obtaining all necessary API keys and credentials from your channel providers</li>
+                <li>Ensuring you have the authority to grant StockClerk access to these platforms</li>
+                <li>Maintaining the security and confidentiality of all credentials you provide</li>
+                <li>Immediately revoking access if credentials are compromised or if you no longer wish to use our Service</li>
+                <li>Ensuring compliance with your channel providers' terms of service and policies</li>
+            </ul>
+            <p class="section-text">
+                StockClerk is not responsible for any issues arising from your channel providers' policies, API changes, or access restrictions.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">4. Acceptable Use</h2>
+            <p class="section-text">
+                You agree not to use StockClerk for any unlawful purpose or in violation of any applicable laws or regulations. Specifically, you agree not to:
+            </p>
+            <ul class="section-list">
+                <li>Use the Service to infringe upon the intellectual property rights of others</li>
+                <li>Harass, threaten, embarrass, or cause distress or discomfort to any person</li>
+                <li>Engage in any form of abuse, spam, or harassment</li>
+                <li>Disrupt the normal flow of the Service or its infrastructure</li>
+                <li>Attempt to gain unauthorized access to the Service or its systems</li>
+                <li>Reverse engineer, decompile, or disassemble any part of the Service</li>
+                <li>Use the Service for automated scraping, data mining, or unauthorized access to third-party systems</li>
+                <li>Violate any terms of service of connected third-party platforms (Wix, Eposnow, etc.)</li>
+                <li>Share your account with unauthorized parties for commercial purposes</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">5. Intellectual Property Rights</h2>
+            <p class="section-text">
+                The Service, including all content, features, functionality, and underlying technology, is owned by StockClerk, its licensors, or other providers of such material. All rights are reserved.
+            </p>
+            <p class="section-text">
+                You are granted a limited, non-exclusive, non-transferable license to use the Service for your personal or business use, subject to these Terms. You may not:
+            </p>
+            <ul class="section-list">
+                <li>Reproduce, distribute, or transmit the Service</li>
+                <li>Modify, adapt, or create derivative works of the Service</li>
+                <li>Rent, lease, loan, or sell access to the Service</li>
+                <li>Remove or alter any proprietary notices or labels</li>
+            </ul>
+            <p class="section-text">
+                Your inventory data, sales data, and business information uploaded to StockClerk remain your property. However, you grant us a license to process this data as necessary to provide the Service.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">6. Limitation of Liability</h2>
+            <p class="section-text">
+                <span class="emphasis">TO THE FULLEST EXTENT PERMITTED BY LAW, STOCKCLERK SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOST PROFITS, LOST REVENUE, LOST DATA, OR OTHER INTANGIBLE LOSSES, EVEN IF STOCKCLERK HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</span>
+            </p>
+            <p class="section-text">
+                <span class="emphasis">IN NO EVENT SHALL STOCKCLERK'S TOTAL LIABILITY TO YOU FOR ALL CLAIMS ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE EXCEED THE AMOUNT YOU HAVE PAID TO STOCKCLERK IN THE 12 MONTHS PRECEDING THE CLAIM, OR $100, WHICHEVER IS GREATER.</span>
+            </p>
+            <p class="section-text">
+                Some jurisdictions do not allow the limitation of liability, so this limitation may not apply to you in your jurisdiction.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">7. Service Availability and Reliability</h2>
+            <p class="section-text">
+                StockClerk endeavors to maintain high availability, but we do not guarantee uninterrupted service. The Service may be unavailable due to:
+            </p>
+            <ul class="section-list">
+                <li>Planned maintenance (we will provide advance notice when possible)</li>
+                <li>Unplanned technical issues or system failures</li>
+                <li>Issues with connected third-party platforms (Wix, Eposnow, etc.)</li>
+                <li>Network or internet outages</li>
+                <li>Force majeure events beyond our reasonable control</li>
+            </ul>
+            <p class="section-text">
+                While we strive for 99.9% uptime for Professional and Enterprise plans, we do not guarantee this level of availability and shall not be liable for unavailability or data loss resulting from circumstances beyond our reasonable control.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">8. Fees and Payment</h2>
+            <p class="section-text">
+                StockClerk offers subscription-based pricing plans. By selecting a plan, you authorize us to charge the stated fees to your provided payment method.
+            </p>
+            <p class="section-text">
+                Payment terms:
+            </p>
+            <ul class="section-list">
+                <li>Billing occurs monthly or annually, depending on your selected plan</li>
+                <li>You are responsible for providing accurate billing information</li>
+                <li>Failed payments may result in suspension of your account</li>
+                <li>We reserve the right to change pricing with 30 days' notice</li>
+            </ul>
+            <p class="section-text">
+                All fees are exclusive of applicable taxes. You are responsible for paying any sales, use, or value-added taxes applicable to your jurisdiction.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">9. Termination</h2>
+            <p class="section-text">
+                You may terminate your StockClerk account at any time by contacting us or through your account settings. Upon termination:
+            </p>
+            <ul class="section-list">
+                <li>Your access to the Service will cease immediately</li>
+                <li>We will stop synchronizing your inventory</li>
+                <li>You remain responsible for any outstanding charges through the end of your billing period</li>
+                <li>Your data will be retained or deleted according to our Privacy Policy</li>
+            </ul>
+            <p class="section-text">
+                StockClerk reserves the right to terminate or suspend your account if:
+            </p>
+            <ul class="section-list">
+                <li>You violate any provision of these Terms</li>
+                <li>You engage in any unlawful or fraudulent activity</li>
+                <li>You fail to pay your subscription fees</li>
+                <li>Your use of the Service poses a security or operational risk</li>
+            </ul>
+            <p class="section-text">
+                Upon termination by StockClerk, you will be notified of the reason and provided an opportunity to resolve the issue where practicable.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">10. Disclaimers</h2>
+            <p class="section-text">
+                <span class="emphasis">THE SERVICE IS PROVIDED ON AN "AS-IS" AND "AS-AVAILABLE" BASIS.</span> STOCKCLERK MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NONINFRINGEMENT.
+            </p>
+            <p class="section-text">
+                We do not warrant that:
+            </p>
+            <ul class="section-list">
+                <li>The Service will meet your specific requirements</li>
+                <li>The Service will be uninterrupted or error-free</li>
+                <li>Defects will be corrected</li>
+                <li>The Service or its servers are free of viruses or harmful components</li>
+                <li>Inventory synchronization will always be 100% accurate</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">11. Indemnification</h2>
+            <p class="section-text">
+                You agree to indemnify, defend, and hold harmless StockClerk, its officers, directors, employees, and agents from and against any claims, damages, losses, liabilities, and expenses (including reasonable attorneys' fees) arising from or relating to:
+            </p>
+            <ul class="section-list">
+                <li>Your use of the Service</li>
+                <li>Your violation of these Terms</li>
+                <li>Your violation of any applicable laws or third-party rights</li>
+                <li>Your data or content uploaded to StockClerk</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">12. Governing Law and Jurisdiction</h2>
+            <p class="section-text">
+                These Terms of Service and your use of StockClerk shall be governed by and construed in accordance with the laws of England and Wales, without regard to its conflicts of law principles.
+            </p>
+            <p class="section-text">
+                You agree to submit to the exclusive jurisdiction of the courts located in England and Wales for the resolution of any disputes arising from or relating to these Terms or your use of the Service.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">13. Changes to Terms</h2>
+            <p class="section-text">
+                StockClerk reserves the right to modify these Terms at any time. We will notify you of significant changes by email or by posting a notice on our website. Your continued use of the Service following the posting of revised Terms means that you accept and agree to the changes.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">14. Contact Us</h2>
+            <p class="section-text">
+                If you have any questions about these Terms of Service, please contact us at:
+            </p>
+            <p class="section-text" style="margin-top: 16px;">
+                <span class="emphasis">Email:</span> <a href="mailto:manjunath.kesani@gmail.com" style="color: var(--primary); text-decoration: none;">manjunath.kesani@gmail.com</a>
+            </p>
+            <p class="section-text">
+                <span class="emphasis">Website:</span> <a href="https://stockclerk.ai" style="color: var(--primary); text-decoration: none;">https://stockclerk.ai</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/terms.html">Terms of Service</a>
+        </div>
+        <p class="footer-text">StockClerk · Your AI stock clerk, working 24/7 · <a href="mailto:manjunath.kesani@gmail.com" style="color: inherit;">hello@stockclerk.ai</a></p>
+        <p class="footer-text" style="margin-top: 8px; opacity: 0.7;">© 2026</p>
+    </footer>
+</body>
+</html>

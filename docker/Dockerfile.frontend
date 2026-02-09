@@ -32,27 +32,31 @@ RUN npm run build --workspace=packages/frontend
 # Stage 3: Production with Nginx
 FROM nginx:alpine AS runner
 
-# Copy custom nginx configuration
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+# Copy nginx config as template (contains ${PORT} placeholder)
+COPY docker/nginx.conf /etc/nginx/nginx.conf.template
 
 # Copy built static files
 COPY --from=builder /app/packages/frontend/dist /usr/share/nginx/html
 
-# Add non-root user
+# Set default PORT (Railway overrides this via environment)
+ENV PORT=80
+
+# Fix permissions for nginx user
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
     touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+    chown -R nginx:nginx /var/run/nginx.pid && \
+    chown -R nginx:nginx /etc/nginx
 
 USER nginx
 
-# Expose port
-EXPOSE 80
+# Expose Railway's dynamic port
+EXPOSE ${PORT}
 
-# Health check
+# Health check using PORT env var
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# At startup: substitute PORT into nginx config, then start nginx
+CMD /bin/sh -c "envsubst '\$PORT' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"

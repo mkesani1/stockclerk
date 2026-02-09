@@ -7,6 +7,8 @@
 import { Worker, Job, Queue } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { SyncEngineEventBus } from '../events.js';
+import { EposnowApiClient } from '@stockclerk/integrations';
+import { WixApiClient } from '@stockclerk/integrations';
 import type {
   AgentStatus,
   AgentState,
@@ -28,6 +30,22 @@ const AGENT_NAME = 'watcher';
 // Watcher Agent Class
 // ============================================================================
 
+export interface ChannelCredentials {
+  type: ChannelType;
+  // Eposnow
+  apiKey?: string;
+  apiSecret?: string;
+  locationId?: number;
+  // Wix
+  clientId?: string;
+  clientSecret?: string;
+  instanceId?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  siteId?: string;
+  authMode?: 'basic' | 'advanced';
+}
+
 export interface WatcherAgentDependencies {
   redis: Redis;
   eventBus: SyncEngineEventBus;
@@ -39,7 +57,9 @@ export interface WatcherAgentDependencies {
     externalId: string
   ) => Promise<{ productId: string; sku: string; currentStock: number } | null>;
   /** Get channel info */
-  getChannel: (channelId: string) => Promise<{ type: ChannelType; name: string } | null>;
+  getChannel: (channelId: string) => Promise<{ type: ChannelType; name: string; credentialsEncrypted?: string } | null>;
+  /** Decrypt channel credentials */
+  decryptCredentials?: (encrypted: string) => ChannelCredentials;
 }
 
 export class WatcherAgent {
@@ -48,6 +68,7 @@ export class WatcherAgent {
   private readonly config: SyncEngineConfig;
   private readonly getProductMapping: WatcherAgentDependencies['getProductMapping'];
   private readonly getChannel: WatcherAgentDependencies['getChannel'];
+  private readonly decryptCredentials: WatcherAgentDependencies['decryptCredentials'];
 
   private queue: Queue<WebhookProcessJobData> | null = null;
   private worker: Worker<WebhookProcessJobData> | null = null;
@@ -57,12 +78,25 @@ export class WatcherAgent {
   private lastActivity: Date | null = null;
   private lastError: string | undefined;
 
+  // Eposnow polling
+  private eposnowPollIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private lastEposnowPollTimestamp: Map<string, Date> = new Map();
+  private readonly EPOSNOW_POLL_INTERVAL_MS = 30000; // 30 seconds
+
   constructor(deps: WatcherAgentDependencies) {
     this.redis = deps.redis;
     this.eventBus = deps.eventBus;
     this.config = deps.config;
     this.getProductMapping = deps.getProductMapping;
     this.getChannel = deps.getChannel;
+    this.decryptCredentials = deps.decryptCredentials || ((encrypted) => {
+      // Default no-op decryption if not provided
+      try {
+        return JSON.parse(Buffer.from(encrypted, 'base64').toString());
+      } catch {
+        return {};
+      }
+    });
   }
 
   /**
@@ -147,6 +181,14 @@ export class WatcherAgent {
     this.log('Stopping Watcher Agent...');
 
     try {
+      // Stop all Eposnow polling intervals
+      const channelIds = Array.from(this.eposnowPollIntervals.keys());
+      for (const channelId of channelIds) {
+        this.stopEposnowPolling(channelId);
+      }
+      this.eposnowPollIntervals.clear();
+      this.lastEposnowPollTimestamp.clear();
+
       if (this.worker) {
         await this.worker.close();
         this.worker = null;
@@ -355,35 +397,86 @@ export class WatcherAgent {
   ): Promise<StockChange[]> {
     const stockChanges: StockChange[] = [];
 
-    // Handle inventory update events
-    if (eventType === 'inventory/inventory_item_updated' || eventType === 'wix.stores.inventory.updated') {
+    // Extract Wix instance ID from webhook headers (stored in metadata)
+    const instanceId = (payload.metadata as Record<string, unknown>)?.instanceId as string | undefined;
+    const webhookInstanceId = (payload.wix_instance as string) || instanceId;
+
+    // Handle inventory update events from Wix webhooks
+    if (eventType === 'inventory/variant/changed' || eventType === 'wix.stores.inventory.updated') {
       const data = (payload.data || payload) as Record<string, unknown>;
-      const productId = data.productId as string ?? data.externalId as string;
-      const newQuantity = data.quantity as number ?? data.trackQuantity as number;
+      const inventoryWebhookData = data as Record<string, unknown>;
 
-      if (productId && typeof newQuantity === 'number') {
-        const mapping = await this.getProductMapping(tenantId, channelId, productId);
-        const changeType = this.classifyStockChange(
-          mapping?.currentStock,
-          newQuantity,
-          eventType,
-          payload
-        );
+      // Extract product/inventory info
+      const productId = inventoryWebhookData.productId as string ?? (inventoryWebhookData as Record<string, unknown>).externalId as string;
+      const variants = inventoryWebhookData.variants as Array<{ variantId: string; quantity: number | null; inStock: boolean }> | undefined;
 
-        stockChanges.push({
-          productId: mapping?.productId,
-          externalId: productId,
-          sku: mapping?.sku ?? (data.sku as string),
-          sourceChannelId: channelId,
-          sourceChannelType: 'wix',
-          tenantId,
-          previousQuantity: mapping?.currentStock,
-          newQuantity,
-          changeAmount: mapping?.currentStock !== undefined ? newQuantity - mapping.currentStock : 0,
-          changeType,
-          timestamp: new Date(),
-          rawPayload: payload,
-        });
+      if (productId && variants && Array.isArray(variants)) {
+        for (const variant of variants) {
+          const newQuantity = variant.quantity ?? (variant.inStock ? 1 : 0);
+          const mapping = await this.getProductMapping(tenantId, channelId, productId);
+          const changeType = this.classifyStockChange(
+            mapping?.currentStock,
+            newQuantity,
+            eventType,
+            payload
+          );
+
+          stockChanges.push({
+            productId: mapping?.productId,
+            externalId: productId,
+            sku: mapping?.sku ?? (inventoryWebhookData.sku as string),
+            sourceChannelId: channelId,
+            sourceChannelType: 'wix',
+            tenantId,
+            previousQuantity: mapping?.currentStock,
+            newQuantity,
+            changeAmount: mapping?.currentStock !== undefined ? newQuantity - mapping.currentStock : 0,
+            changeType,
+            timestamp: new Date(),
+            rawPayload: payload,
+            metadata: { variantId: variant.variantId, webhookInstanceId },
+          });
+        }
+      }
+    }
+
+    // Handle catalog/product/changed events
+    if (eventType === 'catalog/product/changed' || eventType === 'wix.stores.product.updated') {
+      const data = (payload.data || payload) as Record<string, unknown>;
+      const productData = (data.product || data) as Record<string, unknown>;
+      const productId = productData.id as string;
+
+      // Stock information might be in product.stock or variants
+      const stock = productData.stock as Record<string, unknown> | undefined;
+      if (stock && productId) {
+        const trackInventory = stock.trackInventory as boolean | undefined;
+        const quantity = stock.quantity as number | null ?? 0;
+
+        if (trackInventory) {
+          const mapping = await this.getProductMapping(tenantId, channelId, productId);
+          const changeType = this.classifyStockChange(
+            mapping?.currentStock,
+            quantity,
+            eventType,
+            payload
+          );
+
+          stockChanges.push({
+            productId: mapping?.productId,
+            externalId: productId,
+            sku: mapping?.sku ?? (productData.sku as string),
+            sourceChannelId: channelId,
+            sourceChannelType: 'wix',
+            tenantId,
+            previousQuantity: mapping?.currentStock,
+            newQuantity: quantity,
+            changeAmount: mapping?.currentStock !== undefined ? quantity - mapping.currentStock : 0,
+            changeType,
+            timestamp: new Date(),
+            rawPayload: payload,
+            metadata: { eventType, webhookInstanceId },
+          });
+        }
       }
     }
 
@@ -417,7 +510,7 @@ export class WatcherAgent {
             changeType: 'order',
             timestamp: new Date(),
             rawPayload: payload,
-            metadata: { orderedQuantity },
+            metadata: { orderedQuantity, webhookInstanceId },
           });
         }
       }
@@ -560,6 +653,159 @@ export class WatcherAgent {
     }
 
     return 'adjustment';
+  }
+
+  /**
+   * Poll Eposnow for recent transactions and detect stock changes
+   * Called periodically for Eposnow channels to detect POS sales
+   */
+  private async pollEposnowTransactions(channelId: string, tenantId: string): Promise<void> {
+    try {
+      const channel = await this.getChannel(channelId);
+      if (!channel) {
+        this.log(`Channel ${channelId} not found`, 'warn');
+        return;
+      }
+
+      if (channel.type !== 'eposnow') {
+        return;
+      }
+
+      // Get credentials for this channel
+      let credentials: ChannelCredentials;
+      try {
+        if (channel.credentialsEncrypted) {
+          credentials = this.decryptCredentials(channel.credentialsEncrypted);
+        } else {
+          this.log(`No credentials for Eposnow channel ${channelId}`, 'warn');
+          return;
+        }
+      } catch (error) {
+        this.log(`Failed to decrypt credentials for channel ${channelId}: ${error instanceof Error ? error.message : 'Unknown'}`, 'error');
+        return;
+      }
+
+      // Initialize Eposnow client
+      if (!credentials.apiKey || !credentials.apiSecret) {
+        this.log(`Missing Eposnow API credentials for channel ${channelId}`, 'warn');
+        return;
+      }
+
+      const eposnowClient = new EposnowApiClient({
+        apiKey: credentials.apiKey,
+        apiSecret: credentials.apiSecret,
+        locationId: credentials.locationId,
+      });
+
+      await eposnowClient.connect();
+
+      // Get last poll timestamp
+      const lastPollKey = `eposnow:last-poll:${channelId}`;
+      const lastPollStr = await this.redis.get(lastPollKey);
+      const lastPollTimestamp = lastPollStr ? new Date(lastPollStr) : new Date(Date.now() - 5 * 60 * 1000); // Default to 5 minutes ago
+
+      this.log(`Polling Eposnow transactions since ${lastPollTimestamp.toISOString()} for channel ${channelId}`);
+
+      // Fetch transactions since last poll
+      const transactions = await eposnowClient.getTransactionsSince(lastPollTimestamp, credentials.locationId);
+
+      this.log(`Found ${transactions.length} transactions since last poll for channel ${channelId}`);
+
+      // Process each transaction to detect stock changes
+      for (const transaction of transactions) {
+        if (!transaction.Items || transaction.Items.length === 0) {
+          continue;
+        }
+
+        for (const item of transaction.Items) {
+          const mapping = await this.getProductMapping(tenantId, channelId, item.ProductId.toString());
+          const soldQuantity = item.Quantity;
+          const newQuantity = mapping?.currentStock !== undefined
+            ? mapping.currentStock - soldQuantity
+            : 0;
+
+          const stockChange: StockChange = {
+            productId: mapping?.productId,
+            externalId: item.ProductId.toString(),
+            sku: mapping?.sku,
+            sourceChannelId: channelId,
+            sourceChannelType: 'eposnow',
+            tenantId,
+            previousQuantity: mapping?.currentStock,
+            newQuantity: Math.max(0, newQuantity),
+            changeAmount: -soldQuantity,
+            changeType: 'sale',
+            timestamp: new Date(transaction.CompletedDate || transaction.CreatedDate),
+            rawPayload: {
+              transactionId: transaction.Id,
+              transactionNumber: transaction.TransactionNumber,
+              itemId: item.Id,
+              productId: item.ProductId,
+            },
+            metadata: { soldQuantity, transactionId: transaction.Id },
+          };
+
+          this.eventBus.emitStockChange(stockChange);
+          this.log(
+            `Emitted stock:change from Eposnow transaction for product ${stockChange.productId || stockChange.externalId}: ` +
+              `${stockChange.previousQuantity ?? '?'} -> ${stockChange.newQuantity} (${stockChange.changeType})`
+          );
+        }
+      }
+
+      // Update last poll timestamp
+      const nowStr = new Date().toISOString();
+      await this.redis.set(lastPollKey, nowStr);
+      this.lastEposnowPollTimestamp.set(channelId, new Date());
+
+      await eposnowClient.disconnect();
+    } catch (error) {
+      this.errorCount++;
+      this.log(
+        `Error polling Eposnow transactions for channel ${channelId}: ${error instanceof Error ? error.message : 'Unknown'}`,
+        'error'
+      );
+    }
+  }
+
+  /**
+   * Start polling Eposnow channels for transaction changes
+   * Called when the agent starts to initiate polling for all Eposnow channels
+   */
+  private startEposnowPolling(channelId: string, tenantId: string): void {
+    // Clear any existing interval
+    const existingInterval = this.eposnowPollIntervals.get(channelId);
+    if (existingInterval) {
+      clearInterval(existingInterval);
+    }
+
+    // Set up polling interval
+    const interval = setInterval(() => {
+      this.pollEposnowTransactions(channelId, tenantId).catch((error) => {
+        this.log(`Unhandled error in Eposnow polling: ${error instanceof Error ? error.message : 'Unknown'}`, 'error');
+      });
+    }, this.EPOSNOW_POLL_INTERVAL_MS);
+
+    this.eposnowPollIntervals.set(channelId, interval);
+    this.log(`Started polling Eposnow channel ${channelId} every ${this.EPOSNOW_POLL_INTERVAL_MS}ms`);
+
+    // Run first poll immediately
+    this.pollEposnowTransactions(channelId, tenantId).catch((error) => {
+      this.log(`Initial Eposnow poll failed: ${error instanceof Error ? error.message : 'Unknown'}`, 'error');
+    });
+  }
+
+  /**
+   * Stop polling a specific Eposnow channel
+   */
+  private stopEposnowPolling(channelId: string): void {
+    const interval = this.eposnowPollIntervals.get(channelId);
+    if (interval) {
+      clearInterval(interval);
+      this.eposnowPollIntervals.delete(channelId);
+      this.lastEposnowPollTimestamp.delete(channelId);
+      this.log(`Stopped polling Eposnow channel ${channelId}`);
+    }
   }
 
   /**

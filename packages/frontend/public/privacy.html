@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - StockClerk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6B5344;
+            --primary-light: #C9B8A8;
+            --muted: #E8E4DD;
+            --background: #FAF8F5;
+            --background-alt: #F5F2ED;
+            --border: #E8E4DD;
+            --text: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B958E;
+            --card: #FFFFFF;
+            --success: #5D8B55;
+            --warning: #C9A86C;
+            --error: #B85C5C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Main Content */
+        .content {
+            padding: 120px 32px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 48px;
+        }
+
+        .page-title {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .last-updated {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            margin-top: 32px;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .section-text {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .section-list {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .section-list li {
+            padding: 10px 0 10px 28px;
+            position: relative;
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .section-list li:before {
+            content: '•';
+            position: absolute;
+            left: 8px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .emphasis {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 48px 0;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 48px 32px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 48px;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 100px 24px 60px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="logo">
+                <div class="logo-icon">◉</div>
+                StockClerk
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/#features">Features</a>
+                <a href="/#pricing">Pricing</a>
+                <a href="/login">Log In</a>
+            </div>
+            <a href="/register" class="nav-cta">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">Privacy Policy</h1>
+            <p class="last-updated">Last updated: February 2026</p>
+        </div>
+
+        <div class="section">
+            <p class="section-text">
+                StockClerk ("we", "us", "our", or "Company") operates the StockClerk.ai website and service. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
+            </p>
+            <p class="section-text">
+                We use your data to provide and improve the Service. By using StockClerk, you agree to the collection and use of information in accordance with this policy. Unless otherwise defined in this Privacy Policy, terms used in this Privacy Policy have the same meanings as in our Terms of Service.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">1. Information Collection and Use</h2>
+            <p class="section-text">
+                We collect several different types of information for various purposes to provide and improve our Service to you.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Personal Data</h3>
+            <p class="section-text">
+                While using our Service, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you ("Personal Data"). This may include, but is not limited to:
+            </p>
+            <ul class="section-list">
+                <li>Email address</li>
+                <li>First name and last name</li>
+                <li>Phone number</li>
+                <li>Company name</li>
+                <li>Billing and shipping address</li>
+                <li>Cookies and Usage Data</li>
+            </ul>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Inventory and Channel Data</h3>
+            <p class="section-text">
+                To provide synchronization services between your Eposnow POS system and Wix store, we necessarily collect and process:
+            </p>
+            <ul class="section-list">
+                <li><span class="emphasis">Inventory data:</span> Product names, SKUs, stock levels, and pricing from your Eposnow system</li>
+                <li><span class="emphasis">Sales data:</span> Transaction information from your Eposnow till to detect and sync sales</li>
+                <li><span class="emphasis">Channel credentials:</span> API keys, access tokens, and authentication information for your connected channels (Wix, Eposnow, Deliveroo)</li>
+                <li><span class="emphasis">Sync logs:</span> Records of synchronization operations, timestamps, and status</li>
+            </ul>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Usage Data</h3>
+            <p class="section-text">
+                We may also collect information on how the Service is accessed and used ("Usage Data"). This may include information such as:
+            </p>
+            <ul class="section-list">
+                <li>Your computer's IP address</li>
+                <li>Browser type and version</li>
+                <li>Pages you visit</li>
+                <li>Time and date of your visit</li>
+                <li>Time spent on pages</li>
+                <li>Device identifiers</li>
+                <li>Crash data and diagnostics</li>
+            </ul>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Cookies and Tracking</h3>
+            <p class="section-text">
+                We use cookies and similar tracking technologies to track activity on our Service and store certain information. Cookies are files with small amounts of data which may include an anonymous unique identifier. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">2. Use of Data</h2>
+            <p class="section-text">StockClerk uses the collected data for various purposes:</p>
+            <ul class="section-list">
+                <li>To provide and maintain our Service</li>
+                <li>To notify you about changes to our Service</li>
+                <li>To allow you to participate in interactive features of our Service</li>
+                <li>To provide customer support</li>
+                <li>To gather analysis or valuable information so that we can improve our Service</li>
+                <li>To monitor the usage of our Service</li>
+                <li>To detect, prevent and address technical and security issues</li>
+                <li>To keep you informed about inventory synchronization status and alerts</li>
+                <li>To send you promotional communications (with your consent)</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">3. Data Processing and Third-Party Integrations</h2>
+            <p class="section-text">
+                To provide our synchronization services, we must share certain data with third-party platforms and services:
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Wix</h3>
+            <p class="section-text">
+                We connect to your Wix store using official APIs to read and update product inventory and stock levels. Wix handles your account authentication and access permissions.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Eposnow</h3>
+            <p class="section-text">
+                We integrate with your Eposnow POS system using your provided API credentials to monitor sales and stock levels. You control the API key access level and can revoke access at any time.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Deliveroo</h3>
+            <p class="section-text">
+                We can optionally connect to Deliveroo to synchronize menu availability. This integration helps keep your online delivery menu in sync with actual stock.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Supabase</h3>
+            <p class="section-text">
+                We use Supabase as our primary data platform for storing account information, sync logs, and configuration data. Supabase is GDPR compliant and processes data according to their privacy policy.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Service Providers</h3>
+            <p class="section-text">
+                We may employ third-party companies and individuals to facilitate our Service ("Service Providers"), to provide the Service on our behalf, or to assist us in analyzing how our Service is used. These parties have access to your Personal Data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">4. Data Retention</h2>
+            <p class="section-text">
+                StockClerk will retain your Personal Data and Inventory Data for as long as your account is active or as needed to provide you Services. You can request deletion of your account and associated data at any time by contacting us.
+            </p>
+            <p class="section-text">
+                Sync logs and activity records are retained for 90 days by default to support troubleshooting and compliance audits. This retention period can be adjusted based on your subscription plan and local regulations.
+            </p>
+            <p class="section-text">
+                If you wish to cancel your account or request that we no longer use your information to provide you Services, please contact us at the email address below.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">5. Security of Data</h2>
+            <p class="section-text">
+                The security of your data is important to us, but remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
+            </p>
+            <p class="section-text">
+                We implement industry-standard security measures including:
+            </p>
+            <ul class="section-list">
+                <li>Encrypted data transmission (HTTPS/TLS)</li>
+                <li>Secure credential storage and API key management</li>
+                <li>Regular security audits and penetration testing</li>
+                <li>Access controls and role-based permissions</li>
+                <li>Encryption of sensitive data at rest</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">6. Your Rights</h2>
+            <p class="section-text">
+                Depending on your location, you may have certain rights regarding your personal data under applicable laws such as GDPR, CCPA, and similar regulations.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Right of Access</h3>
+            <p class="section-text">
+                You have the right to know what personal data we hold about you and how we use it.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Right to Rectification</h3>
+            <p class="section-text">
+                You have the right to correct inaccurate or incomplete personal data.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Right to Erasure</h3>
+            <p class="section-text">
+                You may request deletion of your personal data, subject to certain legal exceptions.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Right to Data Portability</h3>
+            <p class="section-text">
+                You have the right to receive your personal data in a structured, commonly used and machine-readable format and have it transmitted to another service provider.
+            </p>
+
+            <h3 class="section-title" style="font-size: 16px; margin-top: 24px;">Right to Withdraw Consent</h3>
+            <p class="section-text">
+                Where we rely on your consent to process your data, you can withdraw that consent at any time.
+            </p>
+
+            <p class="section-text" style="margin-top: 24px;">
+                To exercise any of these rights, please contact us using the information provided below.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">7. Changes to This Privacy Policy</h2>
+            <p class="section-text">
+                We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date at the top of this Privacy Policy.
+            </p>
+            <p class="section-text">
+                You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
+            </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <h2 class="section-title">8. Contact Us</h2>
+            <p class="section-text">
+                If you have any questions about this Privacy Policy, please contact us at:
+            </p>
+            <p class="section-text" style="margin-top: 16px;">
+                <span class="emphasis">Email:</span> <a href="mailto:manjunath.kesani@gmail.com" style="color: var(--primary); text-decoration: none;">manjunath.kesani@gmail.com</a>
+            </p>
+            <p class="section-text">
+                <span class="emphasis">Website:</span> <a href="https://stockclerk.ai" style="color: var(--primary); text-decoration: none;">https://stockclerk.ai</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/terms.html">Terms of Service</a>
+        </div>
+        <p class="footer-text">StockClerk · Your AI stock clerk, working 24/7 · <a href="mailto:manjunath.kesani@gmail.com" style="color: inherit;">hello@stockclerk.ai</a></p>
+        <p class="footer-text" style="margin-top: 8px; opacity: 0.7;">© 2026</p>
+    </footer>
+</body>
+</html>

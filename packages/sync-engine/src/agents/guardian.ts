@@ -21,8 +21,10 @@ import type {
   SyncEngineConfig,
   ChannelType,
   AlertType,
+  ProductMapping,
 } from '../types.js';
 import { calculateOnlineStock, isOnlineChannel } from '../types.js';
+import { ProductMapperService } from '../services/productMapper.js';
 
 // ============================================================================
 // Constants
@@ -80,6 +82,7 @@ export class GuardianAgent {
   private readonly eventBus: SyncEngineEventBus;
   private readonly config: SyncEngineConfig;
   private readonly deps: GuardianAgentDependencies;
+  private readonly productMapper: ProductMapperService;
 
   private queue: Queue<ReconciliationJobData> | null = null;
   private worker: Worker<ReconciliationJobData> | null = null;
@@ -89,12 +92,17 @@ export class GuardianAgent {
   private lastActivity: Date | null = null;
   private lastError: string | undefined;
   private reconciliationTimer: NodeJS.Timeout | null = null;
+  private tenantReconciliationIntervals: Map<string, number> = new Map(); // tenant-specific intervals
 
   constructor(deps: GuardianAgentDependencies) {
     this.redis = deps.redis;
     this.eventBus = deps.eventBus;
     this.config = deps.config;
     this.deps = deps;
+    this.productMapper = new ProductMapperService({
+      fuzzyMatchThreshold: 0.6,
+      debug: this.config.debug,
+    });
   }
 
   /**
@@ -534,6 +542,259 @@ export class GuardianAgent {
       detectedAt: new Date(),
       severity,
     };
+  }
+
+  /**
+   * Reconcile a specific channel by fetching its current stock levels
+   * Compares against the last known state and identifies discrepancies
+   * Emits reconciliation events for each discrepancy found
+   */
+  async reconcileChannel(
+    tenantId: string,
+    channel: Channel,
+    sourceOfTruth: Channel
+  ): Promise<{
+    channelId: string;
+    productsChecked: number;
+    discrepanciesFound: number;
+    discrepanciesFixed: number;
+    errors: string[];
+  }> {
+    this.log(`Reconciling channel ${channel.name} (${channel.type})`);
+
+    const startedAt = new Date();
+    let productsChecked = 0;
+    let discrepanciesFound = 0;
+    let discrepanciesFixed = 0;
+    const errors: string[] = [];
+
+    try {
+      // Get all products for the tenant
+      const products = await this.deps.getProducts(tenantId);
+
+      // For each product, check if this channel has a mapping
+      for (const product of products) {
+        try {
+          productsChecked++;
+
+          const mappings = await this.deps.getProductMappings(product.id);
+          const channelMapping = mappings.find((m) => m.channelId === channel.id);
+
+          if (!channelMapping) {
+            // Product not mapped to this channel
+            continue;
+          }
+
+          // Get current stock from the channel
+          let currentStock: number | null = null;
+          try {
+            currentStock = await this.deps.getChannelStock(
+              channel.id,
+              channel.type,
+              channelMapping.externalId
+            );
+          } catch (error) {
+            this.log(
+              `Failed to fetch stock from channel ${channel.name} for product ${product.sku}: ${error}`,
+              'warn'
+            );
+            continue;
+          }
+
+          if (currentStock === null) {
+            continue;
+          }
+
+          // Get expected stock from source of truth
+          let expectedStock: number;
+          try {
+            const truthMappings = await this.deps.getProductMappings(product.id);
+            const truthMapping = truthMappings.find((m) => m.channelId === sourceOfTruth.id);
+
+            if (!truthMapping) {
+              this.log(
+                `No mapping found in source of truth for product ${product.sku}`,
+                'warn'
+              );
+              continue;
+            }
+
+            const truthStock = await this.deps.getChannelStock(
+              sourceOfTruth.id,
+              sourceOfTruth.type,
+              truthMapping.externalId
+            );
+
+            if (truthStock === null) {
+              continue;
+            }
+
+            // Calculate expected stock for this channel type
+            expectedStock = isOnlineChannel(channel.type)
+              ? calculateOnlineStock(truthStock, product.bufferStock)
+              : truthStock;
+          } catch (error) {
+            this.log(
+              `Failed to get source of truth stock for product ${product.sku}: ${error}`,
+              'warn'
+            );
+            continue;
+          }
+
+          // Compare and identify discrepancies
+          const discrepancy = Math.abs(currentStock - expectedStock);
+
+          if (discrepancy > 0) {
+            discrepanciesFound++;
+
+            this.log(
+              `Discrepancy found for ${product.sku} on ${channel.name}: ` +
+                `expected ${expectedStock}, actual ${currentStock} (diff: ${discrepancy})`
+            );
+
+            // Emit reconciliation event
+            this.eventBus.emitDriftDetected({
+              tenantId,
+              productId: product.id,
+              sku: product.sku,
+              productName: product.name,
+              sourceOfTruth: {
+                channelId: sourceOfTruth.id,
+                channelType: sourceOfTruth.type,
+                channelName: sourceOfTruth.name,
+                externalId: '',
+                quantity: expectedStock,
+                lastUpdated: new Date(),
+              },
+              driftingChannels: [
+                {
+                  channelId: channel.id,
+                  channelType: channel.type,
+                  channelName: channel.name,
+                  externalId: channelMapping.externalId,
+                  expectedQuantity: expectedStock,
+                  actualQuantity: currentStock,
+                  drift: discrepancy,
+                },
+              ],
+              maxDrift: discrepancy,
+              detectedAt: new Date(),
+              severity:
+                discrepancy < this.config.driftAutoRepairThreshold ? 'low' : 'medium',
+            });
+
+            // Try to fix small discrepancies automatically
+            if (discrepancy < this.config.driftAutoRepairThreshold) {
+              try {
+                await this.deps.updateChannelStock(
+                  channel.id,
+                  channel.type,
+                  channelMapping.externalId,
+                  expectedStock
+                );
+                discrepanciesFixed++;
+                this.log(`Auto-fixed discrepancy for ${product.sku}`);
+              } catch (error) {
+                this.log(
+                  `Failed to auto-fix discrepancy for ${product.sku}: ${error}`,
+                  'error'
+                );
+              }
+            }
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          errors.push(`Product ${product.sku}: ${errorMessage}`);
+          this.log(`Error reconciling product ${product.sku}: ${errorMessage}`, 'error');
+        }
+      }
+
+      this.log(
+        `Reconciliation completed for channel ${channel.name}: ` +
+          `${productsChecked} checked, ${discrepanciesFound} discrepancies found, ${discrepanciesFixed} fixed`
+      );
+
+      return {
+        channelId: channel.id,
+        productsChecked,
+        discrepanciesFound,
+        discrepanciesFixed,
+        errors,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errors.push(errorMessage);
+      this.log(`Error reconciling channel ${channel.name}: ${errorMessage}`, 'error');
+      throw error;
+    }
+  }
+
+  /**
+   * Get tenant-specific reconciliation interval (default: global config value)
+   */
+  getTenantReconciliationInterval(tenantId: string): number {
+    return this.tenantReconciliationIntervals.get(tenantId) ?? this.config.reconciliationIntervalMs;
+  }
+
+  /**
+   * Set tenant-specific reconciliation interval
+   */
+  setTenantReconciliationInterval(tenantId: string, intervalMs: number): void {
+    if (intervalMs <= 0) {
+      throw new Error('Reconciliation interval must be positive');
+    }
+    this.tenantReconciliationIntervals.set(tenantId, intervalMs);
+    this.log(`Set reconciliation interval for tenant ${tenantId}: ${intervalMs / 1000 / 60} minutes`);
+  }
+
+  /**
+   * Map products between two channels using the product mapper
+   * Returns the product mappings with confidence scores
+   */
+  async mapProductsBetweenChannels(
+    tenantId: string,
+    sourceChannelId: string,
+    targetChannelId: string,
+    sourceProducts: any[],
+    targetProducts: any[]
+  ): Promise<ProductMapping[]> {
+    const channels = await this.deps.getChannels(tenantId);
+    const sourceChannel = channels.find((c) => c.id === sourceChannelId);
+    const targetChannel = channels.find((c) => c.id === targetChannelId);
+
+    if (!sourceChannel || !targetChannel) {
+      throw new Error('One or both channels not found');
+    }
+
+    const mappings = this.productMapper.mapProducts(
+      sourceProducts,
+      targetProducts,
+      sourceChannel.name,
+      targetChannel.name
+    );
+
+    this.log(
+      `Mapped ${mappings.length} products from ${sourceChannel.name} to ${targetChannel.name}`
+    );
+
+    return mappings;
+  }
+
+  /**
+   * Add a manual product mapping override
+   */
+  addManualProductMapping(
+    sourceProductId: string,
+    targetProductId: string,
+    sourceChannel: string,
+    targetChannel: string
+  ): void {
+    this.productMapper.addManualMapping(
+      sourceProductId,
+      targetProductId,
+      sourceChannel,
+      targetChannel
+    );
   }
 
   /**

@@ -463,3 +463,30 @@ export function isOnlineChannel(channelType: ChannelType): boolean {
   // Eposnow is the POS (in-store), Wix and Deliveroo are online
   return channelType === 'wix' || channelType === 'deliveroo';
 }
+
+// ============================================================================
+// Product Mapping Types
+// ============================================================================
+
+export type MappingStrategy = 'sku' | 'barcode' | 'name_fuzzy' | 'manual';
+
+export interface MappingConfidence {
+  strategy: MappingStrategy;
+  score: number; // 0-1
+  matched: boolean;
+}
+
+export interface ProductMapping {
+  sourceProductId: string;
+  targetProductId: string;
+  sourceChannel: string;
+  targetChannel: string;
+  matchStrategy: MappingStrategy;
+  confidence: number; // 0-1
+  mappedAt: Date;
+}
+
+export interface ProductMapperOptions {
+  fuzzyMatchThreshold?: number; // 0-1, default 0.6
+  debug?: boolean;
+}
