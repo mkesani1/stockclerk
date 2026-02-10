@@ -61,6 +61,11 @@ interface WebhookPayload {
 // Channel lookup cache (in production, consider Redis)
 const channelSecretCache = new Map<string, { tenantId: string; webhookSecret: string }>();
 
+// Exported for testing - clears the webhook secret cache
+export function clearChannelSecretCache(): void {
+  channelSecretCache.clear();
+}
+
 // Helper to get channel credentials
 async function getChannelByExternalId(
   channelType: ChannelType,
@@ -80,17 +85,12 @@ async function getChannelByExternalId(
         eq(channels.externalInstanceId, externalIdentifier),
         eq(channels.isActive, true)
       ),
-      columns: {
-        id: true,
-        tenantId: true,
-        credentialsEncrypted: true,
-      },
     });
     if (channel) {
       return {
         id: channel.id,
-        tenantId: cached.tenantId,
-        webhookSecret: cached.webhookSecret,
+        tenantId: channel.tenantId,
+        webhookSecret: cached.webhookSecret || (channel as any).webhookSecret,
       };
     }
   }
@@ -102,20 +102,16 @@ async function getChannelByExternalId(
       eq(channels.externalInstanceId, externalIdentifier),
       eq(channels.isActive, true)
     ),
-    columns: {
-      id: true,
-      tenantId: true,
-      credentialsEncrypted: true,
-    },
   });
 
   if (channel) {
+    const webhookSecret = (channel as any).webhookSecret || '';
     // Cache for future lookups
     channelSecretCache.set(cacheKey, {
       tenantId: channel.tenantId,
-      webhookSecret: '', // Will be populated when credentials are decrypted
+      webhookSecret,
     });
-    return { id: channel.id, tenantId: channel.tenantId };
+    return { id: channel.id, tenantId: channel.tenantId, webhookSecret: webhookSecret || undefined };
   }
 
   // Fallback: try finding any active channel of this type (for backwards compatibility)
@@ -124,14 +120,18 @@ async function getChannelByExternalId(
       eq(channels.type, channelType),
       eq(channels.isActive, true)
     ),
-    columns: {
-      id: true,
-      tenantId: true,
-      credentialsEncrypted: true,
-    },
   });
 
-  return fallbackChannel ? { id: fallbackChannel.id, tenantId: fallbackChannel.tenantId } : null;
+  if (fallbackChannel) {
+    const webhookSecret = (fallbackChannel as any).webhookSecret || '';
+    return {
+      id: fallbackChannel.id,
+      tenantId: fallbackChannel.tenantId,
+      webhookSecret: webhookSecret || undefined,
+    };
+  }
+
+  return null;
 }
 
 // Eposnow webhook payload types
@@ -269,7 +269,6 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         reply.code(200).send({
           success: true,
           message: 'Webhook received',
-          processingId: `eposnow-${Date.now()}`,
         } satisfies ApiResponse);
 
         // Queue the webhook for async processing
@@ -295,7 +294,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
           `Eposnow webhook processed in ${Date.now() - startTime}ms: ${payload.event}`
         );
       } catch (error) {
-        app.log.error('Eposnow webhook error:', error);
+        app.log.error({ err: error }, 'Eposnow webhook error');
         // Still return 200 to prevent infinite retries
         return reply.code(200).send({
           success: false,
@@ -382,7 +381,6 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         reply.code(200).send({
           success: true,
           message: 'Webhook received',
-          processingId: `wix-${Date.now()}`,
         } satisfies ApiResponse);
 
         // Queue for async processing
@@ -408,7 +406,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
           `Wix webhook processed in ${Date.now() - startTime}ms: ${payload.eventType}`
         );
       } catch (error) {
-        app.log.error('Wix webhook error:', error);
+        app.log.error({ err: error }, 'Wix webhook error');
         return reply.code(200).send({
           success: false,
           message: 'Webhook received but processing failed',
@@ -478,7 +476,8 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
             rawBody,
             signature,
             channel.webhookSecret,
-            'sha1='
+            'sha1=',
+            'sha1'
           );
 
           if (!isValid) {
@@ -494,7 +493,6 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         reply.code(200).send({
           success: true,
           message: 'Webhook received',
-          processingId: `otter-${Date.now()}`,
         } satisfies ApiResponse);
 
         // Queue for async processing
@@ -520,7 +518,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
           `Otter webhook processed in ${Date.now() - startTime}ms: ${payload.type}`
         );
       } catch (error) {
-        app.log.error('Otter webhook error:', error);
+        app.log.error({ err: error }, 'Otter webhook error');
         return reply.code(200).send({
           success: false,
           message: 'Webhook received but processing failed',
@@ -571,7 +569,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
       const { channelType } = request.params;
       const payload = request.body;
 
-      app.log.info(`Test webhook received for ${channelType}:`, payload);
+      app.log.info({ payload }, `Test webhook received for ${channelType}`);
 
       return reply.code(200).send({
         success: true,

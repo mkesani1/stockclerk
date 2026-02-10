@@ -172,7 +172,7 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
             currentStock: currentStock ?? 0,
             bufferStock: bufferStock ?? 0,
             metadata,
-          })
+          } as typeof products.$inferInsert)
           .returning();
 
         return reply.code(201).send({
@@ -244,7 +244,7 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
           .set({
             ...validation.data,
             updatedAt: new Date(),
-          })
+          } as Partial<typeof products.$inferSelect>)
           .where(and(eq(products.id, id), eq(products.tenantId, tenantId)))
           .returning();
 
@@ -309,7 +309,7 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
             .set({
               currentStock,
               updatedAt: new Date(),
-            })
+            } as Partial<typeof products.$inferSelect>)
             .where(and(eq(products.id, id), eq(products.tenantId, tenantId)))
             .returning();
 
@@ -319,11 +319,12 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
             .values({
               tenantId,
               eventType: 'stock_update',
+              channelId: null,
               productId: id,
               oldValue: { stock: oldStock },
               newValue: { stock: currentStock, reason },
               status: 'completed',
-            })
+            } as typeof syncEvents.$inferInsert)
             .returning();
 
           // Check if stock is low and create alert if needed
@@ -338,7 +339,7 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
                 currentStock,
                 bufferStock: updatedProduct.bufferStock,
               },
-            });
+            } as typeof alerts.$inferInsert);
           }
 
           return { product: updatedProduct, syncEvent };
@@ -465,7 +466,7 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
             channelId,
             externalId,
             externalSku,
-          })
+          } as typeof productChannelMappings.$inferInsert)
           .returning();
 
         return reply.code(201).send({

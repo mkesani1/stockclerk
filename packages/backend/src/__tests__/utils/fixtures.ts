@@ -93,6 +93,7 @@ export interface ChannelFixtureOptions {
   tenantId?: string;
   type?: ChannelType;
   name?: string;
+  externalInstanceId?: string;
   credentialsEncrypted?: string | null;
   isActive?: boolean;
   lastSyncAt?: Date | null;
@@ -102,10 +103,12 @@ export interface ChannelFixtureOptions {
 export function createChannelFixture(options: ChannelFixtureOptions = {}): Channel {
   const id = options.id || generateId();
   const type = options.type || 'eposnow';
+  const externalInstanceId = options.externalInstanceId || (type === 'eposnow' ? 'loc-001' : `${type}-id-123`);
   return {
     id,
     tenantId: options.tenantId || generateId(),
     type,
+    externalInstanceId,
     name: options.name || `${type.charAt(0).toUpperCase() + type.slice(1)} Channel`,
     credentialsEncrypted: options.credentialsEncrypted ?? null,
     isActive: options.isActive ?? true,

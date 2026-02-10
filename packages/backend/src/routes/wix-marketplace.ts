@@ -136,7 +136,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
           // Reactivate existing channel
           await db
             .update(channels)
-            .set({ isActive: true })
+            .set({ isActive: true } as Partial<typeof channels.$inferSelect>)
             .where(eq(channels.id, existingChannel.id));
 
           app.log.info(`Reactivated existing Wix channel for instance: ${instanceId}`);
@@ -159,7 +159,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
             name: siteName,
             slug,
             source: 'wix_marketplace',
-          })
+          } as typeof tenants.$inferInsert)
           .returning();
 
         app.log.info(`Created tenant for Wix install: ${newTenant.id} (${siteName})`);
@@ -182,7 +182,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
                 role: 'owner',
                 authMethod: 'wix_token',
                 onboardingComplete: false,
-              })
+              } as typeof users.$inferInsert)
               .returning();
 
             app.log.info(`Created user for Wix install: ${newUser.id} (${ownerEmail})`);
@@ -209,7 +209,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
             authMode: 'basic',
           });
         } catch (error) {
-          app.log.warn('Failed to get Wix access token during install:', error);
+          app.log.warn({ err: error }, 'Failed to get Wix access token during install');
           // Continue without credentials - they'll authenticate when they open the dashboard
         }
 
@@ -222,7 +222,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
             credentialsEncrypted,
             externalInstanceId: instanceId,
             isActive: true,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         app.log.info(
@@ -239,7 +239,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
           },
         } satisfies ApiResponse);
       } catch (error) {
-        app.log.error('Wix marketplace install error:', error);
+        app.log.error({ err: error }, 'Wix marketplace install error');
         return reply.code(200).send({
           success: false,
           message: 'Webhook received but provisioning failed',
@@ -284,7 +284,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
         // Deactivate the channel (don't delete - retain for 30 days)
         const updated = await db
           .update(channels)
-          .set({ isActive: false })
+          .set({ isActive: false } as Partial<typeof channels.$inferSelect>)
           .where(
             and(
               eq(channels.type, 'wix'),
@@ -302,7 +302,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
           message: 'Channel deactivated',
         } satisfies ApiResponse);
       } catch (error) {
-        app.log.error('Wix marketplace uninstall error:', error);
+        app.log.error({ err: error }, 'Wix marketplace uninstall error');
         return reply.code(200).send({
           success: false,
           message: 'Webhook received but processing failed',
@@ -386,7 +386,7 @@ export async function wixMarketplaceRoutes(app: FastifyInstance): Promise<void> 
           `${FRONTEND_URL}/wix/dashboard?tenantId=${channel.tenantId}&channelId=${channel.id}&token=${sessionToken}`
         );
       } catch (error) {
-        app.log.error('Wix dashboard entry error:', error);
+        app.log.error({ err: error }, 'Wix dashboard entry error');
         return reply.code(500).send({
           success: false,
           error: 'Failed to initialize dashboard',

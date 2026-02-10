@@ -2,51 +2,90 @@ import React, { useState, useEffect } from 'react';
 import { adminApi } from '../../api/client';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { PageHeader, PageWrapper } from '../../components/layout/Layout';
-import { StatusBadge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Spinner } from '../../components/ui/Spinner';
+import { cn } from '../../lib/utils';
 
-interface HealthData {
-  status: string;
+interface SystemHealth {
+  db: boolean;
   timestamp: string;
-  database?: {
-    connected: boolean;
-    responseTime?: number;
-  };
-  redis?: {
-    connected: boolean;
-    responseTime?: number;
-  };
-  queue?: {
-    status: string;
-    pendingJobs?: number;
-  };
-  [key: string]: any;
 }
 
+interface SystemStats {
+  tenantCount: number;
+  userCount: number;
+  productCount: number;
+  channelCount: number;
+  syncEventsLast24h: number;
+  failedSyncEventsLast24h: number;
+  unreadAlerts: number;
+}
+
+interface StatusIconProps {
+  isHealthy: boolean;
+}
+
+const StatusIcon: React.FC<StatusIconProps> = ({ isHealthy }) => {
+  if (isHealthy) {
+    return (
+      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-success/20">
+        <svg
+          className="w-4 h-4 text-success"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-error/20">
+      <svg
+        className="w-4 h-4 text-error"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </div>
+  );
+};
+
 export default function AdminSystemHealth(): React.ReactElement {
-  const [health, setHealth] = useState<HealthData | null>(null);
+  const [health, setHealth] = useState<SystemHealth | null>(null);
+  const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [healthData, statsData] = await Promise.all([
+        adminApi.getSystemHealth(),
+        adminApi.getStats(),
+      ]);
+      setHealth(healthData);
+      setStats(statsData);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load system health');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchHealth = async () => {
-      try {
-        setLoading(true);
-        const data = await adminApi.getSystemHealth();
-        setHealth(data);
-        setLastRefresh(new Date());
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load system health');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const interval = setInterval(fetchHealth, 60000); // Auto-refresh every 60 seconds
-    fetchHealth();
-
-    return () => clearInterval(interval);
+    fetchData();
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -59,16 +98,16 @@ export default function AdminSystemHealth(): React.ReactElement {
     });
   };
 
-  const getHealthStatus = (isHealthy: boolean | undefined) => {
-    if (isHealthy === undefined) return 'offline';
-    return isHealthy ? 'online' : 'error';
+  const calculateErrorRate = (): number => {
+    if (!stats || !stats.syncEventsLast24h) return 0;
+    return ((stats.failedSyncEventsLast24h / stats.syncEventsLast24h) * 100).toFixed(1) as any;
   };
 
   return (
     <PageWrapper>
       <PageHeader
         title="System Health"
-        subtitle="Monitor system status (auto-refreshes every 60 seconds)"
+        subtitle="Service status and metrics"
       />
 
       {error && (
@@ -81,135 +120,141 @@ export default function AdminSystemHealth(): React.ReactElement {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <p className="text-text-muted">Loading...</p>
+          <Spinner />
         </div>
-      ) : health ? (
+      ) : (
         <div className="space-y-6">
-          {/* Overall Status */}
+          {/* Service Status Section */}
           <Card variant="elevated">
             <CardHeader>
-              <CardTitle>Overall Status</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Service Status</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchData}
+                >
+                  Refresh
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-text-muted font-medium">System Status</p>
-                <StatusBadge status={health.status === 'healthy' ? 'online' : 'error'}>
-                  {health.status || 'Unknown'}
-                </StatusBadge>
-              </div>
-              {health.timestamp && (
-                <div className="flex items-center justify-between pt-2 border-t border-bronze-200">
-                  <p className="text-sm text-text-muted">Last Updated</p>
-                  <p className="text-sm text-text font-mono">{formatDate(health.timestamp)}</p>
+              {/* Database Status */}
+              <div className="flex items-center justify-between p-3 rounded bg-background-alt">
+                <div className="flex items-center gap-3">
+                  <StatusIcon isHealthy={health?.db ?? false} />
+                  <div>
+                    <p className="text-sm font-medium text-text">Database</p>
+                    <p className="text-xs text-text-muted">
+                      {health?.db ? 'Connected' : 'Disconnected'}
+                    </p>
+                  </div>
                 </div>
-              )}
-              {lastRefresh && (
-                <div className="flex items-center justify-between pt-2 border-t border-bronze-200">
-                  <p className="text-sm text-text-muted">Check Time</p>
-                  <p className="text-sm text-text font-mono">{formatDate(lastRefresh.toISOString())}</p>
+                <span
+                  className={cn(
+                    'text-xs font-semibold px-3 py-1 rounded-full',
+                    health?.db
+                      ? 'bg-success/20 text-success'
+                      : 'bg-error/20 text-error'
+                  )}
+                >
+                  {health?.db ? 'Healthy' : 'Down'}
+                </span>
+              </div>
+
+              {/* API Server Status */}
+              <div className="flex items-center justify-between p-3 rounded bg-background-alt">
+                <div className="flex items-center gap-3">
+                  <StatusIcon isHealthy={true} />
+                  <div>
+                    <p className="text-sm font-medium text-text">API Server</p>
+                    <p className="text-xs text-text-muted">Running</p>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-success/20 text-success">
+                  Healthy
+                </span>
+              </div>
+
+              {/* Last Checked */}
+              {health?.timestamp && (
+                <div className="pt-3 border-t border-bronze-200">
+                  <p className="text-xs text-text-muted mb-1">Last Checked</p>
+                  <p className="text-sm font-mono text-text">{formatDate(health.timestamp)}</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Database Status */}
-          {health.database && (
+          {/* System Metrics Section */}
+          {stats && (
             <Card variant="elevated">
               <CardHeader>
-                <CardTitle>Database</CardTitle>
+                <CardTitle>System Metrics</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-text-muted">Connection</p>
-                  <StatusBadge status={health.database.connected ? 'online' : 'offline'} />
-                </div>
-                {health.database.responseTime !== undefined && (
-                  <div className="flex items-center justify-between pt-2 border-t border-bronze-200">
-                    <p className="text-sm text-text-muted">Response Time</p>
-                    <p className="text-sm text-text font-mono">{health.database.responseTime}ms</p>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {/* Total Tenants */}
+                  <div className="p-3 rounded bg-background-alt">
+                    <p className="text-xs text-text-muted mb-1">Total Tenants</p>
+                    <p className="text-2xl font-bold text-text">{stats.tenantCount}</p>
                   </div>
-                )}
+
+                  {/* Total Users */}
+                  <div className="p-3 rounded bg-background-alt">
+                    <p className="text-xs text-text-muted mb-1">Total Users</p>
+                    <p className="text-2xl font-bold text-text">{stats.userCount}</p>
+                  </div>
+
+                  {/* Total Products */}
+                  <div className="p-3 rounded bg-background-alt">
+                    <p className="text-xs text-text-muted mb-1">Total Products</p>
+                    <p className="text-2xl font-bold text-text">{stats.productCount}</p>
+                  </div>
+
+                  {/* Total Channels */}
+                  <div className="p-3 rounded bg-background-alt">
+                    <p className="text-xs text-text-muted mb-1">Total Channels</p>
+                    <p className="text-2xl font-bold text-text">{stats.channelCount}</p>
+                  </div>
+
+                  {/* Sync Events (24h) */}
+                  <div className="p-3 rounded bg-background-alt">
+                    <p className="text-xs text-text-muted mb-1">Sync Events (24h)</p>
+                    <p className="text-2xl font-bold text-text">{stats.syncEventsLast24h}</p>
+                  </div>
+
+                  {/* Error Rate */}
+                  <div className="p-3 rounded bg-background-alt">
+                    <p className="text-xs text-text-muted mb-1">Error Rate</p>
+                    <p
+                      className={cn(
+                        'text-2xl font-bold',
+                        calculateErrorRate() > 0 ? 'text-error' : 'text-success'
+                      )}
+                    >
+                      {calculateErrorRate()}%
+                    </p>
+                  </div>
+                </div>
+
+                {/* Failed Sync Events Detail */}
+                <div className="mt-4 pt-4 border-t border-bronze-200">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-text-muted">Failed Sync Events (24h)</p>
+                    <p
+                      className={cn(
+                        'text-sm font-bold',
+                        stats.failedSyncEventsLast24h > 0 ? 'text-error' : 'text-success'
+                      )}
+                    >
+                      {stats.failedSyncEventsLast24h}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
-
-          {/* Redis Status */}
-          {health.redis && (
-            <Card variant="elevated">
-              <CardHeader>
-                <CardTitle>Redis</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-text-muted">Connection</p>
-                  <StatusBadge status={health.redis.connected ? 'online' : 'offline'} />
-                </div>
-                {health.redis.responseTime !== undefined && (
-                  <div className="flex items-center justify-between pt-2 border-t border-bronze-200">
-                    <p className="text-sm text-text-muted">Response Time</p>
-                    <p className="text-sm text-text font-mono">{health.redis.responseTime}ms</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Queue Status */}
-          {health.queue && (
-            <Card variant="elevated">
-              <CardHeader>
-                <CardTitle>Queue System</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-text-muted">Status</p>
-                  <p className="text-sm font-medium text-text">{health.queue.status || 'Unknown'}</p>
-                </div>
-                {health.queue.pendingJobs !== undefined && (
-                  <div className="flex items-center justify-between pt-2 border-t border-bronze-200">
-                    <p className="text-sm text-text-muted">Pending Jobs</p>
-                    <p className="text-sm text-text font-mono">{health.queue.pendingJobs}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Additional Service Info */}
-          {Object.entries(health).map(([key, value]) => {
-            if (
-              ['status', 'timestamp', 'database', 'redis', 'queue'].includes(key) ||
-              typeof value !== 'object' ||
-              value === null
-            ) {
-              return null;
-            }
-
-            return (
-              <Card key={key} variant="elevated">
-                <CardHeader>
-                  <CardTitle className="capitalize">{key.replace(/_/g, ' ')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {typeof value === 'object' &&
-                      Object.entries(value).map(([k, v]) => (
-                        <div key={k} className="flex items-center justify-between text-sm">
-                          <p className="text-text-muted capitalize">{k.replace(/_/g, ' ')}</p>
-                          <p className="text-text font-mono">
-                            {typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v)}
-                          </p>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-text-muted">No health data available</p>
         </div>
       )}
     </PageWrapper>

@@ -109,7 +109,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
             name: `Eposnow POS (${deviceId})`,
             credentialsEncrypted,
             externalInstanceId: deviceId,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         // Remove encrypted credentials from response
@@ -121,7 +121,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
           message: 'Eposnow device connected successfully',
         } satisfies ApiResponse);
       } catch (error) {
-        app.log.error('Eposnow connect error:', error);
+        app.log.error({ err: error }, 'Eposnow connect error');
         return reply.code(500).send({
           success: false,
           error: 'Internal server error',
@@ -214,7 +214,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
             name: businessName,
             slug,
             source: 'eposnow_appstore',
-          })
+          } as typeof tenants.$inferInsert)
           .returning();
 
         const [newUser] = await db
@@ -227,7 +227,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
             role: 'owner',
             authMethod: 'password',
             onboardingComplete: false,
-          })
+          } as typeof users.$inferInsert)
           .returning();
 
         const [newChannel] = await db
@@ -238,7 +238,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
             name: `Eposnow POS (${deviceId})`,
             credentialsEncrypted,
             externalInstanceId: deviceId,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         // Generate JWT token
@@ -246,6 +246,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
           userId: newUser.id,
           tenantId: newTenant.id,
           email: newUser.email,
+          role: newUser.role,
           isSuperAdmin: false,
         });
 
@@ -277,7 +278,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
           message: 'Account created and Eposnow device connected',
         } satisfies ApiResponse);
       } catch (error) {
-        app.log.error('Eposnow register-and-connect error:', error);
+        app.log.error({ err: error }, 'Eposnow register-and-connect error');
         return reply.code(500).send({
           success: false,
           error: 'Internal server error',
@@ -317,7 +318,7 @@ export async function eposnowAppStoreRoutes(app: FastifyInstance): Promise<void>
           },
         } satisfies ApiResponse);
       } catch (error) {
-        app.log.error('Eposnow validate credentials error:', error);
+        app.log.error({ err: error }, 'Eposnow validate credentials error');
         return reply.code(500).send({
           success: false,
           error: 'Internal server error',

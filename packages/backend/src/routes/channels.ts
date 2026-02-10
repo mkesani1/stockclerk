@@ -167,7 +167,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             name,
             credentialsEncrypted,
             externalInstanceId: externalInstanceId || null,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         // Remove encrypted credentials from response
@@ -463,7 +463,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             .set({
               credentialsEncrypted: encryptCredentials(credentials),
               isActive: true,
-            })
+            } as Partial<typeof channels.$inferSelect>)
             .where(eq(channels.id, existingChannel.id))
             .returning();
 
@@ -485,7 +485,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             credentialsEncrypted: encryptCredentials(credentials),
             externalInstanceId: instanceId,
             isActive: true,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         const { credentialsEncrypted: _, ...safeChannel } = newChannel;
@@ -595,7 +595,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             credentialsEncrypted: encryptCredentials(credentials),
             externalInstanceId: instanceId || null,
             isActive: true,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         // Redirect to frontend with success
@@ -703,7 +703,7 @@ export async function wixOAuthPublicRoutes(app: FastifyInstance): Promise<void> 
             credentialsEncrypted: encryptCredentials(credentials),
             externalInstanceId: instanceId || null,
             isActive: true,
-          })
+          } as typeof channels.$inferInsert)
           .returning();
 
         return reply.redirect(

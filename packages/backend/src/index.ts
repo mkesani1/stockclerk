@@ -186,7 +186,7 @@ async function gracefulShutdown(signal: string) {
 
     process.exit(0);
   } catch (error) {
-    app.log.error('Error during shutdown:', error);
+    app.log.error({ err: error }, 'Error during shutdown');
     process.exit(1);
   }
 }
@@ -207,7 +207,7 @@ async function start() {
       initializeSyncEngineIntegration();
       app.log.info('Sync engine integration initialized');
     } catch (error) {
-      app.log.warn('Failed to initialize queues (Redis may not be available):', error);
+      app.log.warn({ err: error }, 'Failed to initialize queues (Redis may not be available)');
       app.log.warn('The server will continue without queue functionality');
     }
 
@@ -238,7 +238,7 @@ async function start() {
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   } catch (error) {
-    app.log.error('Failed to start server:', error);
+    app.log.error({ err: error }, 'Failed to start server');
     process.exit(1);
   }
 }

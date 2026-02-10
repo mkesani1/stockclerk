@@ -38,7 +38,7 @@ export async function enquiryPublicRoutes(app: FastifyInstance): Promise<void> {
           phone: phone || null,
           shopCount,
           message: message || null,
-        })
+        } as typeof enquiries.$inferInsert)
         .returning();
 
       return reply.code(201).send({
@@ -104,7 +104,7 @@ export async function enquiryAdminRoutes(app: FastifyInstance): Promise<void> {
 
         const [updated] = await db
           .update(enquiries)
-          .set({ status })
+          .set({ status } as Partial<typeof enquiries.$inferSelect>)
           .where(eq(enquiries.id, id))
           .returning();
 

@@ -3,7 +3,7 @@
  * Coordinates all AI agents (Watcher, Sync, Guardian, Alert) and manages their lifecycle.
  */
 
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { SyncEngineEventBus, createEventBus } from './events.js';
 import { WatcherAgent, createWatcherAgent, WatcherAgentDependencies } from './agents/watcher.js';
 import { SyncAgent, createSyncAgent, SyncAgentDependencies } from './agents/sync.js';
@@ -134,7 +134,7 @@ export class SyncEngine {
       enableReadyCheck: false,
     });
 
-    this.redis.on('error', (err) => {
+    this.redis.on('error', (err: Error) => {
       console.error('[SyncEngine] Redis error:', err);
     });
 

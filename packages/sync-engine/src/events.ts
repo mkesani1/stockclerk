@@ -3,7 +3,7 @@
  * Typed EventEmitter for inter-agent communication
  */
 
-import EventEmitter from 'eventemitter3';
+import { EventEmitter } from 'eventemitter3';
 import type {
   SyncEngineEvent,
   SyncEngineEventType,
@@ -41,7 +41,7 @@ export interface SyncEngineEventMap {
 // Typed Event Bus
 // ============================================================================
 
-export class SyncEngineEventBus extends EventEmitter {
+export class SyncEngineEventBus extends EventEmitter<SyncEngineEventMap> {
   private debugMode = false;
 
   constructor(debug = false) {

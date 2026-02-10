@@ -674,7 +674,7 @@ export class WatcherAgent {
       // Get credentials for this channel
       let credentials: ChannelCredentials;
       try {
-        if (channel.credentialsEncrypted) {
+        if (channel.credentialsEncrypted && this.decryptCredentials) {
           credentials = this.decryptCredentials(channel.credentialsEncrypted);
         } else {
           this.log(`No credentials for Eposnow channel ${channelId}`, 'warn');

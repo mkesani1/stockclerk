@@ -140,7 +140,7 @@ export async function registerWebSocketRoutes(app: FastifyInstance): Promise<voi
         const data: ClientMessage = JSON.parse(message.toString());
         handleClientMessage(app, ws, connectionState, data, connectionId);
       } catch (error) {
-        app.log.error('Failed to parse WebSocket message:', error);
+        app.log.error({ err: error }, 'Failed to parse WebSocket message');
         sendMessage(ws, {
           type: 'error',
           tenantId,
@@ -164,7 +164,7 @@ export async function registerWebSocketRoutes(app: FastifyInstance): Promise<voi
 
     // Handle errors
     ws.on('error', (error) => {
-      app.log.error(`WebSocket error: tenant=${tenantId}, connectionId=${connectionId}`, error);
+      app.log.error({ err: error }, `WebSocket error: tenant=${tenantId}, connectionId=${connectionId}`);
       removeConnection(tenantId, connectionId);
     });
   });
@@ -228,7 +228,7 @@ function handleClientMessage(
       break;
 
     default:
-      app.log.debug(`Received message type: ${message.type}`, message.data);
+      app.log.debug({ data: message.data }, `Received message type: ${message.type}`);
   }
 }
 

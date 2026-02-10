@@ -93,7 +93,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
               name: tenantName,
               slug: tenantSlug,
               trialEndsAt,
-            })
+            } as typeof tenants.$inferInsert)
             .returning();
 
           // Create owner user
@@ -106,7 +106,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
               name: name || null,
               role: 'owner',
               onboardingComplete: false,
-            })
+            } as typeof users.$inferInsert)
             .returning();
 
           return { tenant: newTenant, user: newUser };
@@ -290,7 +290,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         // Update user's onboarding status in the database
         const [updatedUser] = await db
           .update(users)
-          .set({ onboardingComplete: true })
+          .set({ onboardingComplete: true } as Partial<typeof users.$inferSelect>)
           .where(eq(users.id, request.user.userId))
           .returning();
 

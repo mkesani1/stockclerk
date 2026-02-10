@@ -430,7 +430,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   /**
    * GET /admin/system-health
-   * System health check including database connectivity
+   * System health check including database connectivity and tenant isolation status
    */
   app.get<{}>(
     '/system-health',
@@ -447,9 +447,30 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
           console.error('Database health check failed:', error);
         }
 
+        // Get orchestrator status if tenant isolation is enabled
+        let orchestratorStatus = null;
+        try {
+          const { isTenantIsolationEnabled, getOrchestrator } = await import('../sync-integration.js');
+          if (isTenantIsolationEnabled()) {
+            const orch = getOrchestrator();
+            if (orch) {
+              orchestratorStatus = orch.getOrchestratorStatus();
+            }
+          }
+        } catch {
+          // Orchestrator not available
+        }
+
         const healthResponse = {
           db: dbHealthy,
           timestamp: new Date().toISOString(),
+          tenantIsolation: orchestratorStatus ? {
+            enabled: true,
+            ...orchestratorStatus,
+          } : {
+            enabled: false,
+            mode: 'shared',
+          },
         };
 
         const statusCode = dbHealthy ? 200 : 503;
@@ -464,6 +485,68 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
           success: false,
           error: 'Internal server error',
           message: 'Failed to check system health',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  /**
+   * GET /admin/tenant-health/:tenantId
+   * Per-tenant worker health (only available when tenant isolation is enabled)
+   */
+  app.get<{
+    Params: { tenantId: string };
+  }>(
+    '/tenant-health/:tenantId',
+    { preHandler: [requireSuperAdmin] },
+    async (
+      request: FastifyRequest<{ Params: { tenantId: string } }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const { isTenantIsolationEnabled, getOrchestrator } = await import('../sync-integration.js');
+
+        if (!isTenantIsolationEnabled()) {
+          return reply.code(200).send({
+            success: true,
+            data: {
+              mode: 'shared',
+              message: 'Tenant isolation is not enabled. All tenants share a global engine.',
+            },
+          } satisfies ApiResponse);
+        }
+
+        const orchestrator = getOrchestrator();
+        if (!orchestrator) {
+          return reply.code(503).send({
+            success: false,
+            error: 'Orchestrator not available',
+          } satisfies ApiResponse);
+        }
+
+        const health = orchestrator.getTenantHealth(request.params.tenantId);
+        const workerInfo = orchestrator.getTenantStatus(request.params.tenantId);
+
+        if (!workerInfo) {
+          return reply.code(404).send({
+            success: false,
+            error: 'Not found',
+            message: 'No worker found for this tenant',
+          } satisfies ApiResponse);
+        }
+
+        return reply.code(200).send({
+          success: true,
+          data: {
+            worker: workerInfo,
+            health,
+          },
+        } satisfies ApiResponse);
+      } catch (error) {
+        console.error('Tenant health error:', error);
+        return reply.code(500).send({
+          success: false,
+          error: 'Internal server error',
         } satisfies ApiResponse);
       }
     }

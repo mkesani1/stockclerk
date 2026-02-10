@@ -3,23 +3,87 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { productRoutes } from '../routes/products.js';
-import {
-  createMockFastifyInstance,
-  createMockRequest,
-  createMockReply,
-  createAuthenticatedRequest,
-  mockDb,
-  resetMockDb,
-} from './utils/mocks.js';
-import {
-  createTenantFixture,
-  createProductFixture,
-  createChannelFixture,
-  createMappingFixture,
-  validCreateProductBody,
-  validUpdateStockBody,
-} from './utils/fixtures.js';
+
+// Hoist mock creation to avoid initialization issues
+const { mockDb } = vi.hoisted(() => {
+  return {
+    mockDb: {
+      query: {
+        tenants: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        users: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        channels: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        products: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        productChannelMappings: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        syncEvents: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        alerts: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+      },
+      insert: vi.fn(() => ({
+        values: vi.fn(() => ({
+          returning: vi.fn(),
+        })),
+      })),
+      update: vi.fn(() => ({
+        set: vi.fn(() => ({
+          where: vi.fn(() => ({
+            returning: vi.fn(),
+          })),
+        })),
+      })),
+      delete: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(),
+        })),
+      })),
+      select: vi.fn(() => ({
+        from: vi.fn(() => ({
+          where: vi.fn(() => [{ count: 0 }]),
+        })),
+      })),
+      transaction: vi.fn(async (callback) => {
+        return callback({
+          insert: vi.fn(() => ({
+            values: vi.fn(() => ({
+              returning: vi.fn(),
+            })),
+          })),
+          update: vi.fn(() => ({
+            set: vi.fn(() => ({
+              where: vi.fn(() => ({
+                returning: vi.fn(),
+              })),
+            })),
+          })),
+          delete: vi.fn(() => ({
+            where: vi.fn(() => ({
+              returning: vi.fn(),
+            })),
+          })),
+        });
+      }),
+    },
+  };
+});
 
 // Mock the database module
 vi.mock('../db/index.js', () => ({
@@ -37,6 +101,39 @@ vi.mock('../middleware/auth.js', () => ({
   getTenantId: vi.fn((request) => request.user?.tenantId || 'mock-tenant-id'),
 }));
 
+// Helper function to reset the hoisted mockDb
+function resetHoistedMockDb() {
+  Object.values(mockDb.query).forEach((table) => {
+    Object.values(table).forEach((fn) => {
+      if (typeof fn === 'function' && 'mockReset' in fn) {
+        (fn as ReturnType<typeof vi.fn>).mockReset();
+      }
+    });
+  });
+  mockDb.insert.mockReset();
+  mockDb.update.mockReset();
+  mockDb.delete.mockReset();
+  mockDb.select.mockReset();
+  mockDb.transaction.mockReset();
+}
+
+// Now safe to import after mocks are set up
+import { productRoutes } from '../routes/products.js';
+import {
+  createMockFastifyInstance,
+  createMockRequest,
+  createMockReply,
+  createAuthenticatedRequest,
+} from './utils/mocks.js';
+import {
+  createTenantFixture,
+  createProductFixture,
+  createChannelFixture,
+  createMappingFixture,
+  validCreateProductBody,
+  validUpdateStockBody,
+} from './utils/fixtures.js';
+
 describe('Product Routes', () => {
   let mockApp: ReturnType<typeof createMockFastifyInstance>;
   let registeredRoutes: Map<string, { method: string; path: string; handler: Function; options?: any }>;
@@ -44,7 +141,7 @@ describe('Product Routes', () => {
   beforeEach(() => {
     mockApp = createMockFastifyInstance();
     registeredRoutes = new Map();
-    resetMockDb();
+    resetHoistedMockDb();
 
     // Capture route registrations
     ['get', 'post', 'put', 'patch', 'delete'].forEach((method) => {

@@ -15,13 +15,23 @@ import type {
 // Redis connection for all queues
 let redisConnection: Redis | null = null;
 
-// Queue names
+// Queue names (global / legacy)
 export const QUEUE_NAMES = {
   SYNC: 'stockclerk:sync',
   WEBHOOK: 'stockclerk:webhook',
   ALERT: 'stockclerk:alert',
   STOCK_UPDATE: 'stockclerk:stock-update',
 } as const;
+
+// Tenant-scoped queue names (per-tenant isolation)
+export function getTenantQueueNames(tenantId: string) {
+  return {
+    SYNC: `stockclerk:${tenantId}:sync`,
+    WEBHOOK: `stockclerk:${tenantId}:webhook`,
+    ALERT: `stockclerk:${tenantId}:alert`,
+    STOCK_UPDATE: `stockclerk:${tenantId}:stock-update`,
+  } as const;
+}
 
 // Queue instances
 let syncQueue: Queue<SyncJobData> | null = null;
@@ -455,7 +465,8 @@ export async function cleanQueue(
     default:
       throw new Error(`Unknown queue: ${queueName}`);
   }
-  return queue.clean(age, 1000, status);
+  const result = await queue.clean(age, 1000, status as unknown as any);
+  return result as unknown as number[];
 }
 
 // Close all queues and connections
@@ -499,6 +510,125 @@ export async function closeQueues(): Promise<void> {
   stockUpdateQueueEvents = null;
 
   console.log('All queues closed');
+}
+
+// ============================================================================
+// Tenant-Scoped Queue Operations (Per-Tenant Isolation)
+// ============================================================================
+
+// Cache of tenant-scoped queues so we don't recreate them
+const tenantQueues: Map<string, {
+  sync: Queue<SyncJobData>;
+  webhook: Queue<WebhookJobData>;
+  alert: Queue<AlertJobData>;
+  stockUpdate: Queue<StockUpdateJobData>;
+}> = new Map();
+
+/**
+ * Get or create tenant-scoped queues.
+ * Each tenant gets their own BullMQ queue namespace.
+ */
+export function getTenantQueues(tenantId: string) {
+  const existing = tenantQueues.get(tenantId);
+  if (existing) return existing;
+
+  const connection = getRedisConnection();
+  const names = getTenantQueueNames(tenantId);
+
+  const defaultJobOptions = {
+    attempts: 3,
+    backoff: { type: 'exponential' as const, delay: 1000 },
+    removeOnComplete: { age: 24 * 3600, count: 500 },
+    removeOnFail: { age: 7 * 24 * 3600 },
+  };
+
+  const queues = {
+    sync: new Queue<SyncJobData>(names.SYNC, { connection, defaultJobOptions }),
+    webhook: new Queue<WebhookJobData>(names.WEBHOOK, {
+      connection,
+      defaultJobOptions: { ...defaultJobOptions, attempts: 5 },
+    }),
+    alert: new Queue<AlertJobData>(names.ALERT, { connection, defaultJobOptions }),
+    stockUpdate: new Queue<StockUpdateJobData>(names.STOCK_UPDATE, { connection, defaultJobOptions }),
+  };
+
+  tenantQueues.set(tenantId, queues);
+  return queues;
+}
+
+/**
+ * Add a sync job to a tenant's isolated queue.
+ */
+export async function addTenantSyncJob(
+  tenantId: string,
+  data: SyncJobData,
+  options?: { priority?: number; delay?: number; jobId?: string }
+): Promise<Job<SyncJobData>> {
+  const queues = getTenantQueues(tenantId);
+  return queues.sync.add('sync', data, {
+    priority: options?.priority,
+    delay: options?.delay,
+    jobId: options?.jobId,
+  });
+}
+
+/**
+ * Add a webhook job to a tenant's isolated queue.
+ */
+export async function addTenantWebhookJob(
+  tenantId: string,
+  data: WebhookJobData,
+  options?: { priority?: number; delay?: number }
+): Promise<Job<WebhookJobData>> {
+  const queues = getTenantQueues(tenantId);
+  return queues.webhook.add('webhook', data, {
+    priority: options?.priority ?? 1,
+    delay: options?.delay,
+  });
+}
+
+/**
+ * Add an alert job to a tenant's isolated queue.
+ */
+export async function addTenantAlertJob(
+  tenantId: string,
+  data: AlertJobData,
+  options?: { priority?: number; delay?: number; jobId?: string }
+): Promise<Job<AlertJobData>> {
+  const queues = getTenantQueues(tenantId);
+  return queues.alert.add('alert', data, {
+    priority: options?.priority,
+    delay: options?.delay,
+    jobId: options?.jobId,
+  });
+}
+
+/**
+ * Get tenant-scoped queue statistics.
+ */
+export async function getTenantQueueStats(tenantId: string) {
+  const queues = getTenantQueues(tenantId);
+  const [syncStats, webhookStats, alertStats, stockUpdateStats] = await Promise.all([
+    getQueueStatistics(queues.sync),
+    getQueueStatistics(queues.webhook),
+    getQueueStatistics(queues.alert),
+    getQueueStatistics(queues.stockUpdate),
+  ]);
+
+  return { sync: syncStats, webhook: webhookStats, alert: alertStats, stockUpdate: stockUpdateStats };
+}
+
+/**
+ * Close all tenant-scoped queues (for shutdown).
+ */
+export async function closeTenantQueues(): Promise<void> {
+  for (const [tenantId, queues] of tenantQueues) {
+    await queues.sync.close();
+    await queues.webhook.close();
+    await queues.alert.close();
+    await queues.stockUpdate.close();
+  }
+  tenantQueues.clear();
 }
 
 // Export types

@@ -566,7 +566,7 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
       try {
         queueStats = await getQueueStats();
       } catch (error) {
-        app.log.warn('Failed to get queue stats:', error);
+        app.log.warn({ err: error }, 'Failed to get queue stats');
         queueStats = null;
       }
 
@@ -616,7 +616,7 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
             timestamp: j.timestamp,
           }));
       } catch (error) {
-        app.log.warn('Failed to get active jobs:', error);
+        app.log.warn({ err: error }, 'Failed to get active jobs');
       }
 
       return reply.code(200).send({

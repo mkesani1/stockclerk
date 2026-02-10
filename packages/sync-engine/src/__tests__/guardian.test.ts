@@ -474,6 +474,8 @@ describe('GuardianService', () => {
       };
 
       mockEposnowProvider.getStock.mockResolvedValue(5); // Has stock when should be 0
+      mockWixProvider.getInventory.mockResolvedValue(0); // In sync
+      mockDeliverooProvider.getItemQuantity.mockResolvedValue(0); // In sync
 
       const report = await guardian.detectDrift(lowStockProduct, channels, mappings);
 

@@ -38,7 +38,7 @@ interface AlertRule {
     failureCount?: number;
   };
   actions: {
-    createAlert: boolean;
+    createAlert?: boolean;
     webhookUrl?: string;
     emailNotify?: boolean;
   };
@@ -228,7 +228,7 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
             type,
             message,
             metadata,
-          })
+          } as typeof alerts.$inferInsert)
           .returning();
 
         // Emit WebSocket event for new alert
@@ -277,7 +277,7 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
 
         const [updatedAlert] = await db
           .update(alerts)
-          .set({ isRead: validation.data.isRead })
+          .set({ isRead: validation.data.isRead } as Partial<typeof alerts.$inferSelect>)
           .where(and(eq(alerts.id, id), eq(alerts.tenantId, tenantId)))
           .returning();
 
@@ -311,7 +311,7 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
 
       const result = await db
         .update(alerts)
-        .set({ isRead: true })
+        .set({ isRead: true } as Partial<typeof alerts.$inferSelect>)
         .where(and(eq(alerts.tenantId, tenantId), eq(alerts.isRead, false)));
 
       return reply.code(200).send({

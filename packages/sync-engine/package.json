@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./orchestrator": {
+      "types": "./src/orchestrator/index.ts",
+      "import": "./src/orchestrator/index.js"
     }
   },
   "scripts": {

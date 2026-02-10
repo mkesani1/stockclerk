@@ -47,21 +47,25 @@ const mockDashboardData = {
   ],
 };
 
+const mockUseDashboard = vi.fn(() => ({
+  data: mockDashboardData,
+  isLoading: false,
+  error: null,
+}));
+
+const mockUseAlerts = vi.fn(() => ({
+  data: mockDashboardData.alerts,
+  isLoading: false,
+}));
+
 vi.mock('../hooks/useApi', () => ({
-  useDashboard: vi.fn(() => ({
-    data: mockDashboardData,
-    isLoading: false,
-    error: null,
-  })),
-  useAlerts: vi.fn(() => ({
-    data: mockDashboardData.alerts,
-    isLoading: false,
-  })),
+  useDashboard: mockUseDashboard,
+  useAlerts: mockUseAlerts,
 }));
 
 // Mock Dashboard component
 const Dashboard: React.FC = () => {
-  const { data, isLoading } = require('../hooks/useApi').useDashboard();
+  const { data, isLoading } = mockUseDashboard();
 
   if (isLoading) {
     return <div data-testid="loading">Loading...</div>;
@@ -164,8 +168,7 @@ describe('Dashboard', () => {
     });
 
     it('should show loading state', () => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: null,
         isLoading: true,
         error: null,
@@ -179,8 +182,7 @@ describe('Dashboard', () => {
 
   describe('Stats Display', () => {
     beforeEach(() => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: mockDashboardData,
         isLoading: false,
         error: null,
@@ -218,8 +220,7 @@ describe('Dashboard', () => {
 
   describe('Alerts Section', () => {
     beforeEach(() => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: mockDashboardData,
         isLoading: false,
         error: null,
@@ -248,8 +249,7 @@ describe('Dashboard', () => {
 
   describe('Channel Status', () => {
     beforeEach(() => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: mockDashboardData,
         isLoading: false,
         error: null,
@@ -280,8 +280,7 @@ describe('Dashboard', () => {
 
   describe('Recent Activity', () => {
     beforeEach(() => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: mockDashboardData,
         isLoading: false,
         error: null,
@@ -305,8 +304,7 @@ describe('Dashboard', () => {
 
   describe('Empty States', () => {
     it('should handle empty alerts', () => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: {
           ...mockDashboardData,
           alerts: [],
@@ -322,8 +320,7 @@ describe('Dashboard', () => {
     });
 
     it('should handle empty activity', () => {
-      const { useDashboard } = require('../hooks/useApi');
-      useDashboard.mockReturnValue({
+      mockUseDashboard.mockReturnValue({
         data: {
           ...mockDashboardData,
           recentActivity: [],

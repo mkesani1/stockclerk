@@ -102,7 +102,7 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
     '/create-checkout',
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const { plan } = request.body;
+        const { plan } = request.body as { plan: 'starter' | 'growth' };
         const tenantId = getTenantId(request);
 
         // Validate plan
@@ -156,7 +156,7 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
           // Store customer ID in database
           await db
             .update(tenants)
-            .set({ stripeCustomerId })
+            .set({ stripeCustomerId } as Partial<typeof tenants.$inferSelect>)
             .where(eq(tenants.id, tenantId));
         }
 
@@ -348,7 +348,7 @@ export async function stripeWebhookRoutes(app: FastifyInstance): Promise<void> {
               planStatus: 'active',
               planShopLimit: planInfo.shopLimit,
               stripeSubscriptionId: session.subscription as string,
-            })
+            } as Partial<typeof tenants.$inferSelect>)
             .where(eq(tenants.id, tenantId));
 
           console.info(`Subscription activated for tenant ${tenantId}: ${planInfo.name}`);
@@ -402,7 +402,7 @@ export async function stripeWebhookRoutes(app: FastifyInstance): Promise<void> {
               plan: planInfo.name,
               planStatus,
               planShopLimit: planInfo.shopLimit,
-            })
+            } as Partial<typeof tenants.$inferSelect>)
             .where(eq(tenants.id, tenantId));
 
           console.info(
@@ -427,7 +427,7 @@ export async function stripeWebhookRoutes(app: FastifyInstance): Promise<void> {
               plan: 'trial',
               planStatus: 'canceled',
               planShopLimit: 3,
-            })
+            } as Partial<typeof tenants.$inferSelect>)
             .where(eq(tenants.id, tenantId));
 
           console.info(`Subscription canceled for tenant ${tenantId}. Reverted to trial plan.`);
@@ -446,7 +446,7 @@ export async function stripeWebhookRoutes(app: FastifyInstance): Promise<void> {
           // Update plan status to past due
           await db
             .update(tenants)
-            .set({ planStatus: 'past_due' })
+            .set({ planStatus: 'past_due' } as Partial<typeof tenants.$inferSelect>)
             .where(eq(tenants.id, tenantId));
 
           console.warn(`Payment failed for tenant ${tenantId}. Status set to past_due.`);

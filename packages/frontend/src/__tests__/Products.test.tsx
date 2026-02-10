@@ -388,7 +388,9 @@ describe('Products Page', () => {
       const editButtons = screen.getAllByTestId('edit-button');
       await user.click(editButtons[0]);
 
-      expect(screen.getByText(/Espresso Beans 1kg/)).toBeInTheDocument();
+      const modal = screen.getByRole('dialog');
+      expect(modal).toBeInTheDocument();
+      expect(screen.getByText('Update stock for Espresso Beans 1kg')).toBeInTheDocument();
     });
 
     it('should pre-fill current stock value', async () => {

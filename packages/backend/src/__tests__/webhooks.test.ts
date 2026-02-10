@@ -3,13 +3,143 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { webhookRoutes } from '../routes/webhooks.js';
+
+// Hoist mock creation to avoid initialization issues
+const { mockDb, mockAddWebhookJob, mockBroadcastToTenant, mockCreateWebSocketMessage } = vi.hoisted(() => {
+  return {
+    mockDb: {
+      query: {
+        tenants: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        users: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        channels: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        products: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        productChannelMappings: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        syncEvents: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+        alerts: {
+          findFirst: vi.fn(),
+          findMany: vi.fn(),
+        },
+      },
+      insert: vi.fn(() => ({
+        values: vi.fn(() => ({
+          returning: vi.fn(),
+        })),
+      })),
+      update: vi.fn(() => ({
+        set: vi.fn(() => ({
+          where: vi.fn(() => ({
+            returning: vi.fn(),
+          })),
+        })),
+      })),
+      delete: vi.fn(() => ({
+        where: vi.fn(() => ({
+          returning: vi.fn(),
+        })),
+      })),
+      select: vi.fn(() => ({
+        from: vi.fn(() => ({
+          where: vi.fn(() => [{ count: 0 }]),
+        })),
+      })),
+      transaction: vi.fn(async (callback) => {
+        return callback({
+          insert: vi.fn(() => ({
+            values: vi.fn(() => ({
+              returning: vi.fn(),
+            })),
+          })),
+          update: vi.fn(() => ({
+            set: vi.fn(() => ({
+              where: vi.fn(() => ({
+                returning: vi.fn(),
+              })),
+            })),
+          })),
+          delete: vi.fn(() => ({
+            where: vi.fn(() => ({
+              returning: vi.fn(),
+            })),
+          })),
+        });
+      }),
+    },
+    mockAddWebhookJob: vi.fn().mockResolvedValue(undefined),
+    mockBroadcastToTenant: vi.fn(),
+    mockCreateWebSocketMessage: vi.fn((type, tenantId, payload) => ({
+      type,
+      tenantId,
+      payload,
+      timestamp: new Date().toISOString(),
+    })),
+  };
+});
+
+// Mock the database module
+vi.mock('../db/index.js', () => ({
+  db: mockDb,
+}));
+
+// Mock the queue module
+vi.mock('../queues/index.js', () => ({
+  addWebhookJob: mockAddWebhookJob,
+}));
+
+// Mock the websocket module
+vi.mock('../websocket/index.js', () => ({
+  broadcastToTenant: mockBroadcastToTenant,
+  createWebSocketMessage: mockCreateWebSocketMessage,
+}));
+
+// Mock crypto - preserve real implementation for HMAC functions
+vi.mock('crypto', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('crypto')>();
+  return {
+    ...actual,
+  };
+});
+
+// Helper function to reset the hoisted mockDb
+function resetHoistedMockDb() {
+  Object.values(mockDb.query).forEach((table) => {
+    Object.values(table).forEach((fn) => {
+      if (typeof fn === 'function' && 'mockClear' in fn) {
+        (fn as ReturnType<typeof vi.fn>).mockClear();
+      }
+    });
+  });
+  mockDb.insert.mockClear();
+  mockDb.update.mockClear();
+  mockDb.delete.mockClear();
+  mockDb.select.mockClear();
+  mockDb.transaction.mockClear();
+}
+
+// Now safe to import after mocks are set up
+import { webhookRoutes, clearChannelSecretCache } from '../routes/webhooks.js';
+import crypto from 'crypto';
 import {
   createMockFastifyInstance,
   createMockRequest,
   createMockReply,
-  mockDb,
-  resetMockDb,
 } from './utils/mocks.js';
 import {
   createTenantFixture,
@@ -18,31 +148,6 @@ import {
   wixWebhookPayload,
   otterWebhookPayload,
 } from './utils/fixtures.js';
-import crypto from 'crypto';
-
-// Mock the database module
-vi.mock('../db/index.js', () => ({
-  db: mockDb,
-}));
-
-// Mock the queue module
-const mockAddWebhookJob = vi.fn().mockResolvedValue(undefined);
-vi.mock('../queues/index.js', () => ({
-  addWebhookJob: mockAddWebhookJob,
-}));
-
-// Mock the websocket module
-const mockBroadcastToTenant = vi.fn();
-const mockCreateWebSocketMessage = vi.fn((type, tenantId, payload) => ({
-  type,
-  tenantId,
-  payload,
-  timestamp: new Date().toISOString(),
-}));
-vi.mock('../websocket/index.js', () => ({
-  broadcastToTenant: mockBroadcastToTenant,
-  createWebSocketMessage: mockCreateWebSocketMessage,
-}));
 
 describe('Webhook Routes', () => {
   let mockApp: ReturnType<typeof createMockFastifyInstance>;
@@ -51,7 +156,8 @@ describe('Webhook Routes', () => {
   beforeEach(() => {
     mockApp = createMockFastifyInstance();
     registeredRoutes = new Map();
-    resetMockDb();
+    // Don't reset mocks - let each test set them up fresh
+    // This avoids clearing mockResolvedValue between tests
     mockAddWebhookJob.mockClear();
     mockBroadcastToTenant.mockClear();
 
@@ -70,6 +176,10 @@ describe('Webhook Routes', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    // Reset the hoisted mock DB to clear stale mockResolvedValue between tests
+    resetHoistedMockDb();
+    // Clear the module-level webhook secret cache so it doesn't leak between tests
+    clearChannelSecretCache();
   });
 
   describe('Route Registration', () => {
@@ -209,18 +319,23 @@ describe('Webhook Routes', () => {
       const route = registeredRoutes.get('POST /eposnow');
 
       const webhookSecret = 'test-secret';
-      const payload = JSON.stringify(eposnowWebhookPayload);
+      const payload = JSON.stringify({...eposnowWebhookPayload, locationId: 'loc-002'});
 
       const tenant = createTenantFixture();
       const channel = createChannelFixture({
         tenantId: tenant.id,
         type: 'eposnow',
+        externalInstanceId: 'loc-002',
       });
 
-      mockDb.query.channels.findFirst.mockResolvedValue({
+      const channelWithSecret = {
         ...channel,
         webhookSecret,
-      });
+      };
+
+      // Set up the mock to return the channel
+      mockDb.query.channels.findFirst.mockResolvedValueOnce(channelWithSecret);
+      mockDb.query.channels.findFirst.mockResolvedValue(channelWithSecret);
 
       const request = createMockRequest({
         body: payload,

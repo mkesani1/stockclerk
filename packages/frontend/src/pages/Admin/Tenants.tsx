@@ -1,155 +1,173 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../../api/client';
-import { Card, CardContent } from '../../components/ui/Card';
-import { PageHeader, PageWrapper } from '../../components/layout/Layout';
-import { Button } from '../../components/ui/Button';
+import { Button, Card, Badge, Spinner } from '../../components/ui';
 import { cn } from '../../lib/utils';
 
 interface Tenant {
   id: string;
   name: string;
   slug: string;
-  userCount?: number;
-  productCount?: number;
-  channelCount?: number;
-  syncs24h?: number;
   createdAt: string;
+  userCount: number;
+  productCount: number;
+  channelCount: number;
+  syncEventCountLast24h: number;
 }
 
-export default function AdminTenants(): React.ReactElement {
+export default function Tenants() {
   const navigate = useNavigate();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const limit = 20;
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchTenants = async () => {
       try {
         setLoading(true);
-        const data = await adminApi.getTenants({ page, limit });
-        if (Array.isArray(data)) {
-          setTenants(data);
-          // Assume single page if no pagination info
-          setTotalPages(1);
-        } else if (data.tenants) {
-          setTenants(data.tenants);
-          setTotalPages(data.totalPages || 1);
-        }
         setError(null);
+        const data = await adminApi.getTenants();
+        setTenants(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load tenants');
+        setError(err instanceof Error ? err.message : 'Failed to fetch tenants');
       } finally {
         setLoading(false);
       }
     };
 
     fetchTenants();
-  }, [page]);
+  }, []);
 
-  const handleRowClick = (tenantId: string) => {
+  const filteredTenants = tenants.filter(tenant =>
+    tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tenant.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleTenantClick = (tenantId: string) => {
     navigate(`/admin/tenants/${tenantId}`);
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
       year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   return (
-    <PageWrapper>
-      <PageHeader
-        title="Tenants"
-        subtitle="Manage all tenants in the system"
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-text">Tenants</h1>
+        <p className="text-text-muted mt-1">All registered businesses</p>
+      </div>
 
+      {/* Search Bar */}
+      <Card className="p-4">
+        <input
+          type="text"
+          placeholder="Search by name or slug..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg border border-bronze-200 bg-background text-text placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </Card>
+
+      {/* Error Message */}
       {error && (
-        <Card variant="outlined" className="border-error mb-6 bg-error/5">
-          <CardContent className="py-3">
-            <p className="text-sm text-error">Error: {error}</p>
-          </CardContent>
+        <Card className="p-4 bg-error/10 border border-error">
+          <p className="text-error font-medium">{error}</p>
         </Card>
       )}
 
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-text-muted">Loading...</p>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <Spinner />
         </div>
-      ) : tenants.length === 0 ? (
-        <Card variant="elevated">
-          <CardContent className="py-12 text-center">
-            <p className="text-text-muted">No tenants found</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <Card variant="elevated">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-bronze-200">
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-text-muted">Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-text-muted">Slug</th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-text-muted">Users</th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-text-muted">Products</th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-text-muted">Channels</th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-text-muted">Syncs (24h)</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-text-muted">Created</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tenants.map((tenant, idx) => (
-                    <tr
-                      key={tenant.id}
-                      className={cn(
-                        'border-b border-bronze-200 hover:bg-background-alt transition-colors cursor-pointer',
-                        idx === tenants.length - 1 && 'border-b-0'
-                      )}
-                      onClick={() => handleRowClick(tenant.id)}
-                    >
-                      <td className="px-6 py-4 text-sm font-medium text-text">{tenant.name}</td>
-                      <td className="px-6 py-4 text-sm text-text-muted font-mono">{tenant.slug}</td>
-                      <td className="px-6 py-4 text-sm text-text text-center">{tenant.userCount ?? 0}</td>
-                      <td className="px-6 py-4 text-sm text-text text-center">{tenant.productCount ?? 0}</td>
-                      <td className="px-6 py-4 text-sm text-text text-center">{tenant.channelCount ?? 0}</td>
-                      <td className="px-6 py-4 text-sm text-text text-center">{tenant.syncs24h ?? 0}</td>
-                      <td className="px-6 py-4 text-sm text-text-muted">{formatDate(tenant.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          {totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-between">
-              <p className="text-sm text-text-muted">Page {page} of {totalPages}</p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
       )}
-    </PageWrapper>
+
+      {/* Table */}
+      {!loading && (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-bronze-200 bg-background-alt">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Name</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Slug</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Users</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Products</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Channels</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Syncs (24h)</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Created</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-text">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTenants.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-8 text-center text-text-muted">
+                      {tenants.length === 0 ? 'No tenants found' : 'No results match your search'}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTenants.map((tenant) => (
+                    <tr key={tenant.id} className="border-b border-bronze-200 hover:bg-background-alt transition-colors">
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleTenantClick(tenant.id)}
+                          className="text-primary font-medium hover:underline text-left"
+                        >
+                          {tenant.name}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4">
+                        <code className="text-sm bg-background-alt px-2 py-1 rounded text-text-muted">
+                          {tenant.slug}
+                        </code>
+                      </td>
+                      <td className="px-6 py-4 text-text text-sm">
+                        {tenant.userCount}
+                      </td>
+                      <td className="px-6 py-4 text-text text-sm">
+                        {tenant.productCount}
+                      </td>
+                      <td className="px-6 py-4 text-text text-sm">
+                        {tenant.channelCount}
+                      </td>
+                      <td className="px-6 py-4 text-text text-sm">
+                        {tenant.syncEventCountLast24h}
+                      </td>
+                      <td className="px-6 py-4 text-text-muted text-sm">
+                        {formatDate(tenant.createdAt)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTenantClick(tenant.id)}
+                        >
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!loading && tenants.length === 0 && !error && (
+        <Card className="p-12 text-center">
+          <p className="text-text-muted text-lg">No tenants available</p>
+        </Card>
+      )}
+    </div>
   );
 }

@@ -182,7 +182,7 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
       try {
         queueStats = await getQueueStats();
       } catch (error) {
-        app.log.warn('Failed to get queue stats:', error);
+        app.log.warn({ err: error }, 'Failed to get queue stats');
       }
 
       // Get active WebSocket connections for this tenant
