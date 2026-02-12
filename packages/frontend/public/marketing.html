@@ -1278,6 +1278,330 @@
                 grid-template-columns: 1fr !important;
             }
         }
+
+        /* ===== SIMULATION DEMO SECTION ===== */
+
+        .sim-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--background) 0%, var(--background-alt) 100%);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sim-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .sim-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .sim-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-family: 'Inter';
+        }
+
+        .sim-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .sim-btn {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter';
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sim-btn-primary {
+            background: var(--primary);
+            color: var(--card);
+        }
+
+        .sim-btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 115, 85, 0.2);
+        }
+
+        .sim-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .sim-btn-secondary {
+            background: var(--card);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            display: none;
+        }
+
+        .sim-btn-secondary:hover:not(:disabled) {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .sim-btn-secondary.visible {
+            display: inline-flex;
+        }
+
+        .sim-step-indicator {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .sim-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sim-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sim-column-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .sim-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+
+        .sim-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(139, 115, 85, 0.15);
+            transform: scale(1.02);
+        }
+
+        .sim-card-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .sim-product-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .sim-counter {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+            min-width: 80px;
+        }
+
+        .sim-counter-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .sim-hub {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .sim-hub-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .sim-agents-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .sim-agent {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .sim-agent.active {
+            border-color: var(--success);
+            background: rgba(93, 139, 85, 0.05);
+        }
+
+        .sim-status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.4s ease;
+        }
+
+        .sim-status-light.active {
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success), 0 0 24px rgba(93, 139, 85, 0.3);
+            animation: sim-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes sim-pulse {
+            0%, 100% { box-shadow: 0 0 12px var(--success), 0 0 24px rgba(93, 139, 85, 0.3); }
+            50% { box-shadow: 0 0 6px var(--success), 0 0 12px rgba(93, 139, 85, 0.2); }
+        }
+
+        .sim-agent-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .sim-narration-bar {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sim-narration-text {
+            font-size: 1rem;
+            color: var(--text);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .sim-checkmark {
+            color: var(--success);
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+            opacity: 0;
+            animation: sim-checkmark-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes sim-checkmark-pop {
+            0% { opacity: 0; transform: scale(0) rotate(-45deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .sim-card.sim-error-state {
+            background: rgba(184, 92, 92, 0.1);
+            border-color: var(--error);
+        }
+
+        .sim-error-text {
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .sim-section {
+                padding: 2rem 1rem;
+            }
+
+            .sim-title {
+                font-size: 1.75rem;
+            }
+
+            .sim-subtitle {
+                font-size: 1rem;
+            }
+
+            .sim-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .sim-agents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sim-narration-bar {
+                padding: 1rem;
+                min-height: auto;
+            }
+
+            .sim-narration-text {
+                font-size: 0.95rem;
+            }
+
+            .sim-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .sim-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1290,6 +1614,7 @@
             </div>
             <div class="nav-links">
                 <a href="#features">Features</a>
+                <a href="#demo">See It In Action</a>
                 <a href="#how-it-works">How It Works</a>
                 <a href="#pricing">Pricing</a>
                 <a href="/login">Log In</a>
@@ -1416,6 +1741,98 @@
                     <div class="agent-card-name">Alert</div>
                     <div class="agent-card-role">Personal Watchdog</div>
                     <p class="agent-card-desc">Only bothers you when something truly needs attention. Plain English, no jargon.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Simulation Demo -->
+    <section id="demo" class="section">
+        <div class="sim-section">
+            <!-- Header -->
+            <div class="sim-header">
+                <span class="sim-label">See It In Action</span>
+                <h2 class="sim-title">Watch your stock sync in real-time</h2>
+                <p class="sim-subtitle">See how StockClerk keeps your inventory perfectly synchronized across all your sales channels — automatically and instantly</p>
+            </div>
+
+            <!-- Controls -->
+            <div class="sim-controls">
+                <button id="simStartBtn" class="sim-btn sim-btn-primary">
+                    <span>▶</span>
+                    <span>Start Demo</span>
+                </button>
+                <button id="simResetBtn" class="sim-btn sim-btn-secondary">
+                    <span>↻</span>
+                    <span>Reset Demo</span>
+                </button>
+                <span class="sim-step-indicator" id="simStepText">Ready to begin</span>
+            </div>
+
+            <!-- Narration Bar -->
+            <div class="sim-narration-bar">
+                <div class="sim-narration-text" id="simNarration">
+                    Click "Start Demo" to see how StockClerk automatically synchronises inventory across your POS, website, and delivery apps.
+                </div>
+            </div>
+
+            <!-- Main Simulation Container -->
+            <div class="sim-container">
+                <!-- Left Column: POS -->
+                <div class="sim-column">
+                    <div class="sim-column-label">Your POS System</div>
+                    <div class="sim-card" id="simCardPos">
+                        <div class="sim-card-title">Eposnow</div>
+                        <div class="sim-product-name">Cod Fillets</div>
+                        <div class="sim-counter" id="simCounterPos">25</div>
+                        <div class="sim-counter-label">in stock</div>
+                        <div id="simCheckmarkPos" style="display: none;">✓</div>
+                    </div>
+                </div>
+
+                <!-- Center Column: StockClerk Hub -->
+                <div class="sim-column">
+                    <div class="sim-column-label">StockClerk AI Hub</div>
+                    <div class="sim-hub">
+                        <div class="sim-hub-title">Sync Status</div>
+                        <div class="sim-agents-grid">
+                            <div class="sim-agent" id="simAgentWatcher">
+                                <div class="sim-status-light"></div>
+                                <div class="sim-agent-name">Watcher</div>
+                            </div>
+                            <div class="sim-agent" id="simAgentSync">
+                                <div class="sim-status-light"></div>
+                                <div class="sim-agent-name">Sync</div>
+                            </div>
+                            <div class="sim-agent" id="simAgentGuardian">
+                                <div class="sim-status-light"></div>
+                                <div class="sim-agent-name">Guardian</div>
+                            </div>
+                            <div class="sim-agent" id="simAgentAlert">
+                                <div class="sim-status-light"></div>
+                                <div class="sim-agent-name">Alert</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Online Channels -->
+                <div class="sim-column">
+                    <div class="sim-column-label">Your Online Channels</div>
+                    <div class="sim-card" id="simCardWix">
+                        <div class="sim-card-title">Wix Store</div>
+                        <div class="sim-product-name">Cod Fillets</div>
+                        <div class="sim-counter" id="simCounterWix">25</div>
+                        <div class="sim-counter-label">in stock</div>
+                        <div id="simCheckmarkWix" style="display: none;">✓</div>
+                    </div>
+                    <div class="sim-card" id="simCardDeliveroo">
+                        <div class="sim-card-title">Deliveroo</div>
+                        <div class="sim-product-name">Cod Fillets</div>
+                        <div class="sim-counter" id="simCounterDeliveroo">25</div>
+                        <div class="sim-counter-label">in stock</div>
+                        <div id="simCheckmarkDeliveroo" style="display: none;">✓</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1835,6 +2252,222 @@
                 }
             });
         });
+
+        /* ===== STOCKCLERK SIMULATION CONTROLLER ===== */
+        const SimulationController = {
+            state: {
+                isRunning: false,
+                currentStep: 0,
+                counters: { pos: 25, wix: 25, deliveroo: 25 },
+                agents: { watcher: false, sync: false, guardian: false, alert: false }
+            },
+
+            init() {
+                const startBtn = document.getElementById('simStartBtn');
+                const resetBtn = document.getElementById('simResetBtn');
+                if (startBtn) startBtn.addEventListener('click', () => this.start());
+                if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
+            },
+
+            start() {
+                if (this.state.isRunning) return;
+                this.state.isRunning = true;
+                this.state.currentStep = 0;
+                document.getElementById('simStartBtn').disabled = true;
+                document.getElementById('simResetBtn').classList.remove('visible');
+                this.runStep(1);
+            },
+
+            runStep(stepNum) {
+                this.state.currentStep = stepNum;
+                this.updateStepIndicator();
+                switch (stepNum) {
+                    case 1: this.step1_SaleAtShop(); break;
+                    case 2: this.step2_WatcherDetects(); break;
+                    case 3: this.step3_SyncUpdates(); break;
+                    case 4: this.step4_AllInSync(); break;
+                    case 5: this.step5_GuardianChecks(); break;
+                    case 6: this.step6_DriftAutoFix(); break;
+                    default: this.finish();
+                }
+            },
+
+            step1_SaleAtShop() {
+                this.setNarration('A customer walks in and buys 2 Cod Fillets at your till. Your Eposnow POS instantly updates the stock count...');
+                this.highlightCard('pos');
+                setTimeout(() => this.animateCounter('pos', 25, 23, 1500), 500);
+                setTimeout(() => this.runStep(2), 2500);
+            },
+
+            step2_WatcherDetects() {
+                this.setNarration('The Watcher agent instantly detects the stock change at your POS. No delays, no polling — it sees it the moment it happens.');
+                this.highlightCard(null);
+                this.activateAgent('watcher');
+                setTimeout(() => this.runStep(3), 2500);
+            },
+
+            step3_SyncUpdates() {
+                this.setNarration('The Sync agent pushes the update to your Wix store and Deliveroo menu. Watch the numbers change...');
+                this.activateAgent('sync');
+                setTimeout(() => {
+                    this.highlightCard('wix');
+                    this.animateCounter('wix', 25, 23, 1000);
+                }, 800);
+                setTimeout(() => {
+                    this.highlightCard('deliveroo');
+                    this.animateCounter('deliveroo', 25, 23, 1000);
+                }, 1500);
+                setTimeout(() => this.runStep(4), 3000);
+            },
+
+            step4_AllInSync() {
+                this.setNarration('All channels perfectly synchronised! Your Wix store and Deliveroo app now show 23 in stock — matching your till exactly.');
+                this.highlightCard(null);
+                setTimeout(() => {
+                    this.showCheckmark('pos');
+                    this.showCheckmark('wix');
+                    this.showCheckmark('deliveroo');
+                }, 500);
+                setTimeout(() => this.runStep(5), 3000);
+            },
+
+            step5_GuardianChecks() {
+                this.setNarration('The Guardian agent runs a verification pass every 15 minutes. All channels match perfectly — your inventory is accurate.');
+                this.activateAgent('guardian');
+                setTimeout(() => this.runStep(6), 2500);
+            },
+
+            step6_DriftAutoFix() {
+                this.setNarration('Uh oh — someone manually edits Deliveroo to 20 units (a common sync error). Watch what happens...');
+                this.hideCheckmarks();
+                this.highlightCard('deliveroo');
+                this.deactivateAllAgents();
+
+                setTimeout(() => {
+                    document.getElementById('simCounterDeliveroo').textContent = '20';
+                    document.getElementById('simCardDeliveroo').classList.add('sim-error-state');
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'sim-error-text';
+                    errorMsg.textContent = 'Drift detected!';
+                    document.getElementById('simCardDeliveroo').appendChild(errorMsg);
+                }, 1200);
+
+                setTimeout(() => {
+                    this.setNarration('Guardian automatically detected the discrepancy and corrected it back to 23. No human intervention needed — ever.');
+                    this.activateAgent('guardian');
+                    this.activateAgent('alert');
+                    document.getElementById('simCardDeliveroo').classList.remove('sim-error-state');
+                    const errEl = document.querySelector('#simCardDeliveroo .sim-error-text');
+                    if (errEl) errEl.remove();
+                }, 2500);
+
+                setTimeout(() => this.animateCounter('deliveroo', 20, 23, 1000), 2700);
+
+                setTimeout(() => {
+                    this.showCheckmark('deliveroo');
+                    this.highlightCard(null);
+                    this.finish();
+                }, 4000);
+            },
+
+            animateCounter(target, from, to, duration) {
+                const id = 'simCounter' + target.charAt(0).toUpperCase() + target.slice(1);
+                const element = document.getElementById(id);
+                const steps = 30;
+                const stepDuration = duration / steps;
+                const increment = (to - from) / steps;
+                let current = from;
+                let step = 0;
+                const interval = setInterval(() => {
+                    step++;
+                    current += increment;
+                    if (step >= steps) { current = to; clearInterval(interval); }
+                    element.textContent = Math.round(current);
+                    this.state.counters[target] = Math.round(current);
+                }, stepDuration);
+            },
+
+            setNarration(text) {
+                document.getElementById('simNarration').textContent = text;
+            },
+
+            updateStepIndicator() {
+                const text = this.state.currentStep === 0 ? 'Ready to begin' : 'Step ' + this.state.currentStep + ' / 6';
+                document.getElementById('simStepText').textContent = text;
+            },
+
+            highlightCard(target) {
+                document.querySelectorAll('.sim-card').forEach(c => c.classList.remove('active'));
+                if (target) {
+                    const card = document.getElementById('simCard' + target.charAt(0).toUpperCase() + target.slice(1));
+                    if (card) card.classList.add('active');
+                }
+            },
+
+            activateAgent(name) {
+                const agent = document.getElementById('simAgent' + name.charAt(0).toUpperCase() + name.slice(1));
+                if (agent) {
+                    agent.classList.add('active');
+                    const light = agent.querySelector('.sim-status-light');
+                    if (light) light.classList.add('active');
+                }
+                this.state.agents[name] = true;
+            },
+
+            deactivateAllAgents() {
+                ['watcher', 'sync', 'guardian', 'alert'].forEach(name => {
+                    const agent = document.getElementById('simAgent' + name.charAt(0).toUpperCase() + name.slice(1));
+                    if (agent) {
+                        agent.classList.remove('active');
+                        const light = agent.querySelector('.sim-status-light');
+                        if (light) light.classList.remove('active');
+                    }
+                });
+            },
+
+            showCheckmark(target) {
+                const el = document.getElementById('simCheckmark' + target.charAt(0).toUpperCase() + target.slice(1));
+                if (el) { el.style.display = 'block'; el.className = 'sim-checkmark'; }
+            },
+
+            hideCheckmarks() {
+                document.querySelectorAll('[id^="simCheckmark"]').forEach(el => { el.style.display = 'none'; });
+            },
+
+            finish() {
+                this.state.isRunning = false;
+                document.getElementById('simStartBtn').disabled = false;
+                document.getElementById('simResetBtn').classList.add('visible');
+                this.setNarration('Demo complete! This is what StockClerk does for you 24/7 — keeping every channel perfectly in sync, catching errors before customers notice.');
+                document.getElementById('simStepText').textContent = 'Complete';
+            },
+
+            reset() {
+                this.state.isRunning = false;
+                this.state.currentStep = 0;
+                this.state.counters = { pos: 25, wix: 25, deliveroo: 25 };
+                this.state.agents = { watcher: false, sync: false, guardian: false, alert: false };
+
+                document.getElementById('simCounterPos').textContent = '25';
+                document.getElementById('simCounterWix').textContent = '25';
+                document.getElementById('simCounterDeliveroo').textContent = '25';
+
+                this.hideCheckmarks();
+                document.querySelectorAll('.sim-card').forEach(card => {
+                    card.classList.remove('active', 'sim-error-state');
+                    const errEl = card.querySelector('.sim-error-text');
+                    if (errEl) errEl.remove();
+                });
+
+                this.deactivateAllAgents();
+                this.setNarration('Click "Start Demo" to see how StockClerk automatically synchronises inventory across your POS, website, and delivery apps.');
+                this.updateStepIndicator();
+                document.getElementById('simStartBtn').disabled = false;
+                document.getElementById('simResetBtn').classList.remove('visible');
+            }
+        };
+
+        SimulationController.init();
 
         // Enterprise Enquiry Form Handler
         const enquiryForm = document.getElementById('enquiry-form');
