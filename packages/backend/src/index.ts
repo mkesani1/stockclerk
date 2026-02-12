@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import websocket from '@fastify/websocket';
 import { config } from './config/index.js';
-import { closeDatabaseConnection } from './db/index.js';
+import { closeDatabaseConnection, runMigrations } from './db/index.js';
 import { authRoutes } from './routes/auth.js';
 import { healthRoutes } from './routes/health.js';
 import { channelRoutes, wixOAuthPublicRoutes } from './routes/channels.js';
@@ -194,6 +194,15 @@ async function gracefulShutdown(signal: string) {
 // Start server
 async function start() {
   try {
+    // Run database migrations on startup
+    try {
+      await runMigrations();
+      app.log.info('Database migrations completed');
+    } catch (error) {
+      app.log.error({ err: error }, 'Failed to run migrations');
+      // Continue anyway - tables may already exist
+    }
+
     // Register all plugins and routes
     await registerPlugins();
     await registerRoutes();
