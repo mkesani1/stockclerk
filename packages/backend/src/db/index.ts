@@ -64,6 +64,7 @@ export async function runMigrations(): Promise<void> {
     await client.query(`CREATE TABLE IF NOT EXISTS sync_events (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE, event_type VARCHAR(50) NOT NULL, channel_id UUID REFERENCES channels(id) ON DELETE SET NULL, product_id UUID REFERENCES products(id) ON DELETE SET NULL, old_value JSONB, new_value JSONB, status sync_event_status NOT NULL DEFAULT 'pending', error_message TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL)`);
     await client.query(`CREATE TABLE IF NOT EXISTS alerts (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE, type alert_type NOT NULL, message TEXT NOT NULL, metadata JSONB, is_read BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL)`);
     await client.query(`CREATE TABLE IF NOT EXISTS enquiries (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), business_name VARCHAR(255) NOT NULL, contact_name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, phone VARCHAR(50), shop_count VARCHAR(50) NOT NULL, message TEXT, status VARCHAR(50) NOT NULL DEFAULT 'new', created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL)`);
+    await client.query(`CREATE TABLE IF NOT EXISTS password_reset_tokens (id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE, token VARCHAR(255) NOT NULL UNIQUE, expires_at TIMESTAMP WITH TIME ZONE NOT NULL, used BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL)`);
 
     // Create indexes (idempotent)
     await client.query(`CREATE INDEX IF NOT EXISTS idx_tenants_slug ON tenants(slug)`);
@@ -89,6 +90,9 @@ export async function runMigrations(): Promise<void> {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(type)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_alerts_is_read ON alerts(is_read)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_alerts_created_at ON alerts(created_at DESC)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_prt_token ON password_reset_tokens(token)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_prt_user_id ON password_reset_tokens(user_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_prt_expires_at ON password_reset_tokens(expires_at)`);
 
     console.log('Database migrations completed successfully');
   } finally {

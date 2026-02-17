@@ -36,6 +36,10 @@ const envSchema = z.object({
   DRIFT_AUTO_REPAIR_THRESHOLD: z.coerce.number().default(5),
   LOW_STOCK_THRESHOLD: z.coerce.number().default(10),
 
+  // Email (Resend)
+  RESEND_API_KEY: z.string().default(''),
+  EMAIL_FROM: z.string().default('StockClerk <noreply@stockclerk.ai>'),
+
   // Stripe
   STRIPE_SECRET_KEY: z.string().default(''),
   STRIPE_WEBHOOK_SECRET: z.string().default(''),

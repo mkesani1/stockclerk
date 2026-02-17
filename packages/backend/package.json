@@ -7,7 +7,7 @@
     "scripts": {
           "dev": "tsx watch src/index.ts",
           "prebuild": "cd ../integrations && npm run build",
-          "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --format=cjs --external:pg --external:drizzle-orm --external:bullmq --external:ioredis --external:bcryptjs --external:@fastify/* --external:fastify --external:pino-pretty --external:ws --external:zod --external:stripe",
+          "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --format=cjs --external:pg --external:drizzle-orm --external:bullmq --external:ioredis --external:bcryptjs --external:@fastify/* --external:fastify --external:pino-pretty --external:ws --external:zod --external:stripe --external:resend",
           "build:types": "tsc",
           "start": "node dist/index.js",
           "test": "vitest run",
@@ -38,6 +38,8 @@
           "p-retry": "^6.2.0",
           "pg": "^8.12.0",
           "pino-pretty": "^11.2.1",
+          "resend": "^4.0.0",
+          "@fastify/rate-limit": "^9.1.0",
           "stripe": "^17.5.0",
           "ws": "^8.18.0",
           "zod": "^3.23.8"

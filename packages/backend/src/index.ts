@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import websocket from '@fastify/websocket';
+import rateLimit from '@fastify/rate-limit';
 import { config } from './config/index.js';
 import { closeDatabaseConnection, runMigrations } from './db/index.js';
 import { authRoutes } from './routes/auth.js';
@@ -55,6 +56,13 @@ async function registerPlugins() {
     sign: {
       expiresIn: config.JWT_EXPIRES_IN,
     },
+  });
+
+  // Rate limiting (global: 100 req/min, auth endpoints: 10 req/min)
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    allowList: ['127.0.0.1'],
   });
 
   // WebSocket support

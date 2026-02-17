@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, and, gt } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
-import { db } from '../db/index.js';
+import crypto from 'crypto';
+import { db, pool } from '../db/index.js';
 import { tenants, users } from '../db/schema.js';
 import {
   registerSchema,
@@ -15,6 +16,8 @@ import {
   type JWTPayload,
 } from '../types/index.js';
 import { authenticateRequest } from '../middleware/auth.js';
+import { sendEmail, passwordResetEmail, welcomeEmail } from '../services/email.js';
+import { config } from '../config/index.js';
 
 // Password hashing configuration
 const SALT_ROUNDS = 12;
@@ -131,6 +134,11 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
             expiresIn: 7 * 24 * 60 * 60, // 7 days in seconds
           },
         };
+
+        // Send welcome email (non-blocking)
+        const welcomeContent = welcomeEmail(name || undefined, `${config.FRONTEND_URL}/login`);
+        welcomeContent.to = email;
+        sendEmail(welcomeContent).catch((err) => console.error('Failed to send welcome email:', err));
 
         return reply.code(201).send({
           success: true,
@@ -369,6 +377,148 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           success: false,
           error: 'Internal server error',
           message: 'Failed to refresh token',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+  // POST /auth/forgot-password - Request password reset email
+  app.post<{ Body: { email: string } }>(
+    '/forgot-password',
+    async (request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) => {
+      try {
+        const { email } = request.body;
+        if (!email) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: 'Email is required',
+          } satisfies ApiResponse);
+        }
+
+        // Always return success to prevent email enumeration
+        const successResponse = {
+          success: true,
+          message: 'If an account with that email exists, a password reset link has been sent.',
+        } satisfies ApiResponse;
+
+        // Find user
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, email.toLowerCase().trim()),
+        });
+
+        if (!user) {
+          return reply.code(200).send(successResponse);
+        }
+
+        // Generate secure token
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        // Invalidate any existing tokens for this user and insert new one
+        const client = await pool.connect();
+        try {
+          await client.query(
+            'UPDATE password_reset_tokens SET used = true WHERE user_id = $1 AND used = false',
+            [user.id]
+          );
+          await client.query(
+            'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+            [user.id, token, expiresAt]
+          );
+        } finally {
+          client.release();
+        }
+
+        // Send email
+        const resetUrl = `${config.FRONTEND_URL}/reset-password?token=${token}`;
+        const emailContent = passwordResetEmail(resetUrl, user.name || undefined);
+        emailContent.to = user.email;
+        await sendEmail(emailContent);
+
+        return reply.code(200).send(successResponse);
+      } catch (error) {
+        console.error('Forgot password error:', error);
+        return reply.code(500).send({
+          success: false,
+          error: 'Internal server error',
+          message: 'Failed to process request',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  // POST /auth/reset-password - Reset password with token
+  app.post<{ Body: { token: string; password: string } }>(
+    '/reset-password',
+    async (request: FastifyRequest<{ Body: { token: string; password: string } }>, reply: FastifyReply) => {
+      try {
+        const { token, password } = request.body;
+
+        if (!token || !password) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: 'Token and new password are required',
+          } satisfies ApiResponse);
+        }
+
+        if (password.length < 8) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: 'Password must be at least 8 characters',
+          } satisfies ApiResponse);
+        }
+
+        // Find valid token
+        const client = await pool.connect();
+        try {
+          const result = await client.query(
+            'SELECT * FROM password_reset_tokens WHERE token = $1 AND used = false AND expires_at > NOW()',
+            [token]
+          );
+
+          if (result.rows.length === 0) {
+            return reply.code(400).send({
+              success: false,
+              error: 'Invalid or expired token',
+              message: 'This password reset link is invalid or has expired. Please request a new one.',
+            } satisfies ApiResponse);
+          }
+
+          const resetToken = result.rows[0];
+
+          // Hash new password
+          const newPasswordHash = await hashPassword(password);
+
+          // Update password and mark token as used
+          await client.query('BEGIN');
+          await client.query(
+            'UPDATE users SET password_hash = $1 WHERE id = $2',
+            [newPasswordHash, resetToken.user_id]
+          );
+          await client.query(
+            'UPDATE password_reset_tokens SET used = true WHERE id = $1',
+            [resetToken.id]
+          );
+          await client.query('COMMIT');
+
+          return reply.code(200).send({
+            success: true,
+            message: 'Password has been reset successfully. You can now sign in with your new password.',
+          } satisfies ApiResponse);
+        } catch (err) {
+          await client.query('ROLLBACK');
+          throw err;
+        } finally {
+          client.release();
+        }
+      } catch (error) {
+        console.error('Reset password error:', error);
+        return reply.code(500).send({
+          success: false,
+          error: 'Internal server error',
+          message: 'Failed to reset password',
         } satisfies ApiResponse);
       }
     }
