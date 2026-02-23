@@ -48,7 +48,7 @@ export const loginSchema = z.object({
 
 // Channel schemas
 export const createChannelSchema = z.object({
-  type: z.enum(['eposnow', 'wix', 'deliveroo']),
+  type: z.enum(['eposnow', 'wix', 'deliveroo', 'shopify', 'woocommerce', 'uber_eats']),
   name: z.string().min(1).max(255),
   credentials: z.record(z.unknown()).optional(),
 });
@@ -291,7 +291,25 @@ export interface DeliverooCredentials {
   locationId?: string;
 }
 
-export type ChannelCredentials = EposnowCredentials | WixCredentials | DeliverooCredentials;
+export interface ShopifyCredentials {
+  shop: string;
+  accessToken: string;
+  locationId?: string;
+}
+
+export interface WooCommerceCredentials {
+  siteUrl: string;
+  consumerKey: string;
+  consumerSecret: string;
+}
+
+export interface UberEatsCredentials {
+  clientId: string;
+  clientSecret: string;
+  storeId: string;
+}
+
+export type ChannelCredentials = EposnowCredentials | WixCredentials | DeliverooCredentials | ShopifyCredentials | WooCommerceCredentials | UberEatsCredentials;
 
 // ============================================================================
 // Inferred Types from Zod Schemas

@@ -29,6 +29,12 @@ export const Onboarding: React.FC = () => {
   // Eposnow credentials state
   const [eposnowApiKey, setEposnowApiKey] = useState('');
   const [eposnowApiSecret, setEposnowApiSecret] = useState('');
+  // WooCommerce credentials state
+  const [wooSiteUrl, setWooSiteUrl] = useState('');
+  const [wooConsumerKey, setWooConsumerKey] = useState('');
+  const [wooConsumerSecret, setWooConsumerSecret] = useState('');
+  // Shopify state
+  const [shopifyShop, setShopifyShop] = useState('');
 
   const stepIndex = STEPS.indexOf(currentStep);
 
@@ -99,12 +105,25 @@ export const Onboarding: React.FC = () => {
 
     try {
       if (selectedChannel === 'wix') {
-        // Start Wix OAuth flow - redirect to Wix authorization
         const { authUrl } = await channelsApi.startWixOAuth();
         window.location.href = authUrl;
-        return; // Page will redirect
+        return;
+      } else if (selectedChannel === 'shopify') {
+        if (!shopifyShop) {
+          setCurrentStep('credentials');
+          setIsConnecting(false);
+          return;
+        }
+        const { authUrl } = await channelsApi.startShopifyOAuth(shopifyShop);
+        window.location.href = authUrl;
+        return;
+      } else if (selectedChannel === 'uber_eats') {
+        const { authUrl } = await channelsApi.startUberEatsOAuth();
+        window.location.href = authUrl;
+        return;
+      } else if (selectedChannel === 'woocommerce') {
+        setCurrentStep('credentials');
       } else if (selectedChannel === 'eposnow' || selectedChannel === 'deliveroo') {
-        // For Eposnow/Deliveroo, show credentials form
         setCurrentStep('credentials');
       }
     } catch (err) {
@@ -120,8 +139,40 @@ export const Onboarding: React.FC = () => {
     setError(null);
 
     try {
+      if (selectedChannel === 'shopify') {
+        // Shopify needs OAuth - redirect
+        const { authUrl } = await channelsApi.startShopifyOAuth(shopifyShop);
+        window.location.href = authUrl;
+        return;
+      }
+
+      if (selectedChannel === 'woocommerce') {
+        // Validate credentials first
+        await channelsApi.validateWooCommerce({
+          siteUrl: wooSiteUrl,
+          consumerKey: wooConsumerKey,
+          consumerSecret: wooConsumerSecret,
+        });
+
+        // Create the channel
+        const channel = await channelsApi.create({
+          type: 'woocommerce',
+          name: 'WooCommerce Store',
+          credentials: {
+            siteUrl: wooSiteUrl,
+            consumerKey: wooConsumerKey,
+            consumerSecret: wooConsumerSecret,
+          },
+        });
+
+        setConnectedChannelId(channel.id);
+        setCurrentStep('import');
+        return;
+      }
+
+      // Eposnow / Deliveroo
       const channel = await channelsApi.create({
-        type: selectedChannel as 'eposnow' | 'wix' | 'deliveroo',
+        type: selectedChannel as 'eposnow' | 'wix' | 'deliveroo' | 'shopify' | 'woocommerce' | 'uber_eats',
         name: selectedChannel === 'eposnow' ? 'Eposnow POS' : 'Deliveroo',
         credentials: {
           apiKey: eposnowApiKey,
@@ -243,6 +294,14 @@ export const Onboarding: React.FC = () => {
               apiSecret={eposnowApiSecret}
               onApiKeyChange={setEposnowApiKey}
               onApiSecretChange={setEposnowApiSecret}
+              wooSiteUrl={wooSiteUrl}
+              wooConsumerKey={wooConsumerKey}
+              wooConsumerSecret={wooConsumerSecret}
+              onWooSiteUrlChange={setWooSiteUrl}
+              onWooConsumerKeyChange={setWooConsumerKey}
+              onWooConsumerSecretChange={setWooConsumerSecret}
+              shopifyShop={shopifyShop}
+              onShopifyShopChange={setShopifyShop}
               onSubmit={handleSubmitCredentials}
               isConnecting={isConnecting}
               onBack={() => setCurrentStep('channel')}
@@ -319,10 +378,26 @@ const ChannelStep: React.FC<{
       bgColor: 'bg-blue-50',
     },
     {
+      id: 'shopify',
+      name: 'Shopify',
+      icon: String.fromCodePoint(0x25C6),
+      description: 'Connect your Shopify store',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+    },
+    {
+      id: 'woocommerce',
+      name: 'WooCommerce',
+      icon: String.fromCodePoint(0x25A3),
+      description: 'Connect your WooCommerce store',
+      color: 'text-violet-600',
+      bgColor: 'bg-violet-50',
+    },
+    {
       id: 'wix',
       name: 'Wix',
       icon: String.fromCodePoint(0x25C7),
-      description: 'Connect your online store',
+      description: 'Connect your Wix store',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
@@ -330,9 +405,17 @@ const ChannelStep: React.FC<{
       id: 'deliveroo',
       name: 'Deliveroo',
       icon: String.fromCodePoint(0x25B3),
-      description: 'Connect your delivery menu',
+      description: 'Connect your Deliveroo menu',
       color: 'text-teal-600',
       bgColor: 'bg-teal-50',
+    },
+    {
+      id: 'uber_eats',
+      name: 'Uber Eats',
+      icon: String.fromCodePoint(0x25D0),
+      description: 'Connect your Uber Eats menu',
+      color: 'text-black',
+      bgColor: 'bg-gray-50',
     },
   ];
 
@@ -391,7 +474,9 @@ const ChannelStep: React.FC<{
           disabled={!selectedChannel}
           loading={isConnecting}
         >
-          {selectedChannel === 'wix' ? 'Connect with Wix' : 'Continue'}
+          {selectedChannel === 'wix' || selectedChannel === 'shopify' || selectedChannel === 'uber_eats'
+            ? `Connect with ${selectedChannel === 'uber_eats' ? 'Uber Eats' : selectedChannel.charAt(0).toUpperCase() + selectedChannel.slice(1)}`
+            : 'Continue'}
         </Button>
       </div>
     </div>
@@ -404,70 +489,159 @@ const CredentialsStep: React.FC<{
   apiSecret: string;
   onApiKeyChange: (value: string) => void;
   onApiSecretChange: (value: string) => void;
+  wooSiteUrl: string;
+  wooConsumerKey: string;
+  wooConsumerSecret: string;
+  onWooSiteUrlChange: (value: string) => void;
+  onWooConsumerKeyChange: (value: string) => void;
+  onWooConsumerSecretChange: (value: string) => void;
+  shopifyShop: string;
+  onShopifyShopChange: (value: string) => void;
   onSubmit: () => void;
   isConnecting: boolean;
   onBack: () => void;
-}> = ({ channelType, apiKey, apiSecret, onApiKeyChange, onApiSecretChange, onSubmit, isConnecting, onBack }) => (
-  <div className="animate-fade-in">
-    <div className="text-center mb-8">
-      <h2 className="text-2xl font-bold text-text mb-2">
-        Enter Your {channelType === 'eposnow' ? 'Eposnow' : 'Deliveroo'} Credentials
-      </h2>
-      <p className="text-text-muted">
-        You can find these in your {channelType === 'eposnow' ? 'Eposnow' : 'Deliveroo'} account settings
-      </p>
-    </div>
+}> = ({ channelType, apiKey, apiSecret, onApiKeyChange, onApiSecretChange, wooSiteUrl, wooConsumerKey, wooConsumerSecret, onWooSiteUrlChange, onWooConsumerKeyChange, onWooConsumerSecretChange, shopifyShop, onShopifyShopChange, onSubmit, isConnecting, onBack }) => {
+  const channelNames: Record<string, string> = {
+    eposnow: 'Eposnow',
+    deliveroo: 'Deliveroo',
+    woocommerce: 'WooCommerce',
+    shopify: 'Shopify',
+  };
 
-    <Card className="mb-8 p-6">
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">
-            API Key
-          </label>
-          <Input
-            type="text"
-            value={apiKey}
-            onChange={(e) => onApiKeyChange(e.target.value)}
-            placeholder="Enter your API key"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-text mb-1">
-            API Secret
-          </label>
-          <Input
-            type="password"
-            value={apiSecret}
-            onChange={(e) => onApiSecretChange(e.target.value)}
-            placeholder="Enter your API secret"
-          />
-        </div>
-      </div>
+  const isWooCommerce = channelType === 'woocommerce';
+  const isShopify = channelType === 'shopify';
 
-      <div className="mt-6 p-4 rounded-lg bg-background-alt">
-        <h5 className="font-medium text-text mb-2">Where to find your credentials</h5>
-        <p className="text-sm text-text-muted">
-          {channelType === 'eposnow'
-            ? 'Go to Eposnow Back Office → Setup → API Settings to find your API key and secret.'
-            : 'Contact Deliveroo partner support to get your API credentials.'}
+  const canSubmit = isWooCommerce
+    ? wooSiteUrl && wooConsumerKey && wooConsumerSecret
+    : isShopify
+    ? shopifyShop
+    : apiKey && apiSecret;
+
+  return (
+    <div className="animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-text mb-2">
+          Enter Your {channelNames[channelType || ''] || ''} Credentials
+        </h2>
+        <p className="text-text-muted">
+          {isWooCommerce
+            ? 'You can find these in WooCommerce → Settings → Advanced → REST API'
+            : isShopify
+            ? 'Enter your Shopify store domain to begin the connection'
+            : `You can find these in your ${channelNames[channelType || ''] || ''} account settings`}
         </p>
       </div>
-    </Card>
 
-    <div className="flex items-center justify-between">
-      <Button variant="ghost" onClick={onBack}>
-        Back
-      </Button>
-      <Button
-        onClick={onSubmit}
-        disabled={!apiKey || !apiSecret}
-        loading={isConnecting}
-      >
-        Connect Channel
-      </Button>
+      <Card className="mb-8 p-6">
+        <div className="space-y-4">
+          {isShopify ? (
+            <div>
+              <label className="block text-sm font-medium text-text mb-1">
+                Shop Domain
+              </label>
+              <Input
+                type="text"
+                value={shopifyShop}
+                onChange={(e) => onShopifyShopChange(e.target.value)}
+                placeholder="mystore.myshopify.com"
+              />
+              <p className="text-xs text-text-muted mt-1">
+                Enter your .myshopify.com domain
+              </p>
+            </div>
+          ) : isWooCommerce ? (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-text mb-1">
+                  Site URL
+                </label>
+                <Input
+                  type="text"
+                  value={wooSiteUrl}
+                  onChange={(e) => onWooSiteUrlChange(e.target.value)}
+                  placeholder="https://mystore.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text mb-1">
+                  Consumer Key
+                </label>
+                <Input
+                  type="text"
+                  value={wooConsumerKey}
+                  onChange={(e) => onWooConsumerKeyChange(e.target.value)}
+                  placeholder="ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text mb-1">
+                  Consumer Secret
+                </label>
+                <Input
+                  type="password"
+                  value={wooConsumerSecret}
+                  onChange={(e) => onWooConsumerSecretChange(e.target.value)}
+                  placeholder="cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-text mb-1">
+                  API Key
+                </label>
+                <Input
+                  type="text"
+                  value={apiKey}
+                  onChange={(e) => onApiKeyChange(e.target.value)}
+                  placeholder="Enter your API key"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text mb-1">
+                  API Secret
+                </label>
+                <Input
+                  type="password"
+                  value={apiSecret}
+                  onChange={(e) => onApiSecretChange(e.target.value)}
+                  placeholder="Enter your API secret"
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="mt-6 p-4 rounded-lg bg-background-alt">
+          <h5 className="font-medium text-text mb-2">Where to find your credentials</h5>
+          <p className="text-sm text-text-muted">
+            {isShopify
+              ? 'Your shop domain is visible in your browser URL bar when logged into Shopify admin.'
+              : isWooCommerce
+              ? 'Go to WooCommerce → Settings → Advanced → REST API → Add key. Set permissions to Read/Write.'
+              : channelType === 'eposnow'
+              ? 'Go to Eposnow Back Office → Setup → API Settings to find your API key and secret.'
+              : 'Contact Deliveroo partner support to get your API credentials.'}
+          </p>
+        </div>
+      </Card>
+
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={onBack}>
+          Back
+        </Button>
+        <Button
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          loading={isConnecting}
+        >
+          {isShopify ? 'Connect with Shopify' : 'Connect Channel'}
+        </Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ImportStep: React.FC<{
   onImport: () => void;

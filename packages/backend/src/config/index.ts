@@ -45,6 +45,15 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().default(''),
   STRIPE_PRICE_STARTER: z.string().default(''),
   STRIPE_PRICE_GROWTH: z.string().default(''),
+
+  // Shopify
+  SHOPIFY_API_KEY: z.string().default(''),
+  SHOPIFY_API_SECRET: z.string().default(''),
+  SHOPIFY_REDIRECT_URI: z.string().default(''),
+
+  // Uber Eats
+  UBER_EATS_CLIENT_ID: z.string().default(''),
+  UBER_EATS_CLIENT_SECRET: z.string().default(''),
 });
 
 // Parse and validate environment variables

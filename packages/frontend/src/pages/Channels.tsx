@@ -40,6 +40,27 @@ const channelConfig: Record<ChannelType, {
     color: 'text-teal-600',
     bgColor: 'bg-teal-50',
   },
+  shopify: {
+    name: 'Shopify',
+    icon: String.fromCodePoint(0x25C6),
+    description: 'Sync your Shopify store inventory with location support',
+    color: 'text-green-600',
+    bgColor: 'bg-green-50',
+  },
+  woocommerce: {
+    name: 'WooCommerce',
+    icon: String.fromCodePoint(0x25A3),
+    description: 'Connect your WooCommerce store with variable product support',
+    color: 'text-violet-600',
+    bgColor: 'bg-violet-50',
+  },
+  uber_eats: {
+    name: 'Uber Eats',
+    icon: String.fromCodePoint(0x25D0),
+    description: 'Sync menu availability with your Uber Eats store',
+    color: 'text-gray-800',
+    bgColor: 'bg-gray-50',
+  },
 };
 
 export const Channels: React.FC = () => {

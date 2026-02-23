@@ -7,7 +7,7 @@ import { config } from './config/index.js';
 import { closeDatabaseConnection, runMigrations } from './db/index.js';
 import { authRoutes } from './routes/auth.js';
 import { healthRoutes } from './routes/health.js';
-import { channelRoutes, wixOAuthPublicRoutes } from './routes/channels.js';
+import { channelRoutes, wixOAuthPublicRoutes, shopifyOAuthPublicRoutes, uberEatsOAuthPublicRoutes } from './routes/channels.js';
 import { productRoutes } from './routes/products.js';
 import { alertRoutes } from './routes/alerts.js';
 import { syncRoutes } from './routes/sync.js';
@@ -97,6 +97,8 @@ async function registerRoutes() {
 
   // OAuth callback routes (unprotected - handles OAuth redirects)
   await app.register(wixOAuthPublicRoutes, { prefix: '/api/oauth' });
+  await app.register(shopifyOAuthPublicRoutes, { prefix: '/api/oauth' });
+  await app.register(uberEatsOAuthPublicRoutes, { prefix: '/api/oauth' });
 
   // Marketplace routes (unprotected - uses Wix webhook signature / instance token verification)
   await app.register(wixMarketplaceRoutes, { prefix: '/marketplace' });

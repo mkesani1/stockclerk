@@ -159,6 +159,9 @@ export const Products: React.FC = () => {
     { value: 'eposnow', label: 'Eposnow' },
     { value: 'wix', label: 'Wix' },
     { value: 'deliveroo', label: 'Deliveroo' },
+    { value: 'shopify', label: 'Shopify' },
+    { value: 'woocommerce', label: 'WooCommerce' },
+    { value: 'uber_eats', label: 'Uber Eats' },
   ];
 
   return (

@@ -21,6 +21,17 @@ const WIX_REDIRECT_URI = process.env.WIX_REDIRECT_URI || 'http://localhost:3001/
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const WIX_OAUTH_URL = 'https://www.wixapis.com/oauth';
 
+// Shopify OAuth configuration
+const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY || '';
+const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET || '';
+const SHOPIFY_REDIRECT_URI = process.env.SHOPIFY_REDIRECT_URI || 'http://localhost:3001/api/oauth/shopify/callback';
+const SHOPIFY_SCOPES = 'read_inventory,write_inventory,read_products';
+
+// Uber Eats OAuth configuration
+const UBER_EATS_CLIENT_ID = process.env.UBER_EATS_CLIENT_ID || '';
+const UBER_EATS_CLIENT_SECRET = process.env.UBER_EATS_CLIENT_SECRET || '';
+const UBER_EATS_REDIRECT_URI = process.env.UBER_EATS_REDIRECT_URI || 'http://localhost:3001/api/oauth/uber-eats/callback';
+
 // Temporary storage for OAuth state (use Redis in production)
 const oauthStateMap = new Map<string, { tenantId: string; timestamp: number }>();
 
@@ -611,6 +622,187 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       }
     }
   );
+
+  // ============================================================================
+  // Shopify OAuth Flow
+  // ============================================================================
+
+  /**
+   * GET /channels/shopify/oauth-start
+   * Start the Shopify OAuth flow - returns authorization URL
+   * Requires ?shop=mystore.myshopify.com query parameter
+   */
+  app.get<{ Querystring: { shop?: string } }>(
+    '/shopify/oauth-start',
+    async (request: FastifyRequest<{ Querystring: { shop?: string } }>, reply: FastifyReply) => {
+      try {
+        const tenantId = getTenantId(request);
+        const { shop } = request.query;
+
+        if (!shop) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: 'shop parameter is required (e.g., mystore.myshopify.com)',
+          } satisfies ApiResponse);
+        }
+
+        if (!SHOPIFY_API_KEY) {
+          return reply.code(500).send({
+            success: false,
+            error: 'Configuration error',
+            message: 'Shopify OAuth not configured',
+          } satisfies ApiResponse);
+        }
+
+        // Sanitize shop domain
+        const shopDomain = shop.includes('.myshopify.com') ? shop : `${shop}.myshopify.com`;
+
+        const state = crypto.randomBytes(32).toString('hex');
+        oauthStateMap.set(state, { tenantId, timestamp: Date.now() });
+
+        const params = new URLSearchParams({
+          client_id: SHOPIFY_API_KEY,
+          scope: SHOPIFY_SCOPES,
+          redirect_uri: SHOPIFY_REDIRECT_URI,
+          state,
+        });
+
+        const authUrl = `https://${shopDomain}/admin/oauth/authorize?${params.toString()}`;
+
+        return reply.code(200).send({
+          success: true,
+          data: { authUrl, state },
+        } satisfies ApiResponse);
+      } catch (error) {
+        console.error('Shopify OAuth start error:', error);
+        return reply.code(500).send({
+          success: false,
+          error: 'Internal server error',
+          message: 'Failed to start Shopify OAuth flow',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  // ============================================================================
+  // WooCommerce Credential Validation
+  // ============================================================================
+
+  /**
+   * POST /channels/woocommerce/validate
+   * Validate WooCommerce credentials by testing the API connection
+   */
+  app.post<{ Body: { siteUrl: string; consumerKey: string; consumerSecret: string } }>(
+    '/woocommerce/validate',
+    async (
+      request: FastifyRequest<{ Body: { siteUrl: string; consumerKey: string; consumerSecret: string } }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const { siteUrl, consumerKey, consumerSecret } = request.body;
+
+        if (!siteUrl || !consumerKey || !consumerSecret) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: 'siteUrl, consumerKey, and consumerSecret are required',
+          } satisfies ApiResponse);
+        }
+
+        // Test the WooCommerce API connection
+        const baseUrl = siteUrl.replace(/\/+$/, '');
+        const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+
+        const testResponse = await axios.get(`${baseUrl}/wp-json/wc/v3/system_status`, {
+          headers: {
+            'Authorization': `Basic ${auth}`,
+          },
+          timeout: 10000,
+        });
+
+        if (testResponse.status === 200) {
+          return reply.code(200).send({
+            success: true,
+            data: {
+              valid: true,
+              storeName: testResponse.data?.settings?.store_name || 'WooCommerce Store',
+              wooVersion: testResponse.data?.environment?.version || 'unknown',
+            },
+            message: 'WooCommerce credentials are valid',
+          } satisfies ApiResponse);
+        }
+
+        return reply.code(400).send({
+          success: false,
+          error: 'Invalid credentials',
+          message: 'Could not connect to WooCommerce API',
+        } satisfies ApiResponse);
+      } catch (error) {
+        console.error('WooCommerce validation error:', error);
+        const status = (error as any)?.response?.status;
+        if (status === 401) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Authentication failed',
+            message: 'Invalid consumer key or secret',
+          } satisfies ApiResponse);
+        }
+        return reply.code(400).send({
+          success: false,
+          error: 'Connection failed',
+          message: 'Could not connect to WooCommerce. Check the site URL and ensure the REST API is enabled.',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  // ============================================================================
+  // Uber Eats OAuth Flow
+  // ============================================================================
+
+  /**
+   * GET /channels/uber-eats/oauth-start
+   * Start the Uber Eats OAuth flow - returns authorization URL
+   */
+  app.get('/uber-eats/oauth-start', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const tenantId = getTenantId(request);
+
+      if (!UBER_EATS_CLIENT_ID) {
+        return reply.code(500).send({
+          success: false,
+          error: 'Configuration error',
+          message: 'Uber Eats OAuth not configured',
+        } satisfies ApiResponse);
+      }
+
+      const state = crypto.randomBytes(32).toString('hex');
+      oauthStateMap.set(state, { tenantId, timestamp: Date.now() });
+
+      const params = new URLSearchParams({
+        client_id: UBER_EATS_CLIENT_ID,
+        response_type: 'code',
+        redirect_uri: UBER_EATS_REDIRECT_URI,
+        scope: 'eats.store eats.store.orders.read eats.store.status.write',
+        state,
+      });
+
+      const authUrl = `https://login.uber.com/oauth/v2/authorize?${params.toString()}`;
+
+      return reply.code(200).send({
+        success: true,
+        data: { authUrl, state },
+      } satisfies ApiResponse);
+    } catch (error) {
+      console.error('Uber Eats OAuth start error:', error);
+      return reply.code(500).send({
+        success: false,
+        error: 'Internal server error',
+        message: 'Failed to start Uber Eats OAuth flow',
+      } satisfies ApiResponse);
+    }
+  });
 }
 
 /**
@@ -711,6 +903,191 @@ export async function wixOAuthPublicRoutes(app: FastifyInstance): Promise<void> 
         );
       } catch (error) {
         console.error('Wix OAuth callback error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return reply.redirect(
+          `${FRONTEND_URL}/onboarding?error=${encodeURIComponent(errorMessage)}`
+        );
+      }
+    }
+  );
+}
+
+/**
+ * Shopify OAuth public routes (no authentication required)
+ */
+export async function shopifyOAuthPublicRoutes(app: FastifyInstance): Promise<void> {
+  app.get<{
+    Querystring: { code?: string; shop?: string; state?: string; hmac?: string; timestamp?: string };
+  }>(
+    '/shopify/callback',
+    async (
+      request: FastifyRequest<{
+        Querystring: { code?: string; shop?: string; state?: string; hmac?: string; timestamp?: string };
+      }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const { code, shop, state, hmac } = request.query;
+
+        // Validate state
+        if (!state || !oauthStateMap.has(state)) {
+          return reply.redirect(
+            `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Invalid or expired OAuth state')}`
+          );
+        }
+
+        const stateData = oauthStateMap.get(state)!;
+        oauthStateMap.delete(state);
+
+        if (!code || !shop) {
+          return reply.redirect(
+            `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Missing authorization code or shop')}`
+          );
+        }
+
+        // Verify HMAC if present (Shopify security check)
+        if (hmac && SHOPIFY_API_SECRET) {
+          const queryParams = { ...request.query } as Record<string, string>;
+          delete queryParams.hmac;
+          const sortedParams = Object.keys(queryParams).sort().map(k => `${k}=${queryParams[k]}`).join('&');
+          const computedHmac = crypto.createHmac('sha256', SHOPIFY_API_SECRET).update(sortedParams).digest('hex');
+          if (computedHmac !== hmac) {
+            return reply.redirect(
+              `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('HMAC verification failed')}`
+            );
+          }
+        }
+
+        // Exchange code for permanent access token
+        const tokenResponse = await axios.post<{
+          access_token: string;
+          scope: string;
+        }>(`https://${shop}/admin/oauth/access_token`, {
+          client_id: SHOPIFY_API_KEY,
+          client_secret: SHOPIFY_API_SECRET,
+          code,
+        });
+
+        const { access_token, scope } = tokenResponse.data;
+
+        // Store credentials encrypted
+        const credentials = {
+          shop,
+          accessToken: access_token,
+          scope,
+        };
+
+        // Create the Shopify channel
+        const [newChannel] = await db
+          .insert(channels)
+          .values({
+            tenantId: stateData.tenantId,
+            type: 'shopify',
+            name: `Shopify - ${shop.replace('.myshopify.com', '')}`,
+            credentialsEncrypted: encryptCredentials(credentials),
+            externalInstanceId: shop,
+            isActive: true,
+          } as typeof channels.$inferInsert)
+          .returning();
+
+        return reply.redirect(
+          `${FRONTEND_URL}/onboarding?channel=${newChannel.id}&type=shopify&success=true`
+        );
+      } catch (error) {
+        console.error('Shopify OAuth callback error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return reply.redirect(
+          `${FRONTEND_URL}/onboarding?error=${encodeURIComponent(errorMessage)}`
+        );
+      }
+    }
+  );
+}
+
+/**
+ * Uber Eats OAuth public routes (no authentication required)
+ */
+export async function uberEatsOAuthPublicRoutes(app: FastifyInstance): Promise<void> {
+  app.get<{
+    Querystring: { code?: string; state?: string; error?: string };
+  }>(
+    '/uber-eats/callback',
+    async (
+      request: FastifyRequest<{
+        Querystring: { code?: string; state?: string; error?: string };
+      }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const { code, state, error: oauthError } = request.query;
+
+        if (oauthError) {
+          return reply.redirect(
+            `${FRONTEND_URL}/onboarding?error=${encodeURIComponent(oauthError)}`
+          );
+        }
+
+        // Validate state
+        if (!state || !oauthStateMap.has(state)) {
+          return reply.redirect(
+            `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Invalid or expired OAuth state')}`
+          );
+        }
+
+        const stateData = oauthStateMap.get(state)!;
+        oauthStateMap.delete(state);
+
+        if (!code) {
+          return reply.redirect(
+            `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('No authorization code received')}`
+          );
+        }
+
+        // Exchange code for access token
+        const tokenResponse = await axios.post<{
+          access_token: string;
+          token_type: string;
+          expires_in: number;
+          refresh_token: string;
+          scope: string;
+        }>('https://login.uber.com/oauth/v2/token', new URLSearchParams({
+          client_id: UBER_EATS_CLIENT_ID,
+          client_secret: UBER_EATS_CLIENT_SECRET,
+          grant_type: 'authorization_code',
+          redirect_uri: UBER_EATS_REDIRECT_URI,
+          code,
+        }).toString(), {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        });
+
+        const { access_token, refresh_token, expires_in } = tokenResponse.data;
+
+        // Store credentials encrypted
+        const credentials = {
+          clientId: UBER_EATS_CLIENT_ID,
+          clientSecret: UBER_EATS_CLIENT_SECRET,
+          accessToken: access_token,
+          refreshToken: refresh_token,
+          expiresAt: new Date(Date.now() + expires_in * 1000).toISOString(),
+        };
+
+        // Create the Uber Eats channel
+        const [newChannel] = await db
+          .insert(channels)
+          .values({
+            tenantId: stateData.tenantId,
+            type: 'uber_eats',
+            name: 'Uber Eats',
+            credentialsEncrypted: encryptCredentials(credentials),
+            isActive: true,
+          } as typeof channels.$inferInsert)
+          .returning();
+
+        return reply.redirect(
+          `${FRONTEND_URL}/onboarding?channel=${newChannel.id}&type=uber_eats&success=true`
+        );
+      } catch (error) {
+        console.error('Uber Eats OAuth callback error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return reply.redirect(
           `${FRONTEND_URL}/onboarding?error=${encodeURIComponent(errorMessage)}`

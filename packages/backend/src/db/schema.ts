@@ -12,7 +12,7 @@ import {
 import { relations } from 'drizzle-orm';
 
 // Enums
-export const channelTypeEnum = pgEnum('channel_type', ['eposnow', 'wix', 'deliveroo']);
+export const channelTypeEnum = pgEnum('channel_type', ['eposnow', 'wix', 'deliveroo', 'shopify', 'woocommerce', 'uber_eats']);
 export const userRoleEnum = pgEnum('user_role', ['owner', 'admin', 'staff']);
 export const syncEventStatusEnum = pgEnum('sync_event_status', ['pending', 'processing', 'completed', 'failed']);
 export const alertTypeEnum = pgEnum('alert_type', ['low_stock', 'sync_error', 'channel_disconnected', 'system']);
@@ -227,7 +227,7 @@ export type Enquiry = typeof enquiries.$inferSelect;
 export type NewEnquiry = typeof enquiries.$inferInsert;
 
 // Enum types
-export type ChannelType = 'eposnow' | 'wix' | 'deliveroo';
+export type ChannelType = 'eposnow' | 'wix' | 'deliveroo' | 'shopify' | 'woocommerce' | 'uber_eats';
 export type UserRole = 'owner' | 'admin' | 'staff';
 export type SyncEventStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type AlertType = 'low_stock' | 'sync_error' | 'channel_disconnected' | 'system';

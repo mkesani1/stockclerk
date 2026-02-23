@@ -1,5 +1,5 @@
 // Channel Types
-export type ChannelType = 'eposnow' | 'wix' | 'deliveroo';
+export type ChannelType = 'eposnow' | 'wix' | 'deliveroo' | 'shopify' | 'woocommerce' | 'uber_eats';
 
 // Alert Types
 export type AlertType = 'low_stock' | 'sync_error' | 'channel_disconnected' | 'system';

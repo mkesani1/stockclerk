@@ -52,6 +52,12 @@ export {
   DeliverooProvider,
   createOtterProvider,
   createDeliverooProvider,
+  ShopifyProvider,
+  createShopifyProvider,
+  WooCommerceProvider,
+  createWooCommerceProvider,
+  UberEatsProvider,
+  createUberEatsProvider,
 } from './providers/index.js';
 
 // ============================================================================
@@ -153,6 +159,91 @@ export type {
   OtterWebhookPayload,
   OtterPlatform,
 } from './otter/types.js';
+
+// ============================================================================
+// Shopify Integration
+// ============================================================================
+
+export {
+  // Client
+  ShopifyApiClient,
+  createShopifyClient,
+  ShopifyApiError,
+  ShopifyNotFoundError,
+  ShopifyAuthError,
+  ShopifyRateLimitError,
+  ShopifyServerError,
+  // Webhooks
+  ShopifyWebhookHandler,
+  ShopifyWebhookError,
+  createShopifyWebhookHandler,
+} from './shopify/index.js';
+
+export type {
+  ShopifyClientConfig,
+  ShopifyProduct,
+  ShopifyVariant,
+  ShopifyInventoryLevel,
+  ShopifyInventoryItem,
+  ShopifyLocation,
+  ShopifyWebhookEvent,
+  ShopifyWebhookPayload,
+} from './shopify/types.js';
+
+// ============================================================================
+// WooCommerce Integration
+// ============================================================================
+
+export {
+  // Client
+  WooCommerceApiClient,
+  createWooCommerceClient,
+  WooCommerceApiError,
+  WooCommerceNotFoundError,
+  WooCommerceAuthError,
+  WooCommerceRateLimitError,
+  WooCommerceServerError,
+  // Webhooks
+  WooCommerceWebhookHandler,
+  WooCommerceWebhookError,
+  createWooCommerceWebhookHandler,
+} from './woocommerce/index.js';
+
+export type {
+  WooCommerceClientConfig,
+  WooCommerceProduct,
+  WooCommerceVariation,
+  WooCommerceWebhookEvent,
+  WooCommerceWebhookPayload,
+} from './woocommerce/types.js';
+
+// ============================================================================
+// Uber Eats Integration
+// ============================================================================
+
+export {
+  // Client
+  UberEatsApiClient,
+  createUberEatsClient,
+  UberEatsApiError,
+  UberEatsNotFoundError,
+  UberEatsAuthError,
+  UberEatsRateLimitError,
+  UberEatsServerError,
+  // Webhooks
+  UberEatsWebhookHandler,
+  UberEatsWebhookError,
+  createUberEatsWebhookHandler,
+} from './uber_eats/index.js';
+
+export type {
+  UberEatsClientConfig,
+  UberEatsStore,
+  UberEatsMenu,
+  UberEatsMenuItem,
+  UberEatsWebhookEvent,
+  UberEatsWebhookPayload,
+} from './uber_eats/types.js';
 
 // ============================================================================
 // Common Types

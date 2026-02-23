@@ -528,6 +528,375 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
   );
 
   /**
+   * POST /webhooks/shopify
+   * Receive webhooks from Shopify
+   */
+  app.post<{
+    Body: string;
+    Headers: {
+      'x-shopify-hmac-sha256'?: string;
+      'x-shopify-shop-domain'?: string;
+      'x-shopify-topic'?: string;
+      'x-shopify-event-id'?: string;
+    };
+  }>(
+    '/shopify',
+    async (
+      request: FastifyRequest<{
+        Body: string;
+        Headers: {
+          'x-shopify-hmac-sha256'?: string;
+          'x-shopify-shop-domain'?: string;
+          'x-shopify-topic'?: string;
+          'x-shopify-event-id'?: string;
+        };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const startTime = Date.now();
+
+      try {
+        const rawBody = request.body;
+        const signature = request.headers['x-shopify-hmac-sha256'];
+        const shopDomain = request.headers['x-shopify-shop-domain'];
+        const topic = request.headers['x-shopify-topic'] || '';
+
+        // Parse the payload
+        let payload: Record<string, unknown>;
+        try {
+          payload = JSON.parse(rawBody);
+        } catch {
+          app.log.warn('Invalid JSON in Shopify webhook');
+          return reply.code(400).send({
+            success: false,
+            error: 'Invalid JSON payload',
+          } satisfies ApiResponse);
+        }
+
+        // Find channel by shop domain
+        const channel = await getChannelByExternalId(
+          'shopify',
+          shopDomain || ''
+        );
+
+        if (!channel) {
+          app.log.warn('No matching Shopify channel found for webhook');
+          return reply.code(200).send({
+            success: true,
+            message: 'Webhook received but no matching channel found',
+          } satisfies ApiResponse);
+        }
+
+        // Verify HMAC signature (Shopify uses base64 digest)
+        if (channel.webhookSecret && signature) {
+          const expectedSignature = crypto
+            .createHmac('sha256', channel.webhookSecret)
+            .update(rawBody, 'utf8')
+            .digest('base64');
+
+          try {
+            const isValid = crypto.timingSafeEqual(
+              Buffer.from(signature),
+              Buffer.from(expectedSignature)
+            );
+            if (!isValid) {
+              app.log.warn('Invalid Shopify webhook signature');
+              return reply.code(401).send({
+                success: false,
+                error: 'Invalid signature',
+              } satisfies ApiResponse);
+            }
+          } catch {
+            app.log.warn('Invalid Shopify webhook signature');
+            return reply.code(401).send({
+              success: false,
+              error: 'Invalid signature',
+            } satisfies ApiResponse);
+          }
+        }
+
+        // Return 200 immediately
+        reply.code(200).send({
+          success: true,
+          message: 'Webhook received',
+        } satisfies ApiResponse);
+
+        // Queue for async processing
+        await addWebhookJob({
+          tenantId: channel.tenantId,
+          channelId: channel.id,
+          channelType: 'shopify',
+          eventType: topic,
+          payload,
+        });
+
+        broadcastToTenant(
+          channel.tenantId,
+          createWebSocketMessage('sync_started', channel.tenantId, {
+            source: 'webhook',
+            channelType: 'shopify',
+            eventType: topic,
+          })
+        );
+
+        app.log.info(
+          `Shopify webhook processed in ${Date.now() - startTime}ms: ${topic}`
+        );
+      } catch (error) {
+        app.log.error({ err: error }, 'Shopify webhook error');
+        return reply.code(200).send({
+          success: false,
+          message: 'Webhook received but processing failed',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  /**
+   * POST /webhooks/woocommerce
+   * Receive webhooks from WooCommerce
+   */
+  app.post<{
+    Body: string;
+    Headers: {
+      'x-wc-webhook-signature'?: string;
+      'x-wc-webhook-topic'?: string;
+      'x-wc-webhook-source'?: string;
+      'x-wc-webhook-id'?: string;
+    };
+  }>(
+    '/woocommerce',
+    async (
+      request: FastifyRequest<{
+        Body: string;
+        Headers: {
+          'x-wc-webhook-signature'?: string;
+          'x-wc-webhook-topic'?: string;
+          'x-wc-webhook-source'?: string;
+          'x-wc-webhook-id'?: string;
+        };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const startTime = Date.now();
+
+      try {
+        const rawBody = request.body;
+        const signature = request.headers['x-wc-webhook-signature'];
+        const topic = request.headers['x-wc-webhook-topic'] || '';
+        const source = request.headers['x-wc-webhook-source'] || '';
+
+        // Parse the payload
+        let payload: Record<string, unknown>;
+        try {
+          payload = JSON.parse(rawBody);
+        } catch {
+          app.log.warn('Invalid JSON in WooCommerce webhook');
+          return reply.code(400).send({
+            success: false,
+            error: 'Invalid JSON payload',
+          } satisfies ApiResponse);
+        }
+
+        // Extract site URL from source header for channel lookup
+        let siteIdentifier = source;
+        try {
+          if (source) {
+            const url = new URL(source);
+            siteIdentifier = url.hostname;
+          }
+        } catch {
+          // Use raw source if URL parsing fails
+        }
+
+        const channel = await getChannelByExternalId(
+          'woocommerce',
+          siteIdentifier
+        );
+
+        if (!channel) {
+          app.log.warn('No matching WooCommerce channel found for webhook');
+          return reply.code(200).send({
+            success: true,
+            message: 'Webhook received but no matching channel found',
+          } satisfies ApiResponse);
+        }
+
+        // Verify signature (WooCommerce uses base64 HMAC-SHA256)
+        if (channel.webhookSecret && signature) {
+          const expectedSignature = crypto
+            .createHmac('sha256', channel.webhookSecret)
+            .update(rawBody, 'utf8')
+            .digest('base64');
+
+          try {
+            const isValid = crypto.timingSafeEqual(
+              Buffer.from(signature),
+              Buffer.from(expectedSignature)
+            );
+            if (!isValid) {
+              app.log.warn('Invalid WooCommerce webhook signature');
+              return reply.code(401).send({
+                success: false,
+                error: 'Invalid signature',
+              } satisfies ApiResponse);
+            }
+          } catch {
+            app.log.warn('Invalid WooCommerce webhook signature');
+            return reply.code(401).send({
+              success: false,
+              error: 'Invalid signature',
+            } satisfies ApiResponse);
+          }
+        }
+
+        // Return 200 immediately
+        reply.code(200).send({
+          success: true,
+          message: 'Webhook received',
+        } satisfies ApiResponse);
+
+        // Queue for async processing
+        await addWebhookJob({
+          tenantId: channel.tenantId,
+          channelId: channel.id,
+          channelType: 'woocommerce',
+          eventType: topic,
+          payload,
+        });
+
+        broadcastToTenant(
+          channel.tenantId,
+          createWebSocketMessage('sync_started', channel.tenantId, {
+            source: 'webhook',
+            channelType: 'woocommerce',
+            eventType: topic,
+          })
+        );
+
+        app.log.info(
+          `WooCommerce webhook processed in ${Date.now() - startTime}ms: ${topic}`
+        );
+      } catch (error) {
+        app.log.error({ err: error }, 'WooCommerce webhook error');
+        return reply.code(200).send({
+          success: false,
+          message: 'Webhook received but processing failed',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  /**
+   * POST /webhooks/uber-eats
+   * Receive webhooks from Uber Eats
+   */
+  app.post<{
+    Body: string;
+    Headers: {
+      'x-uber-signature'?: string;
+    };
+  }>(
+    '/uber-eats',
+    async (
+      request: FastifyRequest<{
+        Body: string;
+        Headers: {
+          'x-uber-signature'?: string;
+        };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const startTime = Date.now();
+
+      try {
+        const rawBody = request.body;
+        const signature = request.headers['x-uber-signature'];
+
+        // Parse the payload
+        let payload: Record<string, unknown>;
+        try {
+          payload = JSON.parse(rawBody);
+        } catch {
+          app.log.warn('Invalid JSON in Uber Eats webhook');
+          return reply.code(400).send({
+            success: false,
+            error: 'Invalid JSON payload',
+          } satisfies ApiResponse);
+        }
+
+        const eventType = (payload.event_type as string) || '';
+        const storeId = (payload.meta as Record<string, unknown>)?.resource_id as string || '';
+
+        const channel = await getChannelByExternalId(
+          'uber_eats',
+          storeId
+        );
+
+        if (!channel) {
+          app.log.warn('No matching Uber Eats channel found for webhook');
+          return reply.code(200).send({
+            success: true,
+            message: 'Webhook received but no matching channel found',
+          } satisfies ApiResponse);
+        }
+
+        // Verify signature (Uber uses hex HMAC-SHA256)
+        if (channel.webhookSecret && signature) {
+          const isValid = verifyHmacSignature(
+            rawBody,
+            signature,
+            channel.webhookSecret,
+            'sha256'
+          );
+
+          if (!isValid) {
+            app.log.warn('Invalid Uber Eats webhook signature');
+            return reply.code(401).send({
+              success: false,
+              error: 'Invalid signature',
+            } satisfies ApiResponse);
+          }
+        }
+
+        // Return 200 immediately (Uber retries aggressively)
+        reply.code(200).send({
+          success: true,
+          message: 'Webhook received',
+        } satisfies ApiResponse);
+
+        // Queue for async processing
+        await addWebhookJob({
+          tenantId: channel.tenantId,
+          channelId: channel.id,
+          channelType: 'uber_eats',
+          eventType,
+          payload,
+        });
+
+        broadcastToTenant(
+          channel.tenantId,
+          createWebSocketMessage('sync_started', channel.tenantId, {
+            source: 'webhook',
+            channelType: 'uber_eats',
+            eventType,
+          })
+        );
+
+        app.log.info(
+          `Uber Eats webhook processed in ${Date.now() - startTime}ms: ${eventType}`
+        );
+      } catch (error) {
+        app.log.error({ err: error }, 'Uber Eats webhook error');
+        return reply.code(200).send({
+          success: false,
+          message: 'Webhook received but processing failed',
+        } satisfies ApiResponse);
+      }
+    }
+  );
+
+  /**
    * GET /webhooks/health
    * Health check endpoint for webhook receivers
    */
@@ -536,7 +905,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
       success: true,
       data: {
         status: 'healthy',
-        receivers: ['eposnow', 'wix', 'otter'],
+        receivers: ['eposnow', 'wix', 'otter', 'shopify', 'woocommerce', 'uber-eats'],
         timestamp: new Date().toISOString(),
       },
     } satisfies ApiResponse);

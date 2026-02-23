@@ -7,6 +7,9 @@ import type { InventoryProvider, ChannelType, ChannelCredentials } from './unifi
 import { EposnowProvider } from './providers/eposnow-provider.js';
 import { WixProvider } from './providers/wix-provider.js';
 import { OtterProvider } from './providers/otter-provider.js';
+import { ShopifyProvider } from './providers/shopify-provider.js';
+import { WooCommerceProvider } from './providers/woocommerce-provider.js';
+import { UberEatsProvider } from './providers/uber-eats-provider.js';
 
 // ============================================================================
 // Factory Types
@@ -51,6 +54,27 @@ export function createProvider(
       provider = new OtterProvider();
       if (options?.webhookSecret) {
         (provider as OtterProvider).setWebhookSecret(options.webhookSecret);
+      }
+      break;
+
+    case 'shopify':
+      provider = new ShopifyProvider();
+      if (options?.webhookSecret) {
+        (provider as ShopifyProvider).setWebhookSecret(options.webhookSecret);
+      }
+      break;
+
+    case 'woocommerce':
+      provider = new WooCommerceProvider();
+      if (options?.webhookSecret) {
+        (provider as WooCommerceProvider).setWebhookSecret(options.webhookSecret);
+      }
+      break;
+
+    case 'uber_eats':
+      provider = new UberEatsProvider();
+      if (options?.webhookSecret) {
+        (provider as UberEatsProvider).setWebhookSecret(options.webhookSecret);
       }
       break;
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
+import type { ChannelType } from '../../types';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: 'default' | 'success' | 'warning' | 'error' | 'primary';
@@ -78,7 +79,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
 // Channel Badge
 export interface ChannelBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  channel: 'eposnow' | 'wix' | 'deliveroo';
+  channel: ChannelType;
   showIcon?: boolean;
 }
 
@@ -88,10 +89,13 @@ export const ChannelBadge: React.FC<ChannelBadgeProps> = ({
   className,
   ...props
 }) => {
-  const channelConfig = {
+  const channelConfig: Record<ChannelType, { icon: string; label: string; color: string }> = {
     eposnow: { icon: String.fromCodePoint(0x25CE), label: 'Eposnow', color: 'bg-blue-50 text-blue-700' },
     wix: { icon: String.fromCodePoint(0x25C7), label: 'Wix', color: 'bg-purple-50 text-purple-700' },
     deliveroo: { icon: String.fromCodePoint(0x25B3), label: 'Deliveroo', color: 'bg-teal-50 text-teal-700' },
+    shopify: { icon: String.fromCodePoint(0x25C6), label: 'Shopify', color: 'bg-green-50 text-green-700' },
+    woocommerce: { icon: String.fromCodePoint(0x25A3), label: 'WooCommerce', color: 'bg-violet-50 text-violet-700' },
+    uber_eats: { icon: String.fromCodePoint(0x25D0), label: 'Uber Eats', color: 'bg-gray-50 text-gray-700' },
   };
 
   const config = channelConfig[channel];

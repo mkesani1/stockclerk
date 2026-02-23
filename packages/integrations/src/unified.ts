@@ -9,7 +9,7 @@ import type { Product, StockUpdate, SyncResult, IntegrationSource } from './type
 // Unified Types
 // ============================================================================
 
-export type ChannelType = 'eposnow' | 'wix' | 'deliveroo';
+export type ChannelType = 'eposnow' | 'wix' | 'deliveroo' | 'uber_eats' | 'shopify' | 'woocommerce';
 
 export interface ChannelCredentials {
   type: ChannelType;
@@ -27,6 +27,18 @@ export interface ChannelCredentials {
   // Otter/Deliveroo credentials
   otterApiKey?: string;
   restaurantId?: string;
+  // Uber Eats credentials
+  uberEatsClientId?: string;
+  uberEatsClientSecret?: string;
+  uberEatsStoreId?: string;
+  // Shopify credentials
+  shopifyShop?: string;
+  shopifyAccessToken?: string;
+  shopifyLocationId?: string;
+  // WooCommerce credentials
+  woocommerceSiteUrl?: string;
+  woocommerceConsumerKey?: string;
+  woocommerceConsumerSecret?: string;
 }
 
 export interface UnifiedProduct {

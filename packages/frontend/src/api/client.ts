@@ -393,6 +393,38 @@ export const channelsApi = {
     return response.data.data!;
   },
 
+  /**
+   * Start Shopify OAuth flow - returns authorization URL
+   */
+  async startShopifyOAuth(shop: string): Promise<{ authUrl: string; state: string }> {
+    const response = await apiClient.get<ApiResponse<{ authUrl: string; state: string }>>(
+      '/channels/shopify/oauth-start',
+      { params: { shop } }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Validate WooCommerce credentials
+   */
+  async validateWooCommerce(data: { siteUrl: string; consumerKey: string; consumerSecret: string }): Promise<{ valid: boolean; storeName?: string }> {
+    const response = await apiClient.post<ApiResponse<{ valid: boolean; storeName?: string }>>(
+      '/channels/woocommerce/validate',
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Start Uber Eats OAuth flow - returns authorization URL
+   */
+  async startUberEatsOAuth(): Promise<{ authUrl: string; state: string }> {
+    const response = await apiClient.get<ApiResponse<{ authUrl: string; state: string }>>(
+      '/channels/uber-eats/oauth-start'
+    );
+    return response.data.data!;
+  },
+
   async update(id: string, data: UpdateChannelData): Promise<Channel> {
     const response = await apiClient.patch<ApiResponse<Channel>>(`/channels/${id}`, data);
     return response.data.data!;

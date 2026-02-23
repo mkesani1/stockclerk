@@ -25,6 +25,9 @@ const channelIcons: Record<ChannelType, string> = {
   eposnow: '\u25CE',   // Circle
   wix: '\u25C7',       // Diamond
   deliveroo: '\u25B3', // Triangle
+  shopify: '\u25C6',   // Rhombus
+  woocommerce: '\u25A3', // Square with dot
+  uber_eats: '\u25D0',  // Circle with left dot
 };
 
 // Channel colors
@@ -32,6 +35,9 @@ const channelColors: Record<ChannelType, string> = {
   eposnow: 'text-blue-600 bg-blue-50 border-blue-200',
   wix: 'text-purple-600 bg-purple-50 border-purple-200',
   deliveroo: 'text-teal-600 bg-teal-50 border-teal-200',
+  shopify: 'text-green-600 bg-green-50 border-green-200',
+  woocommerce: 'text-violet-600 bg-violet-50 border-violet-200',
+  uber_eats: 'text-gray-800 bg-gray-50 border-gray-200',
 };
 
 export const LiveSyncIndicator: React.FC<LiveSyncIndicatorProps> = ({
@@ -136,7 +142,10 @@ export const LiveSyncIndicator: React.FC<LiveSyncIndicatorProps> = ({
                 'h-full rounded-full transition-all duration-300',
                 syncProgress.channelType === 'eposnow' && 'bg-blue-500',
                 syncProgress.channelType === 'wix' && 'bg-purple-500',
-                syncProgress.channelType === 'deliveroo' && 'bg-teal-500'
+                syncProgress.channelType === 'deliveroo' && 'bg-teal-500',
+                syncProgress.channelType === 'shopify' && 'bg-green-500',
+                syncProgress.channelType === 'woocommerce' && 'bg-violet-500',
+                syncProgress.channelType === 'uber_eats' && 'bg-gray-500'
               )}
               style={{ width: `${syncProgress.progress}%` }}
             />

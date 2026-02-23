@@ -7,7 +7,7 @@
 // Channel & Product Types (matching backend schema)
 // ============================================================================
 
-export type ChannelType = 'eposnow' | 'wix' | 'deliveroo';
+export type ChannelType = 'eposnow' | 'wix' | 'deliveroo' | 'shopify' | 'woocommerce' | 'uber_eats';
 export type AlertType = 'low_stock' | 'sync_error' | 'channel_disconnected' | 'system';
 export type SyncEventStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
@@ -460,8 +460,8 @@ export function calculateOnlineStock(actualStock: number, bufferStock: number): 
  * Determine if a channel type is considered "online" for buffer stock purposes
  */
 export function isOnlineChannel(channelType: ChannelType): boolean {
-  // Eposnow is the POS (in-store), Wix and Deliveroo are online
-  return channelType === 'wix' || channelType === 'deliveroo';
+  // Eposnow is the POS (in-store), all others are online channels
+  return channelType !== 'eposnow';
 }
 
 // ============================================================================

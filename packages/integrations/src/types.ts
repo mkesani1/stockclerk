@@ -28,7 +28,7 @@ export interface StockUpdate {
   timestamp: Date;
 }
 
-export type IntegrationSource = 'eposnow' | 'wix' | 'otter';
+export type IntegrationSource = 'eposnow' | 'wix' | 'otter' | 'shopify' | 'woocommerce' | 'uber_eats';
 
 export interface SyncResult {
   success: boolean;

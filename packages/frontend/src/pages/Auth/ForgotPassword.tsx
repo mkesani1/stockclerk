@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { apiClient } from '../../api/client';
+import apiClient from '../../api/client';
 
 export const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
