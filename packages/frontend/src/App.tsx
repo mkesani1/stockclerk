@@ -19,6 +19,10 @@ const Register = lazy(() => import('./pages/Auth/Register'));
 const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'));
 
+// Legal pages - lazy loaded
+const Terms = lazy(() => import('./pages/Legal/Terms'));
+const Privacy = lazy(() => import('./pages/Legal/Privacy'));
+
 // Connect pages (marketplace landing) - lazy loaded
 const EposnowConnect = lazy(() => import('./pages/Connect/EposnowConnect'));
 
@@ -112,6 +116,24 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
+
+          {/* Legal pages (standalone - no auth wrapper) */}
+          <Route
+            path="/terms"
+            element={
+              <Suspense fallback={<FullPageSpinner />}>
+                <Terms />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <Suspense fallback={<FullPageSpinner />}>
+                <Privacy />
+              </Suspense>
+            }
+          />
 
           {/* Marketplace connect routes (standalone - no auth wrapper) */}
           <Route

@@ -53,6 +53,7 @@ export interface RegisterData {
   email: string;
   password: string;
   name?: string;
+  promoCode?: string;
 }
 
 // Backend user shape (differs from frontend User type)

@@ -52,7 +52,14 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           } satisfies ApiResponse);
         }
 
-        const { tenantName, tenantSlug, email, password, name } = validation.data;
+        const { tenantName, tenantSlug, email, password, name, promoCode } = validation.data;
+
+        // Valid promo codes: code → months free
+        const PROMO_CODES: Record<string, number> = {
+          'STOCKCLERK12': 12,
+          'EARLYADOPTER': 12,
+          'LGHP2025': 12,
+        };
 
         // Check if tenant slug already exists
         const existingTenant = await db.query.tenants.findFirst({
@@ -85,9 +92,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
         // Create tenant and user in a transaction
         const result = await db.transaction(async (tx) => {
-          // Set trial to end 14 days from now
+          // Check promo code for extended trial
+          const promoMonths = promoCode ? PROMO_CODES[promoCode.toUpperCase().trim()] : undefined;
+
           const trialEndsAt = new Date();
-          trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+          if (promoMonths) {
+            // Promo code: set trial to N months from now
+            trialEndsAt.setMonth(trialEndsAt.getMonth() + promoMonths);
+          } else {
+            // Default: 14-day trial
+            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+          }
 
           // Create tenant
           const [newTenant] = await tx

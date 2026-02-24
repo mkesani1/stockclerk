@@ -39,6 +39,7 @@ export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(100),
   name: z.string().min(1).max(255).optional(),
+  promoCode: z.string().max(50).optional(),
 });
 
 export const loginSchema = z.object({

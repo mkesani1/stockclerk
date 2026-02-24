@@ -12,7 +12,7 @@ interface AuthState {
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, businessName: string) => Promise<void>;
+  register: (email: string, password: string, name: string, businessName: string, promoCode?: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
@@ -81,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      register: async (email: string, password: string, name: string, businessName: string) => {
+      register: async (email: string, password: string, name: string, businessName: string, promoCode?: string) => {
         set({ isLoading: true });
 
         try {
@@ -91,6 +91,7 @@ export const useAuthStore = create<AuthState>()(
             email,
             password,
             name,
+            ...(promoCode ? { promoCode } : {}),
           });
 
           const frontendUser = mapToFrontendUser(response.user, response.tenant);

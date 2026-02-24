@@ -13,6 +13,7 @@ export const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [promoCode, setPromoCode] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +42,7 @@ export const Register: React.FC = () => {
     }
 
     try {
-      await register(email, password, name, businessName);
+      await register(email, password, name, businessName, promoCode || undefined);
       navigate('/onboarding');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
@@ -111,6 +112,14 @@ export const Register: React.FC = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               autoComplete="new-password"
+            />
+
+            <Input
+              label="Promo Code"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+              placeholder="Enter promo code (optional)"
+              autoComplete="off"
             />
 
             <div className="flex items-start gap-2">
