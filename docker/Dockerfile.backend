@@ -23,8 +23,8 @@ COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/integrations/package.json ./packages/integrations/
 COPY packages/sync-engine/package.json ./packages/sync-engine/
 
-# Install deps with reduced memory
-RUN NODE_OPTIONS="--max-old-space-size=512" npm ci --ignore-scripts
+# Install all deps for build
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY tsconfig.json ./
