@@ -14,8 +14,17 @@ const createCheckoutSchema = z.object({
   }),
 });
 
-// Initialize Stripe
-const stripe = new Stripe(config.STRIPE_SECRET_KEY);
+// Lazy Stripe initialization — avoids fatal crash if STRIPE_SECRET_KEY is not set
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!config.STRIPE_SECRET_KEY) {
+      throw new Error('Stripe is not configured — set STRIPE_SECRET_KEY environment variable');
+    }
+    _stripe = new Stripe(config.STRIPE_SECRET_KEY);
+  }
+  return _stripe;
+}
 
 // Plan configuration mapping
 const PLAN_CONFIG = {
@@ -164,7 +173,7 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
         let stripeCustomerId = tenant.stripeCustomerId;
 
         if (!stripeCustomerId) {
-          const customer = await stripe.customers.create({
+          const customer = await getStripe().customers.create({
             email: owner.email,
             metadata: {
               tenantId,
@@ -184,7 +193,7 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
         const planConfig = PLAN_CONFIG[plan];
 
         // Create Checkout session
-        const session = await stripe.checkout.sessions.create({
+        const session = await getStripe().checkout.sessions.create({
           customer: stripeCustomerId,
           mode: 'subscription',
           payment_method_types: ['card'],
@@ -255,7 +264,7 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Create portal session
-      const session = await stripe.billingPortal.sessions.create({
+      const session = await getStripe().billingPortal.sessions.create({
         customer: tenant.stripeCustomerId,
         return_url: `${config.FRONTEND_URL}/settings`,
       });
@@ -304,7 +313,7 @@ export async function stripeWebhookRoutes(app: FastifyInstance): Promise<void> {
       // Verify webhook signature
       let event: Stripe.Event;
       try {
-        event = stripe.webhooks.constructEvent(
+        event = getStripe().webhooks.constructEvent(
           request.body as Buffer,
           sig,
           config.STRIPE_WEBHOOK_SECRET
@@ -343,7 +352,7 @@ export async function stripeWebhookRoutes(app: FastifyInstance): Promise<void> {
             break;
           }
 
-          const subscription = await stripe.subscriptions.retrieve(
+          const subscription = await getStripe().subscriptions.retrieve(
             session.subscription as string
           );
 
