@@ -50,8 +50,13 @@ export async function runMigrations(): Promise<void> {
     await client.query(`DO $$ BEGIN CREATE TYPE channel_type AS ENUM ('eposnow', 'wix', 'deliveroo', 'shopify', 'woocommerce', 'uber_eats'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
 
     // Add newer channel types to existing enum (safe to run if values already exist)
+    // NOTE: ALTER TYPE ... ADD VALUE cannot run inside a transaction or DO block in PostgreSQL
     for (const val of ['shopify', 'woocommerce', 'uber_eats']) {
-      await client.query(`DO $$ BEGIN ALTER TYPE channel_type ADD VALUE IF NOT EXISTS '${val}'; EXCEPTION WHEN duplicate_object THEN null; END $$`);
+      try {
+        await client.query(`ALTER TYPE channel_type ADD VALUE IF NOT EXISTS '${val}'`);
+      } catch (e) {
+        // Ignore if value already exists
+      }
     }
     await client.query(`DO $$ BEGIN CREATE TYPE user_role AS ENUM ('owner', 'admin', 'staff'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
     await client.query(`DO $$ BEGIN CREATE TYPE sync_event_status AS ENUM ('pending', 'processing', 'completed', 'failed'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
