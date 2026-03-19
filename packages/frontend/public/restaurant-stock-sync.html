@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stop Overselling on Deliveroo and Uber Eats | StockClerk</title>
+    <meta name="description" content="Juggling Deliveroo, Uber Eats, and in-store orders? StockClerk keeps your restaurant inventory in perfect sync across every channel, automatically. No more order cancellations. Free trial.">
+
+    <link rel="canonical" href="https://stockclerk.ai/restaurant-stock-sync.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Stop Overselling on Deliveroo and Uber Eats | StockClerk">
+    <meta property="og:description" content="Juggling Deliveroo, Uber Eats, and in-store orders? StockClerk keeps your restaurant inventory in perfect sync across every channel, automatically.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://stockclerk.ai/restaurant-stock-sync.html">
+    <meta property="og:image" content="https://stockclerk.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Stop Overselling on Deliveroo and Uber Eats | StockClerk">
+    <meta name="twitter:description" content="Juggling Deliveroo, Uber Eats, and in-store orders? StockClerk keeps your restaurant inventory in perfect sync across every channel, automatically.">
+    <meta name="twitter:image" content="https://stockclerk.ai/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- Structured Data: WebPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Stop Overselling on Deliveroo and Uber Eats",
+      "description": "Juggling Deliveroo, Uber Eats, and in-store orders? StockClerk keeps your restaurant inventory in perfect sync across every channel — automatically, in real time.",
+      "url": "https://stockclerk.ai/restaurant-stock-sync.html",
+      "inLanguage": "en-GB",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "StockClerk",
+        "url": "https://stockclerk.ai"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "StockClerk",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "50",
+          "priceCurrency": "GBP",
+          "description": "14-day free trial, then from £50/month"
+        },
+        "url": "https://stockclerk.ai",
+        "creator": {
+          "@type": "SoftwareApplication",
+          "name": "Perplexity Computer",
+          "url": "https://www.perplexity.ai/computer"
+        }
+      }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does StockClerk work with both Deliveroo and Uber Eats at the same time?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. StockClerk manages stock propagation to multiple delivery channels simultaneously. When a sale occurs on any channel, all other channels are updated in real time. You can run Deliveroo, Uber Eats, and in-store service concurrently without any manual stock management."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the buffer stock feature work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can configure a buffer amount for any product — for example, keep 4 portions reserved for walk-in customers. StockClerk will subtract this buffer from the quantity it reports to delivery apps, so walk-in customers always have stock available even when delivery orders are flowing in."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can StockClerk automatically pause a dish on all platforms when I run out?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. When stock hits zero (or your configured minimum threshold), StockClerk marks the item as unavailable across all connected delivery platforms simultaneously. Customers browsing Deliveroo or Uber Eats will no longer see the item as orderable, preventing cancellations entirely."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which POS systems does StockClerk support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "StockClerk currently has deep integration with Eposnow. Shopify and WooCommerce integrations are also supported for restaurants using those platforms. Uber Eats and Deliveroo are connected via Otter, which supports a wide range of POS integrations."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6B5344;
+            --primary-light: #C9B8A8;
+            --muted: #E8E4DD;
+            --background: #FAF8F5;
+            --background-alt: #F5F2ED;
+            --border: #E8E4DD;
+            --text: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B958E;
+            --card: #FFFFFF;
+            --success: #5D8B55;
+            --warning: #C9A86C;
+            --error: #B85C5C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo {
+            font-size: 24px; font-weight: 700; color: var(--primary-dark);
+            letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; background: var(--primary); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px;
+        }
+        .nav-links { display: flex; gap: 32px; }
+        .nav-links a {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 14px; font-weight: 500; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-cta {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; background: var(--primary); color: white;
+            text-decoration: none; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+        .nav-cta:hover { background: var(--primary-dark); }
+
+        /* Hero */
+        .page-hero {
+            padding: 112px 32px 72px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .breadcrumb { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; background: var(--card);
+            border: 1px solid var(--border); border-radius: 100px;
+            font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 24px;
+        }
+        .hero-badge .dot {
+            width: 6px; height: 6px; background: var(--success);
+            border-radius: 50%; animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .page-hero h1 {
+            font-size: 48px; font-weight: 700; line-height: 1.1;
+            color: var(--text); margin-bottom: 20px; letter-spacing: -1px; max-width: 760px;
+        }
+        .page-hero h1 span { color: var(--primary); }
+        .hero-subtitle {
+            font-size: 18px; color: var(--text-secondary);
+            margin-bottom: 36px; line-height: 1.7; max-width: 620px;
+        }
+        .hero-cta { display: flex; gap: 12px; margin-bottom: 48px; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px 28px; border-radius: 8px; font-size: 15px; font-weight: 600;
+            text-decoration: none; cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--background-alt); }
+
+        .stats-row { display: flex; gap: 40px; flex-wrap: wrap; }
+        .stat { text-align: left; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--primary-dark); }
+        .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Sections */
+        .section { padding: 80px 32px; max-width: 1200px; margin: 0 auto; }
+        .section-full {
+            padding: 80px 32px;
+            background: var(--background-alt);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .section-full-inner { max-width: 1200px; margin: 0 auto; }
+        .section-label {
+            font-size: 13px; font-weight: 600; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 36px; font-weight: 700; color: var(--text);
+            margin-bottom: 16px; letter-spacing: -0.5px;
+        }
+        .section-subtitle { font-size: 17px; color: var(--text-secondary); max-width: 580px; line-height: 1.7; }
+
+        /* Pain Banner */
+        .pain-banner {
+            background: var(--card); border: 1px solid var(--border);
+            border-left: 4px solid var(--error);
+            border-radius: 0 12px 12px 0;
+            padding: 24px 28px; margin-bottom: 48px; max-width: 740px;
+        }
+        .pain-banner h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+        .pain-banner p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* Channel map */
+        .channel-map {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 32px;
+            box-shadow: 0 20px 60px rgba(139, 115, 85, 0.1);
+        }
+        .channel-map-title {
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 24px; text-align: center;
+        }
+        .channel-hub {
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .hub-box {
+            background: var(--primary); border-radius: 14px;
+            padding: 16px 24px; text-align: center; color: white;
+        }
+        .hub-box .hub-icon { font-size: 24px; margin-bottom: 4px; }
+        .hub-box .hub-name { font-size: 14px; font-weight: 700; }
+        .hub-box .hub-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+
+        .channel-arrows {
+            display: flex; justify-content: space-around; margin-bottom: 12px;
+        }
+        .channel-arrow { font-size: 20px; color: var(--primary); text-align: center; }
+
+        .channels-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+        }
+        .channel-box {
+            background: var(--background-alt); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px; text-align: center;
+        }
+        .channel-box .c-icon { font-size: 24px; margin-bottom: 6px; }
+        .channel-box .c-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .channel-box .c-status { font-size: 11px; color: var(--success); margin-top: 3px; }
+        .sync-note {
+            margin-top: 16px; text-align: center; font-size: 12px;
+            color: var(--text-muted); padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Feature rows */
+        .feature-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 72px; align-items: center; margin-bottom: 80px;
+        }
+        .feature-content { max-width: 480px; }
+        .feature-title {
+            font-size: 26px; font-weight: 700; color: var(--text);
+            margin-bottom: 14px; letter-spacing: -0.3px;
+        }
+        .feature-desc { font-size: 16px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+        .feature-list { list-style: none; }
+        .feature-list li {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 0; font-size: 15px; color: var(--text-secondary);
+        }
+        .feature-list li .check {
+            width: 20px; height: 20px; background: rgba(93, 139, 85, 0.1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--success); font-size: 11px; flex-shrink: 0; margin-top: 2px;
+        }
+
+        /* Buffer feature panel */
+        .feature-panel {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px;
+            box-shadow: 0 8px 32px rgba(139,115,85,0.08);
+        }
+        .panel-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-icon {
+            width: 44px; height: 44px; background: var(--background-alt);
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 20px;
+        }
+        .panel-title { font-size: 16px; font-weight: 600; color: var(--text); }
+        .panel-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .buffer-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; background: var(--background-alt);
+            border-radius: 10px; margin-bottom: 10px;
+        }
+        .buffer-product { flex: 1; }
+        .buffer-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .buffer-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .buffer-numbers { display: flex; gap: 8px; align-items: center; }
+        .buffer-num {
+            text-align: center; min-width: 44px;
+        }
+        .buffer-num .num { font-size: 18px; font-weight: 700; color: var(--text); }
+        .buffer-num .lbl { font-size: 10px; color: var(--text-muted); }
+        .buffer-divider { color: var(--text-muted); font-size: 12px; }
+        .buffer-available {
+            padding: 5px 10px; background: rgba(93,139,85,0.1);
+            border-radius: 100px; font-size: 11px; font-weight: 600; color: var(--success);
+        }
+
+        /* Steps */
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; margin-top: 48px;
+        }
+        .step-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px;
+        }
+        .step-number {
+            width: 36px; height: 36px; background: var(--primary); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 15px; font-weight: 700; margin-bottom: 16px;
+        }
+        .step-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+        .step-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* Agent Grid */
+        .agent-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 20px; margin-top: 48px;
+        }
+        .agent-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; text-align: center;
+            position: relative; transition: all 0.3s ease;
+        }
+        .agent-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .agent-card::before {
+            content: ''; position: absolute; top: 0; left: 24px; right: 24px;
+            height: 3px; background: var(--primary); border-radius: 0 0 3px 3px;
+        }
+        .agent-card-icon {
+            width: 56px; height: 56px; background: var(--background-alt);
+            border: 1px solid var(--border); border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin: 0 auto 16px;
+        }
+        .agent-card-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .agent-card-role { font-size: 12px; color: var(--primary); font-weight: 500; margin-bottom: 12px; }
+        .agent-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* Pricing */
+        .pricing-highlight {
+            background: var(--card); border: 2px solid var(--primary);
+            border-radius: 16px; padding: 36px 32px; text-align: center; max-width: 380px;
+        }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .pricing-price { font-size: 52px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .pricing-price span { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+        .pricing-features { list-style: none; text-align: left; margin-bottom: 24px; }
+        .pricing-features li {
+            padding: 10px 0; font-size: 14px; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pricing-features li:last-child { border-bottom: none; }
+        .pricing-features li::before {
+            content: '✓'; width: 18px; height: 18px;
+            background: rgba(93, 139, 85, 0.1); color: var(--success);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 10px; flex-shrink: 0;
+        }
+
+        /* FAQ */
+        .faq-list { max-width: 760px; margin: 48px auto 0; }
+        .faq-item {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; margin-bottom: 12px; overflow: hidden;
+        }
+        .faq-question-text { font-size: 16px; font-weight: 600; color: var(--text); padding: 20px 24px; }
+        .faq-answer {
+            padding: 0 24px 20px; font-size: 15px;
+            color: var(--text-secondary); line-height: 1.7;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: var(--primary-dark); color: white;
+            padding: 80px 32px; text-align: center;
+        }
+        .cta-section h2 { font-size: 36px; font-weight: 700; margin-bottom: 16px; }
+        .cta-section p {
+            font-size: 18px; opacity: 0.9; margin-bottom: 32px;
+            max-width: 500px; margin-left: auto; margin-right: auto;
+        }
+        .btn-white {
+            background: white; color: var(--primary-dark);
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-white:hover { background: var(--background); }
+
+        /* Footer */
+        .footer { padding: 48px 32px; text-align: center; border-top: 1px solid var(--border); }
+        .footer-text { font-size: 13px; color: var(--text-muted); }
+        .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 16px; flex-wrap: wrap; }
+        .footer-links a { font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--primary); }
+
+        /* Prose */
+        .prose { max-width: 760px; margin: 0 auto; }
+        .prose h2 {
+            font-size: 28px; font-weight: 700; color: var(--text);
+            margin-bottom: 16px; margin-top: 48px; letter-spacing: -0.3px;
+        }
+        .prose h2:first-child { margin-top: 0; }
+        .prose p { font-size: 16px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px; }
+        .prose ul { margin: 0 0 20px 20px; }
+        .prose ul li { font-size: 16px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 8px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .feature-row { grid-template-columns: 1fr; gap: 40px; }
+            .agent-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid { grid-template-columns: 1fr; }
+            .channels-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .page-hero h1 { font-size: 34px; }
+            .nav-links { display: none; }
+            .section-title { font-size: 28px; }
+            .agent-grid { grid-template-columns: 1fr; }
+            .stats-row { flex-direction: column; gap: 24px; }
+            .hero-cta { flex-direction: column; }
+            .hero-cta .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">◉</div>
+                StockClerk
+            </a>
+            <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#pricing">Pricing</a>
+                <a href="/login">Log In</a>
+            </div>
+            <a href="/register" class="nav-cta">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="breadcrumb">
+            <a href="/">StockClerk</a> › Restaurant Stock Sync
+        </div>
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Multi-channel · One source of truth
+        </div>
+        <h1>Stop <span>Overselling</span> on Delivery Apps</h1>
+        <p class="hero-subtitle">
+            Juggling Deliveroo, Uber Eats, and the in-store queue at the same time? StockClerk makes your POS the single source of truth — and automatically keeps every delivery platform in sync, all the time.
+        </p>
+        <div class="hero-cta">
+            <a href="/register" class="btn btn-primary">Start 14-Day Free Trial →</a>
+            <a href="/#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-value">&lt;5 sec</div>
+                <div class="stat-label">Cross-channel sync</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Manual updates needed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">AI monitoring</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pain Point -->
+    <div class="section" style="padding-top: 0;">
+        <div class="pain-banner">
+            <h3>The multi-channel restaurant problem</h3>
+            <p>
+                You're in the middle of a Friday evening rush. A table of eight has just sat down, your Deliveroo tablet is chiming, and a customer is at the door for an Uber Eats pickup. You sell out of your slow-cooked short rib at the table. But Deliveroo and Uber Eats still show it as available — and two more orders come in within minutes. Now you're cancelling orders, fielding complaints, and watching your delivery scores slip. All because stock levels weren't synced across every channel in real time.
+            </p>
+        </div>
+
+        <!-- Channel map visual -->
+        <div class="feature-row" style="margin-bottom: 0;">
+            <div class="feature-content">
+                <div class="section-label">The Architecture</div>
+                <h2 class="feature-title">Your POS leads. Every other channel follows.</h2>
+                <p class="feature-desc">
+                    StockClerk treats your POS as the single, authoritative source of stock truth. Every sale — regardless of which channel it comes through — updates the POS. And every POS update propagates to all delivery apps instantly.
+                </p>
+                <ul class="feature-list">
+                    <li><span class="check">✓</span><span>POS sale → Deliveroo and Uber Eats updated in under 5 seconds</span></li>
+                    <li><span class="check">✓</span><span>Delivery app sale → POS stock decremented automatically</span></li>
+                    <li><span class="check">✓</span><span>Any channel can sell, one system stays in sync</span></li>
+                    <li><span class="check">✓</span><span>Item sells out → automatically paused on all platforms</span></li>
+                </ul>
+            </div>
+            <div>
+                <div class="channel-map">
+                    <div class="channel-map-title">StockClerk · Multi-Channel Hub</div>
+                    <div class="channel-hub">
+                        <div class="hub-box">
+                            <div class="hub-icon">◉</div>
+                            <div class="hub-name">StockClerk</div>
+                            <div class="hub-sub">AI Sync Engine · Live</div>
+                        </div>
+                    </div>
+                    <div class="channel-arrows">
+                        <div class="channel-arrow">↙</div>
+                        <div class="channel-arrow">↓</div>
+                        <div class="channel-arrow">↘</div>
+                    </div>
+                    <div class="channels-row">
+                        <div class="channel-box">
+                            <div class="c-icon">◎</div>
+                            <div class="c-name">Eposnow POS</div>
+                            <div class="c-status">● Source</div>
+                        </div>
+                        <div class="channel-box">
+                            <div class="c-icon">△</div>
+                            <div class="c-name">Deliveroo</div>
+                            <div class="c-status">● Synced</div>
+                        </div>
+                        <div class="channel-box">
+                            <div class="c-icon">▽</div>
+                            <div class="c-name">Uber Eats</div>
+                            <div class="c-status">● Synced</div>
+                        </div>
+                    </div>
+                    <div class="sync-note">All channels reconciled · 8 seconds ago · 0 discrepancies</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buffer stock feature -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div class="feature-row" style="margin-bottom: 0;">
+                <div class="feature-content">
+                    <div class="section-label">Buffer Stock Feature</div>
+                    <h2 class="feature-title">Reserve stock for your walk-in customers</h2>
+                    <p class="feature-desc">
+                        If you run both a dine-in service and delivery apps, you may not want delivery orders to consume every last unit of stock. StockClerk's buffer reserve lets you protect a portion of each item for your in-restaurant customers, regardless of how busy your delivery channels are.
+                    </p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span><span>Set a per-product buffer (e.g., keep 4 portions for walk-ins)</span></li>
+                        <li><span class="check">✓</span><span>Delivery apps show reduced availability automatically</span></li>
+                        <li><span class="check">✓</span><span>No technical configuration — set it in the StockClerk dashboard</span></li>
+                        <li><span class="check">✓</span><span>Adjust buffers any time, even mid-service</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="feature-panel">
+                        <div class="panel-header">
+                            <div class="panel-icon">⬡</div>
+                            <div>
+                                <div class="panel-title">Buffer Stock Settings</div>
+                                <div class="panel-sub">Reserve stock for walk-in customers</div>
+                            </div>
+                        </div>
+                        <div class="buffer-row">
+                            <div class="buffer-product">
+                                <div class="buffer-name">Short Rib (slow-cooked)</div>
+                                <div class="buffer-desc">Tonight's special</div>
+                            </div>
+                            <div class="buffer-numbers">
+                                <div class="buffer-num">
+                                    <div class="num">14</div>
+                                    <div class="lbl">In stock</div>
+                                </div>
+                                <div class="buffer-divider">−</div>
+                                <div class="buffer-num">
+                                    <div class="num">4</div>
+                                    <div class="lbl">Reserved</div>
+                                </div>
+                                <div class="buffer-divider">=</div>
+                                <div class="buffer-available">10 on apps</div>
+                            </div>
+                        </div>
+                        <div class="buffer-row">
+                            <div class="buffer-product">
+                                <div class="buffer-name">Crispy Duck Breast</div>
+                                <div class="buffer-desc">Main course</div>
+                            </div>
+                            <div class="buffer-numbers">
+                                <div class="buffer-num">
+                                    <div class="num">9</div>
+                                    <div class="lbl">In stock</div>
+                                </div>
+                                <div class="buffer-divider">−</div>
+                                <div class="buffer-num">
+                                    <div class="num">2</div>
+                                    <div class="lbl">Reserved</div>
+                                </div>
+                                <div class="buffer-divider">=</div>
+                                <div class="buffer-available">7 on apps</div>
+                            </div>
+                        </div>
+                        <div class="buffer-row">
+                            <div class="buffer-product">
+                                <div class="buffer-name">Chocolate Fondant</div>
+                                <div class="buffer-desc">Dessert</div>
+                            </div>
+                            <div class="buffer-numbers">
+                                <div class="buffer-num">
+                                    <div class="num">18</div>
+                                    <div class="lbl">In stock</div>
+                                </div>
+                                <div class="buffer-divider">−</div>
+                                <div class="buffer-num">
+                                    <div class="num">3</div>
+                                    <div class="lbl">Reserved</div>
+                                </div>
+                                <div class="buffer-divider">=</div>
+                                <div class="buffer-available">15 on apps</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agents section -->
+    <div class="section">
+        <div class="section-label">Meet Your AI Team</div>
+        <h2 class="section-title">Four agents, working every second</h2>
+        <p class="section-subtitle">StockClerk is powered by four coordinated AI agents. They watch, sync, reconcile, and escalate — so you don't have to.</p>
+
+        <div class="agent-grid">
+            <div class="agent-card">
+                <div class="agent-card-icon">◉</div>
+                <div class="agent-card-name">Watcher</div>
+                <div class="agent-card-role">Event Monitor</div>
+                <p class="agent-card-desc">Watches your POS, Deliveroo, and Uber Eats simultaneously. Any stock movement on any channel is detected the instant it happens.</p>
+            </div>
+            <div class="agent-card">
+                <div class="agent-card-icon">↻</div>
+                <div class="agent-card-name">Sync</div>
+                <div class="agent-card-role">Propagation Engine</div>
+                <p class="agent-card-desc">Receives the event from Watcher, calculates the correct stock level across all channels, and pushes updates to every platform in under 5 seconds.</p>
+            </div>
+            <div class="agent-card">
+                <div class="agent-card-icon">⬡</div>
+                <div class="agent-card-name">Guardian</div>
+                <div class="agent-card-role">Reconciliation Agent</div>
+                <p class="agent-card-desc">Independently audits all channels every 15 minutes. Automatically corrects any drift — even if an event was missed due to a network blip or manual edit.</p>
+            </div>
+            <div class="agent-card">
+                <div class="agent-card-icon">⚑</div>
+                <div class="agent-card-name">Alert</div>
+                <div class="agent-card-role">Smart Escalation</div>
+                <p class="agent-card-desc">Filters routine sync activity so you only hear about things that genuinely need your attention — like running critically low on a popular dish during peak hours.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Long-form content -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div class="prose">
+                <h2>Why restaurants oversell on delivery apps — and how to stop it</h2>
+                <p>
+                    Restaurant inventory management across multiple delivery platforms is fundamentally a synchronisation problem. When you serve a dish to a dine-in customer, that transaction happens at your POS. But your Deliveroo menu and Uber Eats listing don't know about it. Unless someone manually updates the stock on each platform — usually via a separate tablet or web portal — they'll continue showing the dish as available long after you've run out.
+                </p>
+                <p>
+                    For small restaurants with a limited menu, this might cause one or two overselling incidents a week. For busier venues with a larger rotating menu and high delivery volume, the problem can scale into dozens of avoidable cancellations per week. Each cancellation carries a direct cost: the order revenue is lost, the customer is frustrated, and your visibility on the platform's algorithm may be penalised.
+                </p>
+                <p>
+                    StockClerk eliminates this problem by removing manual stock management entirely. From the moment you connect your channels, every sale is automatically reflected everywhere.
+                </p>
+
+                <h2>Restaurant stock management: why real-time matters</h2>
+                <p>
+                    The critical window between a sale happening and the delivery app menu updating is where overselling occurs. If that window is 10 minutes — the time it might take a staff member to notice and manually update the menu — then during any busy 10-minute period you're exposed. If that window is under 5 seconds, you're effectively never exposed.
+                </p>
+                <p>
+                    StockClerk's architecture is designed around this principle. The Watcher agent doesn't poll for changes on a fixed timer — it responds to events as they occur, triggering the Sync agent immediately. The result is a consistent under-5-second update cycle for every channel.
+                </p>
+
+                <h2>How StockClerk handles concurrent orders from multiple channels</h2>
+                <p>
+                    One of the trickier scenarios in multi-channel restaurant management is when orders arrive simultaneously from different platforms. A walk-in orders the last two portions of the special; at the same moment, a Deliveroo order comes in for the same dish. Without a central synchronisation layer, both transactions might succeed and leave you with a negative stock position.
+                </p>
+                <p>
+                    StockClerk handles concurrent events using an ordered event queue. Both the POS transaction and the delivery order are processed in sequence, with the stock level checked and decremented correctly for each. The second order, if stock is exhausted, triggers an automatic availability update to the platform — either reducing quantity to zero or marking the item as unavailable, depending on your settings.
+                </p>
+
+                <h2>Protecting your Deliveroo and Uber Eats rankings</h2>
+                <p>
+                    Both Deliveroo and Uber Eats factor cancellation rates and rejection rates into how your restaurant is ranked in local search and recommendations. A high cancellation rate — even if driven by inventory problems rather than quality issues — can reduce your visibility and compound the revenue impact of overselling.
+                </p>
+                <p>
+                    By eliminating stock-related cancellations, StockClerk protects your platform rankings. Over time, the compounding effect of improved visibility, reduced cancellations, and better customer experience can meaningfully increase your delivery revenue — well beyond the cost of the subscription.
+                </p>
+
+                <h2>Setup for restaurants: what's required</h2>
+                <p>
+                    Getting StockClerk running for a multi-channel restaurant typically takes around 15 minutes:
+                </p>
+                <ul>
+                    <li>Connect your Eposnow POS with your API key from Back Office</li>
+                    <li>Link Deliveroo through Otter (a 3-click OAuth process)</li>
+                    <li>Link Uber Eats through Otter in the same workflow</li>
+                    <li>Configure any buffer stock reserves for your walk-in customers</li>
+                    <li>Run the initial sync to baseline all channels against your current Eposnow stock</li>
+                </ul>
+                <p>
+                    From that point, StockClerk runs automatically. No daily maintenance, no manual updates, no checking that each platform reflects what's in your kitchen.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="section" style="display: flex; flex-direction: column; align-items: center;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div class="section-label">Pricing</div>
+            <h2 class="section-title">Simple, honest pricing</h2>
+            <p class="section-subtitle" style="margin: 0 auto;">14-day free trial. No credit card required.</p>
+        </div>
+        <div class="pricing-highlight">
+            <div class="pricing-name">Starter</div>
+            <div class="pricing-price">£50<span>/mo</span></div>
+            <div class="pricing-desc">For restaurants and takeaways</div>
+            <ul class="pricing-features">
+                <li>POS + Deliveroo + Uber Eats sync</li>
+                <li>4 AI agents, always on</li>
+                <li>Buffer stock configuration</li>
+                <li>Auto-pause when sold out</li>
+                <li>15-minute Guardian audits</li>
+            </ul>
+            <a href="/register" class="btn btn-primary" style="width: 100%; justify-content: center;">Start 14-Day Free Trial</a>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">No credit card required. Cancel anytime.</p>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div style="text-align: center;">
+                <div class="section-label">FAQ</div>
+                <h2 class="section-title">Common questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question-text">Does StockClerk work with both Deliveroo and Uber Eats at the same time?</div>
+                    <div class="faq-answer">
+                        Yes. StockClerk manages stock propagation to multiple delivery channels simultaneously. When a sale occurs on any channel, all other channels are updated in real time. You can run Deliveroo, Uber Eats, and in-store service concurrently without any manual stock management.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question-text">How does the buffer stock feature work?</div>
+                    <div class="faq-answer">
+                        You can configure a buffer amount for any product — for example, keep 4 portions reserved for walk-in customers. StockClerk will subtract this buffer from the quantity it reports to delivery apps, so walk-in customers always have stock available even when delivery orders are flowing in.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question-text">Can StockClerk automatically pause a dish on all platforms when I run out?</div>
+                    <div class="faq-answer">
+                        Yes. When stock hits zero (or your configured minimum threshold), StockClerk marks the item as unavailable across all connected delivery platforms simultaneously. Customers browsing Deliveroo or Uber Eats will no longer see the item as orderable, preventing cancellations entirely.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question-text">Which POS systems does StockClerk support?</div>
+                    <div class="faq-answer">
+                        StockClerk currently has deep integration with Eposnow. Shopify and WooCommerce integrations are also supported for restaurants using those platforms. Uber Eats and Deliveroo are connected via Otter, which supports a wide range of POS integrations.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Ready to eliminate overselling for good?</h2>
+        <p>Start your 14-day free trial. Connect your channels in 15 minutes. Every delivery order will only be for something you actually have in your kitchen.</p>
+        <a href="/register" class="btn-white">Start Free Trial →</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/eposnow-deliveroo-sync.html">Eposnow + Deliveroo Sync</a>
+            <a href="/eposnow-wix-inventory.html">Eposnow + Wix Sync</a>
+            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/terms.html">Terms of Service</a>
+        </div>
+        <p class="footer-text">StockClerk · AI-powered inventory sync for restaurants and retailers · <a href="mailto:hello@stockclerk.ai" style="color: inherit;">hello@stockclerk.ai</a></p>
+        <p class="footer-text" style="margin-top: 8px; opacity: 0.7;">© 2026 · <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" style="color: inherit;">Created with Perplexity Computer</a></p>
+    </footer>
+
+</body>
+</html>

@@ -1,9 +1,26 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { eq, desc } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../db/index.js';
 import { enquiries } from '../db/schema.js';
 import { authenticateRequest } from '../middleware/auth.js';
 import { requireSuperAdmin } from '../middleware/admin.js';
+
+// Zod schemas for enquiry validation
+const createEnquirySchema = z.object({
+  businessName: z.string().min(1, 'Business name is required').max(255),
+  contactName: z.string().min(1, 'Contact name is required').max(255),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().max(50).optional(),
+  shopCount: z.string().min(1, 'Shop count is required'),
+  message: z.string().max(2000).optional(),
+});
+
+const updateEnquiryStatusSchema = z.object({
+  status: z.enum(['new', 'contacted', 'qualified', 'closed'], {
+    errorMap: () => ({ message: 'Status must be one of: new, contacted, qualified, closed' }),
+  }),
+});
 
 // Public route - anyone can submit an enquiry
 export async function enquiryPublicRoutes(app: FastifyInstance): Promise<void> {
@@ -16,18 +33,38 @@ export async function enquiryPublicRoutes(app: FastifyInstance): Promise<void> {
       shopCount: string;
       message?: string;
     };
-  }>('/enterprise', async (request, reply) => {
+  }>(
+    '/enterprise',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['businessName', 'contactName', 'email', 'shopCount'],
+          properties: {
+            businessName: { type: 'string', minLength: 1, maxLength: 255 },
+            contactName: { type: 'string', minLength: 1, maxLength: 255 },
+            email: { type: 'string', format: 'email' },
+            phone: { type: 'string', maxLength: 50 },
+            shopCount: { type: 'string', minLength: 1 },
+            message: { type: 'string', maxLength: 2000 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
+    async (request, reply) => {
     try {
-      const { businessName, contactName, email, phone, shopCount, message } = request.body;
-
-      // Basic validation
-      if (!businessName || !contactName || !email || !shopCount) {
+      // Validate with Zod for detailed error messages
+      const validation = createEnquirySchema.safeParse(request.body);
+      if (!validation.success) {
         return reply.code(400).send({
           success: false,
           error: 'Validation error',
-          message: 'businessName, contactName, email, and shopCount are required',
+          message: validation.error.issues.map((i) => i.message).join(', '),
         });
       }
+
+      const { businessName, contactName, email, phone, shopCount, message } = validation.data;
 
       const [enquiry] = await db
         .insert(enquiries)
@@ -93,14 +130,18 @@ export async function enquiryAdminRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       try {
         const { id } = request.params;
-        const { status } = request.body;
 
-        if (!['new', 'contacted', 'qualified', 'closed'].includes(status)) {
+        // Validate with Zod
+        const validation = updateEnquiryStatusSchema.safeParse(request.body);
+        if (!validation.success) {
           return reply.code(400).send({
             success: false,
-            error: 'Invalid status',
+            error: 'Validation error',
+            message: validation.error.issues.map((i) => i.message).join(', '),
           });
         }
+
+        const { status } = validation.data;
 
         const [updated] = await db
           .update(enquiries)

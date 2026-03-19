@@ -13,6 +13,7 @@ import {
 } from '../types/index.js';
 import { authenticateRequest, getTenantId } from '../middleware/auth.js';
 import crypto from 'crypto';
+import { getRedisConnection } from '../queues/index.js';
 
 // Wix OAuth configuration
 const WIX_CLIENT_ID = process.env.WIX_CLIENT_ID || '';
@@ -32,18 +33,29 @@ const UBER_EATS_CLIENT_ID = process.env.UBER_EATS_CLIENT_ID || '';
 const UBER_EATS_CLIENT_SECRET = process.env.UBER_EATS_CLIENT_SECRET || '';
 const UBER_EATS_REDIRECT_URI = process.env.UBER_EATS_REDIRECT_URI || 'http://localhost:3001/api/oauth/uber-eats/callback';
 
-// Temporary storage for OAuth state (use Redis in production)
-const oauthStateMap = new Map<string, { tenantId: string; timestamp: number }>();
+// Redis-backed OAuth state store (replaces in-memory Map)
+// Keys are namespaced as `oauth:state:{stateToken}` with a 600-second TTL.
+const OAUTH_STATE_TTL = 600; // seconds (10 minutes)
 
-// Clean up expired OAuth states (older than 10 minutes)
-setInterval(() => {
-  const now = Date.now();
-  for (const [state, data] of oauthStateMap.entries()) {
-    if (now - data.timestamp > 10 * 60 * 1000) {
-      oauthStateMap.delete(state);
-    }
-  }
-}, 60000);
+async function setOAuthState(state: string, data: { tenantId: string; timestamp: number }): Promise<void> {
+  const redis = getRedisConnection();
+  await redis.set(`oauth:state:${state}`, JSON.stringify(data), 'EX', OAUTH_STATE_TTL);
+}
+
+async function getOAuthState(state: string): Promise<{ tenantId: string; timestamp: number } | null> {
+  const redis = getRedisConnection();
+  // Atomically get and delete so state can only be consumed once
+  const [value] = await redis.pipeline().get(`oauth:state:${state}`).del(`oauth:state:${state}`).exec() as [any, any];
+  const raw = value?.[1];
+  if (!raw) return null;
+  return JSON.parse(raw) as { tenantId: string; timestamp: number };
+}
+
+async function hasOAuthState(state: string): Promise<boolean> {
+  const redis = getRedisConnection();
+  const exists = await redis.exists(`oauth:state:${state}`);
+  return exists === 1;
+}
 
 // Simple encryption for credentials (use a proper KMS in production)
 const ALGORITHM = 'aes-256-gcm';
@@ -149,6 +161,21 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
   // POST /channels - Create new channel
   app.post<{ Body: CreateChannelInput }>(
     '/',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['type', 'name'],
+          properties: {
+            type: { type: 'string', enum: ['eposnow', 'wix', 'deliveroo', 'shopify', 'woocommerce', 'uber_eats'] },
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            credentials: { type: 'object' },
+            externalInstanceId: { type: 'string' },
+          },
+          additionalProperties: true,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: CreateChannelInput }>, reply: FastifyReply) => {
       try {
         const tenantId = getTenantId(request);
@@ -203,6 +230,27 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
   // PATCH /channels/:id - Update channel
   app.patch<{ Params: { id: string }; Body: UpdateChannelInput }>(
     '/:id',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            credentials: { type: 'object' },
+            isActive: { type: 'boolean' },
+          },
+          additionalProperties: false,
+          minProperties: 1,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: UpdateChannelInput }>,
       reply: FastifyReply
@@ -376,7 +424,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const state = crypto.randomBytes(32).toString('hex');
 
       // Store the state with tenant ID for callback verification
-      oauthStateMap.set(state, { tenantId, timestamp: Date.now() });
+      await setOAuthState(state, { tenantId, timestamp: Date.now() });
 
       // Build the authorization URL
       const params = new URLSearchParams({
@@ -410,6 +458,18 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
    */
   app.post<{ Body: { instanceId: string } }>(
     '/wix/basic-auth',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['instanceId'],
+          properties: {
+            instanceId: { type: 'string', minLength: 1 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Body: { instanceId: string } }>,
       reply: FastifyReply
@@ -417,14 +477,6 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       try {
         const tenantId = getTenantId(request);
         const { instanceId } = request.body;
-
-        if (!instanceId) {
-          return reply.code(400).send({
-            success: false,
-            error: 'Validation error',
-            message: 'instanceId is required',
-          } satisfies ApiResponse);
-        }
 
         if (!WIX_CLIENT_ID || !WIX_CLIENT_SECRET) {
           return reply.code(500).send({
@@ -544,14 +596,13 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         }
 
         // Validate state
-        if (!state || !oauthStateMap.has(state)) {
+        if (!state || !(await hasOAuthState(state))) {
           return reply.redirect(
             `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Invalid or expired OAuth state')}`
           );
         }
 
-        const stateData = oauthStateMap.get(state)!;
-        oauthStateMap.delete(state); // Use state only once
+        const stateData = (await getOAuthState(state))!; // Atomically consumed (get + delete)
 
         // Validate code
         if (!code) {
@@ -659,7 +710,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         const shopDomain = shop.includes('.myshopify.com') ? shop : `${shop}.myshopify.com`;
 
         const state = crypto.randomBytes(32).toString('hex');
-        oauthStateMap.set(state, { tenantId, timestamp: Date.now() });
+        await setOAuthState(state, { tenantId, timestamp: Date.now() });
 
         const params = new URLSearchParams({
           client_id: SHOPIFY_API_KEY,
@@ -695,20 +746,26 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
    */
   app.post<{ Body: { siteUrl: string; consumerKey: string; consumerSecret: string } }>(
     '/woocommerce/validate',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['siteUrl', 'consumerKey', 'consumerSecret'],
+          properties: {
+            siteUrl: { type: 'string', format: 'uri', minLength: 1 },
+            consumerKey: { type: 'string', minLength: 1 },
+            consumerSecret: { type: 'string', minLength: 1 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Body: { siteUrl: string; consumerKey: string; consumerSecret: string } }>,
       reply: FastifyReply
     ) => {
       try {
         const { siteUrl, consumerKey, consumerSecret } = request.body;
-
-        if (!siteUrl || !consumerKey || !consumerSecret) {
-          return reply.code(400).send({
-            success: false,
-            error: 'Validation error',
-            message: 'siteUrl, consumerKey, and consumerSecret are required',
-          } satisfies ApiResponse);
-        }
 
         // Test the WooCommerce API connection
         const baseUrl = siteUrl.replace(/\/+$/, '');
@@ -778,7 +835,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const state = crypto.randomBytes(32).toString('hex');
-      oauthStateMap.set(state, { tenantId, timestamp: Date.now() });
+      await setOAuthState(state, { tenantId, timestamp: Date.now() });
 
       const params = new URLSearchParams({
         client_id: UBER_EATS_CLIENT_ID,
@@ -836,14 +893,13 @@ export async function wixOAuthPublicRoutes(app: FastifyInstance): Promise<void> 
         }
 
         // Validate state
-        if (!state || !oauthStateMap.has(state)) {
+        if (!state || !(await hasOAuthState(state))) {
           return reply.redirect(
             `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Invalid or expired OAuth state')}`
           );
         }
 
-        const stateData = oauthStateMap.get(state)!;
-        oauthStateMap.delete(state);
+        const stateData = (await getOAuthState(state))!; // Atomically consumed (get + delete)
 
         if (!code) {
           return reply.redirect(
@@ -930,14 +986,13 @@ export async function shopifyOAuthPublicRoutes(app: FastifyInstance): Promise<vo
         const { code, shop, state, hmac } = request.query;
 
         // Validate state
-        if (!state || !oauthStateMap.has(state)) {
+        if (!state || !(await hasOAuthState(state))) {
           return reply.redirect(
             `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Invalid or expired OAuth state')}`
           );
         }
 
-        const stateData = oauthStateMap.get(state)!;
-        oauthStateMap.delete(state);
+        const stateData = (await getOAuthState(state))!; // Atomically consumed (get + delete)
 
         if (!code || !shop) {
           return reply.redirect(
@@ -1028,14 +1083,13 @@ export async function uberEatsOAuthPublicRoutes(app: FastifyInstance): Promise<v
         }
 
         // Validate state
-        if (!state || !oauthStateMap.has(state)) {
+        if (!state || !(await hasOAuthState(state))) {
           return reply.redirect(
             `${FRONTEND_URL}/onboarding?error=${encodeURIComponent('Invalid or expired OAuth state')}`
           );
         }
 
-        const stateData = oauthStateMap.get(state)!;
-        oauthStateMap.delete(state);
+        const stateData = (await getOAuthState(state))!; // Atomically consumed (get + delete)
 
         if (!code) {
           return reply.redirect(
@@ -1098,6 +1152,6 @@ export async function uberEatsOAuthPublicRoutes(app: FastifyInstance): Promise<v
 }
 
 // Export helper functions for other agents
-export { encryptCredentials, decryptCredentials, oauthStateMap };
+export { encryptCredentials, decryptCredentials };
 
 export default channelRoutes;

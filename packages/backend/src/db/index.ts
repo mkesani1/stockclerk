@@ -47,7 +47,12 @@ export async function runMigrations(): Promise<void> {
     console.log('Running database migrations...');
 
     // Create enum types (idempotent)
-    await client.query(`DO $$ BEGIN CREATE TYPE channel_type AS ENUM ('eposnow', 'wix', 'deliveroo'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
+    await client.query(`DO $$ BEGIN CREATE TYPE channel_type AS ENUM ('eposnow', 'wix', 'deliveroo', 'shopify', 'woocommerce', 'uber_eats'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
+
+    // Add newer channel types to existing enum (safe to run if values already exist)
+    for (const val of ['shopify', 'woocommerce', 'uber_eats']) {
+      await client.query(`DO $$ BEGIN ALTER TYPE channel_type ADD VALUE IF NOT EXISTS '${val}'; EXCEPTION WHEN duplicate_object THEN null; END $$`);
+    }
     await client.query(`DO $$ BEGIN CREATE TYPE user_role AS ENUM ('owner', 'admin', 'staff'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
     await client.query(`DO $$ BEGIN CREATE TYPE sync_event_status AS ENUM ('pending', 'processing', 'completed', 'failed'); EXCEPTION WHEN duplicate_object THEN null; END $$`);
     await client.query(`DO $$ BEGIN CREATE TYPE alert_type AS ENUM ('low_stock', 'sync_error', 'channel_disconnected', 'system'); EXCEPTION WHEN duplicate_object THEN null; END $$`);

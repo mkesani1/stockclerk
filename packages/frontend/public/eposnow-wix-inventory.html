@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keep Eposnow and Wix Inventory in Sync | StockClerk</title>
+    <meta name="description" content="Sell in-store on Eposnow and online on Wix without stock ever getting out of sync. StockClerk automatically mirrors every sale to your Wix shop in real time. 14-day free trial.">
+
+    <link rel="canonical" href="https://stockclerk.ai/eposnow-wix-inventory.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Keep Eposnow and Wix Inventory in Sync | StockClerk">
+    <meta property="og:description" content="Sell in-store on Eposnow and online on Wix without stock ever getting out of sync. StockClerk automatically mirrors every sale to your Wix shop in real time.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://stockclerk.ai/eposnow-wix-inventory.html">
+    <meta property="og:image" content="https://stockclerk.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Keep Eposnow and Wix Inventory in Sync | StockClerk">
+    <meta name="twitter:description" content="Sell in-store on Eposnow and online on Wix without stock ever getting out of sync. StockClerk automatically mirrors every sale to your Wix shop.">
+    <meta name="twitter:image" content="https://stockclerk.ai/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- Structured Data: WebPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Keep Eposnow and Wix Inventory in Sync",
+      "description": "Sell in-store on Eposnow and online on Wix without stock ever getting out of sync. StockClerk automatically mirrors every sale to your Wix shop in real time.",
+      "url": "https://stockclerk.ai/eposnow-wix-inventory.html",
+      "inLanguage": "en-GB",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "StockClerk",
+        "url": "https://stockclerk.ai"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "StockClerk",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "50",
+          "priceCurrency": "GBP",
+          "description": "14-day free trial, then from £50/month"
+        },
+        "url": "https://stockclerk.ai",
+        "creator": {
+          "@type": "SoftwareApplication",
+          "name": "Perplexity Computer",
+          "url": "https://www.perplexity.ai/computer"
+        }
+      }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does StockClerk work with Wix eCommerce?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. StockClerk integrates directly with Wix eCommerce stores. When a sale is made on Eposnow, the stock update is pushed to your Wix product inventory automatically. The integration uses Wix's official API, so there's no manual configuration of webhooks or custom code required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if I sell the last item in-store and a customer has it in their Wix basket?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "StockClerk updates your Wix inventory within seconds of the in-store sale. If a customer has the item in their basket but hasn't checked out, Wix will show them the item is unavailable before they can complete the purchase — preventing an oversell."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the Guardian agent prevent stock drift?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every 15 minutes, the Guardian agent independently queries both your Eposnow inventory and your Wix product catalogue, then compares the two. Any discrepancy — even a small one — is automatically corrected to match your Eposnow source of truth."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I still update stock manually in Wix?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. StockClerk treats Eposnow as the single source of truth, so any manual change you make in Wix will be overwritten at the next Guardian check (within 15 minutes) to match Eposnow. If you need to adjust stock, it's best to do so in Eposnow Back Office so the change propagates cleanly to all channels."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6B5344;
+            --primary-light: #C9B8A8;
+            --muted: #E8E4DD;
+            --background: #FAF8F5;
+            --background-alt: #F5F2ED;
+            --border: #E8E4DD;
+            --text: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B958E;
+            --card: #FFFFFF;
+            --success: #5D8B55;
+            --warning: #C9A86C;
+            --error: #B85C5C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 24px; font-weight: 700;
+            color: var(--primary-dark); letter-spacing: -0.5px;
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: var(--primary); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px;
+        }
+        .nav-links { display: flex; gap: 32px; }
+        .nav-links a {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 14px; font-weight: 500; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-cta {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; background: var(--primary);
+            color: white; text-decoration: none; border: none;
+            border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .nav-cta:hover { background: var(--primary-dark); }
+
+        /* Page Hero */
+        .page-hero {
+            padding: 112px 32px 72px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .breadcrumb {
+            font-size: 13px; color: var(--text-muted); margin-bottom: 20px;
+        }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; background: var(--card);
+            border: 1px solid var(--border); border-radius: 100px;
+            font-size: 13px; color: var(--primary); font-weight: 500;
+            margin-bottom: 24px;
+        }
+        .hero-badge .dot {
+            width: 6px; height: 6px; background: var(--success);
+            border-radius: 50%; animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .page-hero h1 {
+            font-size: 48px; font-weight: 700; line-height: 1.1;
+            color: var(--text); margin-bottom: 20px;
+            letter-spacing: -1px; max-width: 760px;
+        }
+        .page-hero h1 span { color: var(--primary); }
+        .hero-subtitle {
+            font-size: 18px; color: var(--text-secondary);
+            margin-bottom: 36px; line-height: 1.7; max-width: 620px;
+        }
+        .hero-cta { display: flex; gap: 12px; margin-bottom: 48px; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px 28px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; text-decoration: none;
+            cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary {
+            background: var(--card); color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--background-alt); }
+
+        .stats-row { display: flex; gap: 40px; flex-wrap: wrap; }
+        .stat { text-align: left; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--primary-dark); }
+        .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Sections */
+        .section { padding: 80px 32px; max-width: 1200px; margin: 0 auto; }
+        .section-full {
+            padding: 80px 32px;
+            background: var(--background-alt);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .section-full-inner { max-width: 1200px; margin: 0 auto; }
+        .section-label {
+            font-size: 13px; font-weight: 600; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 36px; font-weight: 700; color: var(--text);
+            margin-bottom: 16px; letter-spacing: -0.5px;
+        }
+        .section-subtitle {
+            font-size: 17px; color: var(--text-secondary);
+            max-width: 580px; line-height: 1.7;
+        }
+
+        /* Pain Point Banner */
+        .pain-banner {
+            background: var(--card); border: 1px solid var(--border);
+            border-left: 4px solid var(--error);
+            border-radius: 0 12px 12px 0;
+            padding: 24px 28px; margin-bottom: 48px; max-width: 740px;
+        }
+        .pain-banner h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+        .pain-banner p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* Steps */
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; margin-top: 48px;
+        }
+        .step-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 24px;
+        }
+        .step-number {
+            width: 36px; height: 36px; background: var(--primary);
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; color: white;
+            font-size: 15px; font-weight: 700; margin-bottom: 16px;
+        }
+        .step-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+        .step-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* Agent Grid */
+        .agent-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 20px; margin-top: 48px;
+        }
+        .agent-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; text-align: center;
+            position: relative; transition: all 0.3s ease;
+        }
+        .agent-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .agent-card::before {
+            content: ''; position: absolute; top: 0; left: 24px; right: 24px;
+            height: 3px; background: var(--primary); border-radius: 0 0 3px 3px;
+        }
+        .agent-card-icon {
+            width: 56px; height: 56px; background: var(--background-alt);
+            border: 1px solid var(--border); border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin: 0 auto 16px;
+        }
+        .agent-card-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .agent-card-role { font-size: 12px; color: var(--primary); font-weight: 500; margin-bottom: 12px; }
+        .agent-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* Feature rows */
+        .feature-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 72px; align-items: center; margin-bottom: 80px;
+        }
+        .feature-content { max-width: 480px; }
+        .feature-title {
+            font-size: 26px; font-weight: 700; color: var(--text);
+            margin-bottom: 14px; letter-spacing: -0.3px;
+        }
+        .feature-desc { font-size: 16px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+        .feature-list { list-style: none; }
+        .feature-list li {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 0; font-size: 15px; color: var(--text-secondary);
+        }
+        .feature-list li .check {
+            width: 20px; height: 20px;
+            background: rgba(93, 139, 85, 0.1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--success); font-size: 11px; flex-shrink: 0; margin-top: 2px;
+        }
+
+        /* Dashboard mockup */
+        .mockup-panel {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 28px;
+            box-shadow: 0 20px 60px rgba(139, 115, 85, 0.1);
+        }
+        .mockup-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .mockup-title { font-size: 13px; font-weight: 600; color: var(--text-muted); flex: 1; text-align: center; }
+
+        .stock-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .stock-row:last-child { border-bottom: none; }
+        .stock-icon {
+            width: 36px; height: 36px; background: var(--background-alt);
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; font-size: 16px; flex-shrink: 0;
+        }
+        .stock-info { flex: 1; }
+        .stock-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .stock-sku { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .stock-levels { display: flex; gap: 8px; }
+        .stock-level {
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 12px; font-weight: 600;
+        }
+        .stock-level.pos { background: var(--background-alt); color: var(--text); }
+        .stock-level.wix { background: rgba(93,139,85,0.1); color: var(--success); }
+        .stock-level.mismatch { background: rgba(201,168,108,0.2); color: var(--primary-dark); }
+        .guardian-note {
+            margin-top: 16px; padding: 12px 14px;
+            background: rgba(93,139,85,0.07); border-radius: 8px;
+            border-left: 3px solid var(--success);
+            font-size: 12px; color: var(--text-secondary);
+        }
+        .guardian-note strong { color: var(--success); }
+
+        /* Timeline */
+        .timeline { margin-top: 48px; }
+        .timeline-item {
+            display: flex; gap: 20px; margin-bottom: 32px;
+            align-items: flex-start;
+        }
+        .timeline-left {
+            display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+        }
+        .timeline-number {
+            width: 40px; height: 40px; background: var(--primary);
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; color: white; font-size: 16px;
+            font-weight: 700;
+        }
+        .timeline-line {
+            width: 2px; flex: 1; background: var(--border);
+            margin: 8px 0; min-height: 32px;
+        }
+        .timeline-item:last-child .timeline-line { display: none; }
+        .timeline-content { padding-top: 8px; }
+        .timeline-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .timeline-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* Pricing */
+        .pricing-highlight {
+            background: var(--card); border: 2px solid var(--primary);
+            border-radius: 16px; padding: 36px 32px; text-align: center; max-width: 380px;
+        }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .pricing-price { font-size: 52px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .pricing-price span { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+        .pricing-features { list-style: none; text-align: left; margin-bottom: 24px; }
+        .pricing-features li {
+            padding: 10px 0; font-size: 14px; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pricing-features li:last-child { border-bottom: none; }
+        .pricing-features li::before {
+            content: '✓'; width: 18px; height: 18px;
+            background: rgba(93, 139, 85, 0.1); color: var(--success);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 10px; flex-shrink: 0;
+        }
+
+        /* FAQ */
+        .faq-list { max-width: 760px; margin: 48px auto 0; }
+        .faq-item {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; margin-bottom: 12px; overflow: hidden;
+        }
+        .faq-question-text { font-size: 16px; font-weight: 600; color: var(--text); padding: 20px 24px; }
+        .faq-answer {
+            padding: 0 24px 20px;
+            font-size: 15px; color: var(--text-secondary); line-height: 1.7;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: var(--primary-dark); color: white;
+            padding: 80px 32px; text-align: center;
+        }
+        .cta-section h2 { font-size: 36px; font-weight: 700; margin-bottom: 16px; }
+        .cta-section p {
+            font-size: 18px; opacity: 0.9; margin-bottom: 32px;
+            max-width: 500px; margin-left: auto; margin-right: auto;
+        }
+        .btn-white {
+            background: white; color: var(--primary-dark);
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-white:hover { background: var(--background); }
+
+        /* Footer */
+        .footer { padding: 48px 32px; text-align: center; border-top: 1px solid var(--border); }
+        .footer-text { font-size: 13px; color: var(--text-muted); }
+        .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 16px; flex-wrap: wrap; }
+        .footer-links a { font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--primary); }
+
+        /* Prose */
+        .prose { max-width: 760px; margin: 0 auto; }
+        .prose h2 {
+            font-size: 28px; font-weight: 700; color: var(--text);
+            margin-bottom: 16px; margin-top: 48px; letter-spacing: -0.3px;
+        }
+        .prose h2:first-child { margin-top: 0; }
+        .prose p { font-size: 16px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px; }
+        .prose ul { margin: 0 0 20px 20px; }
+        .prose ul li { font-size: 16px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 8px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .feature-row { grid-template-columns: 1fr; gap: 40px; }
+            .agent-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .page-hero h1 { font-size: 34px; }
+            .nav-links { display: none; }
+            .section-title { font-size: 28px; }
+            .agent-grid { grid-template-columns: 1fr; }
+            .stats-row { flex-direction: column; gap: 24px; }
+            .hero-cta { flex-direction: column; }
+            .hero-cta .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">◉</div>
+                StockClerk
+            </a>
+            <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#pricing">Pricing</a>
+                <a href="/login">Log In</a>
+            </div>
+            <a href="/register" class="nav-cta">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="breadcrumb">
+            <a href="/">StockClerk</a> › Eposnow &amp; Wix Inventory Sync
+        </div>
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Guardian reconciles every 15 minutes
+        </div>
+        <h1>Keep Eposnow and Wix Inventory <span>in Sync</span></h1>
+        <p class="hero-subtitle">
+            Every in-store sale on Eposnow instantly updates your Wix online shop. No manual stock edits, no double-sold items, no frustrated customers who ordered something you can no longer fulfil.
+        </p>
+        <div class="hero-cta">
+            <a href="/register" class="btn btn-primary">Start 14-Day Free Trial →</a>
+            <a href="/#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-value">&lt;5 sec</div>
+                <div class="stat-label">Update Speed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">15 min</div>
+                <div class="stat-label">Guardian Audit Cycle</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Always On</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pain Point -->
+    <div class="section" style="padding-top: 0;">
+        <div class="pain-banner">
+            <h3>The dual-channel headache</h3>
+            <p>
+                Your Eposnow POS handles everything in-store. Your Wix shop handles your online customers. But every time someone buys something at the counter, you have to remember to log into Wix and reduce the stock there too — or risk selling an item online that you no longer have on the shelf. Miss it once during a busy afternoon and you're dealing with an oversold order, a refund, and a disappointed customer.
+            </p>
+        </div>
+
+        <!-- Feature Row 1: Live sync visual -->
+        <div class="feature-row" style="margin-bottom: 0;">
+            <div class="feature-content">
+                <div class="section-label">The Solution</div>
+                <h2 class="feature-title">One source of truth. Automatic everywhere else.</h2>
+                <p class="feature-desc">
+                    StockClerk designates Eposnow as your single source of truth. Every sale — whether in-store, on Wix, or via a delivery app — flows through StockClerk and keeps all channels in lockstep. Your Wix product inventory is always accurate, always current.
+                </p>
+                <ul class="feature-list">
+                    <li><span class="check">✓</span><span>In-store sale on Eposnow → Wix updated in under 5 seconds</span></li>
+                    <li><span class="check">✓</span><span>Online Wix sale → Eposnow stock adjusted automatically</span></li>
+                    <li><span class="check">✓</span><span>Guardian agent audits both systems every 15 minutes</span></li>
+                    <li><span class="check">✓</span><span>No developer needed — pure no-code setup</span></li>
+                </ul>
+            </div>
+            <div>
+                <div class="mockup-panel">
+                    <div class="mockup-header">
+                        <div class="mockup-dot" style="background:#e25454;"></div>
+                        <div class="mockup-dot" style="background:#e2b854;"></div>
+                        <div class="mockup-dot" style="background:#54b854;"></div>
+                        <div class="mockup-title">Products · Cross-Channel Stock</div>
+                    </div>
+                    <div style="display:flex; justify-content: space-between; padding: 0 0 10px 0; font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">
+                        <span style="flex:1;">Product</span>
+                        <span style="margin-right:8px;">Eposnow</span>
+                        <span>Wix</span>
+                    </div>
+                    <div class="stock-row">
+                        <div class="stock-icon">◈</div>
+                        <div class="stock-info">
+                            <div class="stock-name">Leather Wallet — Brown</div>
+                            <div class="stock-sku">SKU: LW-BRN-001</div>
+                        </div>
+                        <div class="stock-levels">
+                            <div class="stock-level pos">24</div>
+                            <div class="stock-level wix">24 ✓</div>
+                        </div>
+                    </div>
+                    <div class="stock-row">
+                        <div class="stock-icon">○</div>
+                        <div class="stock-info">
+                            <div class="stock-name">Canvas Tote — Natural</div>
+                            <div class="stock-sku">SKU: CT-NAT-L</div>
+                        </div>
+                        <div class="stock-levels">
+                            <div class="stock-level pos">8</div>
+                            <div class="stock-level wix">8 ✓</div>
+                        </div>
+                    </div>
+                    <div class="stock-row">
+                        <div class="stock-icon">□</div>
+                        <div class="stock-info">
+                            <div class="stock-name">Ceramic Mug — Matte</div>
+                            <div class="stock-sku">SKU: CM-MATT-W</div>
+                        </div>
+                        <div class="stock-levels">
+                            <div class="stock-level pos">41</div>
+                            <div class="stock-level wix">41 ✓</div>
+                        </div>
+                    </div>
+                    <div class="guardian-note">
+                        <strong>Guardian:</strong> Last audit complete — all 156 products matched · 14 min ago
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agents Section -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div class="section-label">How It Works</div>
+            <h2 class="section-title">Four AI agents, working in sequence</h2>
+            <p class="section-subtitle">StockClerk isn't a simple webhook — it's a coordinated system of four agents that catch edge cases, fix drift, and alert you to anything genuinely important.</p>
+
+            <div class="agent-grid">
+                <div class="agent-card">
+                    <div class="agent-card-icon">◉</div>
+                    <div class="agent-card-name">Watcher</div>
+                    <div class="agent-card-role">Real-Time Monitor</div>
+                    <p class="agent-card-desc">Monitors your Eposnow POS and Wix store simultaneously. Any stock movement — sale, return, or manual adjustment — is captured instantly.</p>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-card-icon">↻</div>
+                    <div class="agent-card-name">Sync</div>
+                    <div class="agent-card-role">Inventory Updater</div>
+                    <p class="agent-card-desc">Receives the change signal from Watcher and pushes the correct stock level to your Wix product inventory via the Wix API. Completes in under 5 seconds.</p>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-card-icon">⬡</div>
+                    <div class="agent-card-name">Guardian</div>
+                    <div class="agent-card-role">Reconciliation Agent</div>
+                    <p class="agent-card-desc">Runs an independent full-catalogue audit every 15 minutes. Compares Eposnow and Wix inventory item by item. Corrects any drift automatically — even if the original event was missed.</p>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-card-icon">⚑</div>
+                    <div class="agent-card-name">Alert</div>
+                    <div class="agent-card-role">Smart Escalation</div>
+                    <p class="agent-card-desc">Filters routine sync activity and only pings you when something needs human attention — like a low stock warning or a connection issue with your Wix store.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Steps -->
+    <div class="section">
+        <div class="section-label">Getting Started</div>
+        <h2 class="section-title">Set up in 15 minutes, then forget about it</h2>
+        <p class="section-subtitle">Three simple steps to get your Eposnow and Wix inventory fully connected and automatically synced.</p>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-title">Connect Eposnow</div>
+                <p class="step-desc">
+                    Paste your Eposnow API key from your Back Office settings. StockClerk imports your full product catalogue automatically. For most retailers, this takes under two minutes.
+                </p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-title">Authenticate your Wix shop</div>
+                <p class="step-desc">
+                    Connect your Wix store using Wix's OAuth flow — you'll be redirected to Wix, authorise StockClerk, and return. No API keys to copy, no webhooks to configure manually.
+                </p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-title">Run the baseline sync</div>
+                <p class="step-desc">
+                    StockClerk aligns your Wix inventory to match Eposnow. Any discrepancies from before you connected are resolved. From this point, every sale keeps both channels current automatically.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Long-form content -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div class="prose">
+                <h2>Why Eposnow and Wix don't sync natively</h2>
+                <p>
+                    Eposnow and Wix are both excellent platforms built for very different purposes. Eposnow is a powerful point-of-sale system designed for physical retail — managing transactions, receipts, and in-store inventory. Wix is a website and eCommerce platform designed for building online shops. Neither company has an incentive to build a deep, real-time inventory bridge to the other.
+                </p>
+                <p>
+                    The result is that retailers running both face a structural gap. Every sale in one system needs to be manually reflected in the other. For shops processing hundreds of transactions a week, this manual overhead is substantial — and the margin for error is constant.
+                </p>
+                <p>
+                    StockClerk fills this gap using the APIs that both platforms expose, managing the sync logic reliably and automatically.
+                </p>
+
+                <h2>The Guardian agent: why a 15-minute check matters</h2>
+                <p>
+                    Even the best real-time sync can occasionally miss an event — perhaps due to a brief API timeout, a network blip, or a manual change made directly inside one of the platforms. This is why the Guardian agent exists as a separate, independent layer.
+                </p>
+                <p>
+                    Rather than relying solely on event-driven updates, Guardian performs a full catalogue comparison every 15 minutes. It queries your Eposnow stock levels directly, queries your Wix product inventory, and compares every item. If the numbers don't match, it corrects them immediately, silently, without requiring any action from you.
+                </p>
+                <p>
+                    This dual approach — event-driven sync plus periodic reconciliation — means that even in edge cases, the maximum time your stock is out of sync is 15 minutes. In practice, for the vast majority of updates, it's under 5 seconds.
+                </p>
+
+                <h2>Handling online and in-store orders simultaneously</h2>
+                <p>
+                    One of the more complex scenarios StockClerk handles is when an online Wix order and an in-store Eposnow sale occur within seconds of each other on the same product. StockClerk uses a transaction queue to process updates in the correct order, preventing race conditions from resulting in a negative stock count or an oversold product. The final inventory figure accurately reflects both transactions.
+                </p>
+
+                <h2>What happens to Wix-only products?</h2>
+                <p>
+                    If you have products listed on Wix that don't exist in Eposnow — perhaps digital downloads or online-only items — StockClerk respects that distinction and doesn't interfere with them. Only products that exist in both systems are subject to sync. You can also mark specific Eposnow products as excluded from Wix sync if needed.
+                </p>
+
+                <h2>Eposnow Wix integration for retail shops, gift shops, and boutiques</h2>
+                <p>
+                    StockClerk is particularly well suited to independent retailers who want a physical store presence alongside an online shop without the operational overhead of managing stock in two separate systems. Gift shops, fashion boutiques, bookshops, homeware stores, and artisan goods retailers have all used StockClerk to eliminate the manual sync burden and focus on serving customers rather than updating spreadsheets.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="section" style="display: flex; flex-direction: column; align-items: center;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div class="section-label">Pricing</div>
+            <h2 class="section-title">Simple, honest pricing</h2>
+            <p class="section-subtitle" style="margin: 0 auto;">Start free. No credit card required.</p>
+        </div>
+        <div class="pricing-highlight">
+            <div class="pricing-name">Starter</div>
+            <div class="pricing-price">£50<span>/mo</span></div>
+            <div class="pricing-desc">Perfect for independent retailers</div>
+            <ul class="pricing-features">
+                <li>Eposnow + Wix sync</li>
+                <li>4 AI agents, always on</li>
+                <li>Under-5-second updates</li>
+                <li>15-minute Guardian audits</li>
+                <li>Low stock email alerts</li>
+            </ul>
+            <a href="/register" class="btn btn-primary" style="width: 100%; justify-content: center;">Start 14-Day Free Trial</a>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">No credit card required. Cancel anytime.</p>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div style="text-align: center;">
+                <div class="section-label">FAQ</div>
+                <h2 class="section-title">Common questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question-text">Does StockClerk work with Wix eCommerce?</div>
+                    <div class="faq-answer">
+                        Yes. StockClerk integrates directly with Wix eCommerce stores. When a sale is made on Eposnow, the stock update is pushed to your Wix product inventory automatically. The integration uses Wix's official API, so there's no manual configuration of webhooks or custom code required.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question-text">What if I sell the last item in-store and a customer has it in their Wix basket?</div>
+                    <div class="faq-answer">
+                        StockClerk updates your Wix inventory within seconds of the in-store sale. If a customer has the item in their basket but hasn't checked out, Wix will show them the item is unavailable before they can complete the purchase — preventing an oversell.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question-text">How does the Guardian agent prevent stock drift?</div>
+                    <div class="faq-answer">
+                        Every 15 minutes, the Guardian agent independently queries both your Eposnow inventory and your Wix product catalogue, then compares the two. Any discrepancy — even a small one — is automatically corrected to match your Eposnow source of truth.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question-text">Can I still update stock manually in Wix?</div>
+                    <div class="faq-answer">
+                        Yes, though any manual change in Wix will be overwritten at the next Guardian check (within 15 minutes) to match Eposnow. If you need to adjust stock, it's best to do so in Eposnow Back Office so the change propagates cleanly to all channels.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Stop managing stock in two places at once</h2>
+        <p>Start your 14-day free trial. Connect in 15 minutes. StockClerk keeps Eposnow and Wix in sync from that moment on.</p>
+        <a href="/register" class="btn-white">Start Free Trial →</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/eposnow-deliveroo-sync.html">Eposnow + Deliveroo Sync</a>
+            <a href="/restaurant-stock-sync.html">Restaurant Stock Sync</a>
+            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/terms.html">Terms of Service</a>
+        </div>
+        <p class="footer-text">StockClerk · AI-powered inventory sync for restaurants and retailers · <a href="mailto:hello@stockclerk.ai" style="color: inherit;">hello@stockclerk.ai</a></p>
+        <p class="footer-text" style="margin-top: 8px; opacity: 0.7;">© 2026 · <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" style="color: inherit;">Created with Perplexity Computer</a></p>
+    </footer>
+
+</body>
+</html>

@@ -717,7 +717,8 @@ export async function processSyncJob(job: {
           try {
             // Calculate stock for online channels (apply buffer)
             let stockToSync = product.currentStock;
-            if (mapping.channel.type === 'wix' || mapping.channel.type === 'deliveroo') {
+            // Apply buffer stock for all online/delivery channels to prevent overselling
+            if (mapping.channel.type !== 'eposnow') {
               stockToSync = Math.max(0, product.currentStock - product.bufferStock);
             }
 
@@ -909,7 +910,8 @@ export function startGuardianSchedule(intervalMs = 15 * 60 * 1000): void {
             if (channelStock !== null) {
               // Calculate expected stock
               let expectedStock = product.currentStock;
-              if (mapping.channel.type === 'wix' || mapping.channel.type === 'deliveroo') {
+              // Apply buffer stock for all online/delivery channels
+              if (mapping.channel.type !== 'eposnow') {
                 expectedStock = Math.max(0, product.currentStock - product.bufferStock);
               }
 

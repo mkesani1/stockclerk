@@ -129,9 +129,11 @@ export class SyncEngine {
     this.deps = deps;
 
     // Initialize Redis connection
+    const useTls = config.redisUrl.startsWith('rediss://');
     this.redis = new Redis(config.redisUrl, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
+      ...(useTls ? { tls: {} } : {}),
     });
 
     this.redis.on('error', (err: Error) => {
@@ -183,6 +185,7 @@ export class SyncEngine {
         getChannels: this.deps.getChannels,
         getChannel: this.deps.getChannel,
         getProduct: this.deps.getProduct,
+        getProducts: this.deps.getProducts,
         getProductByExternalId: this.deps.getProductByExternalId,
         getProductMappings: this.deps.getProductMappings,
         updateProductStock: this.deps.updateProductStock,

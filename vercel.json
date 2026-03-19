@@ -33,6 +33,18 @@
       "destination": "/wix-dashboard.html"
     },
     {
+      "source": "/eposnow-deliveroo-sync.html",
+      "destination": "/eposnow-deliveroo-sync.html"
+    },
+    {
+      "source": "/eposnow-wix-inventory.html",
+      "destination": "/eposnow-wix-inventory.html"
+    },
+    {
+      "source": "/restaurant-stock-sync.html",
+      "destination": "/restaurant-stock-sync.html"
+    },
+    {
       "source": "/webhooks/:path*",
       "destination": "https://stockclerk-production-7dd0.up.railway.app/webhooks/:path*"
     },

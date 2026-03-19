@@ -77,6 +77,8 @@ export interface SyncAgentDependencies {
     channelType: ChannelType,
     externalId: string
   ) => Promise<number | null>;
+  /** Get all products for a tenant */
+  getProducts: (tenantId: string) => Promise<Product[]>;
 }
 
 // ============================================================================
@@ -590,6 +592,7 @@ export class SyncAgent {
     let channelsUpdated = 0;
     let productsUpdated = 0;
 
+    // Validate the source channel exists and is active
     const channel = await this.deps.getChannel(channelId);
     if (!channel || !channel.isActive) {
       errors.push({
@@ -601,13 +604,149 @@ export class SyncAgent {
       return { channelsUpdated, productsUpdated, errors };
     }
 
-    // This would typically involve:
-    // 1. Fetching all products from the channel
-    // 2. Updating our database
-    // 3. Syncing to other channels
-    // For now, we emit a placeholder implementation
+    this.log(`Starting channel sync from ${channel.name} (${channel.type}) for tenant ${tenantId}`);
 
-    this.log(`Channel sync from ${channel.name} requested - implementation depends on channel API`);
+    // Get all products for this tenant
+    const products = await this.deps.getProducts(tenantId);
+
+    for (const product of products) {
+      // Get all channel mappings for this product
+      const allMappings = await this.deps.getProductMappings(product.id);
+
+      // Find this product's mapping on the source channel
+      const sourceMapping = allMappings.find((m) => m.channelId === channelId);
+      if (!sourceMapping) {
+        // Product is not present on the source channel — skip
+        continue;
+      }
+
+      // Create audit event for this product
+      const syncEventId = await this.deps.createSyncEvent({
+        tenantId,
+        eventType: 'channel_sync_pull',
+        channelId,
+        productId: product.id,
+        oldValue: { stock: product.currentStock },
+        newValue: {},
+        status: 'processing',
+      });
+
+      try {
+        // Pull current stock from the source channel's external API
+        const externalStock = await this.deps.getChannelStock(
+          channelId,
+          channel.type,
+          sourceMapping.externalId
+        );
+
+        if (externalStock === null) {
+          this.log(
+            `Could not retrieve stock for product ${product.sku} from ${channel.name}`,
+            'warn'
+          );
+          await this.deps.updateSyncEventStatus(
+            syncEventId,
+            'failed',
+            'Could not retrieve stock from source channel'
+          );
+          errors.push({
+            channelId,
+            productId: product.id,
+            externalId: sourceMapping.externalId,
+            message: 'Could not retrieve stock from source channel',
+            code: 'CHANNEL_STOCK_UNAVAILABLE',
+            retryable: true,
+          });
+          continue;
+        }
+
+        const oldStock = product.currentStock;
+
+        // Update product stock in DB with the authoritative value from the source channel
+        await this.deps.updateProductStock(product.id, externalStock);
+        productsUpdated++;
+
+        this.log(
+          `Pulled stock for product ${product.sku} from ${channel.name}: ` +
+            `${oldStock} → ${externalStock}`
+        );
+
+        // Propagate the new stock to all OTHER active channels that map this product
+        for (const mapping of allMappings) {
+          if (mapping.channelId === channelId) {
+            continue; // Skip the source channel
+          }
+
+          if (!mapping.channel.isActive) {
+            continue; // Skip inactive channels
+          }
+
+          try {
+            // Apply buffer stock for online (non-POS) channels
+            const stockToSync = isOnlineChannel(mapping.channel.type)
+              ? calculateOnlineStock(externalStock, product.bufferStock)
+              : externalStock;
+
+            await this.deps.updateChannelStock(
+              mapping.channelId,
+              mapping.channel.type,
+              mapping.externalId,
+              stockToSync
+            );
+
+            channelsUpdated++;
+            this.log(
+              `Propagated stock to ${mapping.channel.name} (${mapping.channel.type}): ` +
+                `${stockToSync} units (buffer applied: ${isOnlineChannel(mapping.channel.type)})`
+            );
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            errors.push({
+              channelId: mapping.channelId,
+              productId: product.id,
+              externalId: mapping.externalId,
+              message: errorMessage,
+              code: 'CHANNEL_UPDATE_FAILED',
+              retryable: true,
+            });
+
+            if (
+              errorMessage.toLowerCase().includes('auth') ||
+              errorMessage.toLowerCase().includes('unauthorized')
+            ) {
+              this.eventBus.emitChannelDisconnected({
+                tenantId,
+                channelId: mapping.channelId,
+                channelType: mapping.channel.type,
+                error: errorMessage,
+              });
+            }
+          }
+        }
+
+        // Mark audit event as completed
+        await this.deps.updateSyncEventStatus(
+          syncEventId,
+          'completed'
+        );
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        await this.deps.updateSyncEventStatus(syncEventId, 'failed', errorMessage);
+        errors.push({
+          channelId,
+          productId: product.id,
+          message: errorMessage,
+          code: 'SYNC_FAILED',
+          retryable: true,
+        });
+      }
+    }
+
+    this.log(
+      `Channel sync from ${channel.name} complete: ` +
+        `${productsUpdated} products updated, ${channelsUpdated} channel updates, ` +
+        `${errors.length} errors`
+    );
 
     return { channelsUpdated, productsUpdated, errors };
   }
@@ -635,18 +774,165 @@ export class SyncAgent {
       return { channelsUpdated, productsUpdated, errors };
     }
 
-    // Find the source of truth channel (Eposnow POS)
-    const sourceOfTruth = activeChannels.find((c) => c.type === 'eposnow');
+    // Determine the source of truth channel — prefer dedicated POS channels in priority order:
+    // eposnow (dedicated POS), then shopify (can act as POS), then woocommerce
+    const sourceOfTruth =
+      activeChannels.find((c) => c.type === 'eposnow') ??
+      activeChannels.find((c) => c.type === 'shopify') ??
+      activeChannels.find((c) => c.type === 'woocommerce') ??
+      activeChannels[0];
 
-    if (!sourceOfTruth) {
-      this.log('No Eposnow channel found - using first active channel as source of truth', 'warn');
+    this.log(
+      `Full sync initiated for tenant ${tenantId} — ` +
+        `source of truth: ${sourceOfTruth.name} (${sourceOfTruth.type}), ` +
+        `${activeChannels.length} active channels`
+    );
+
+    // Get all products for this tenant
+    const products = await this.deps.getProducts(tenantId);
+
+    for (const product of products) {
+      // Get all channel mappings for this product
+      const allMappings = await this.deps.getProductMappings(product.id);
+
+      // Find this product's mapping on the source of truth channel
+      const sourceMapping = allMappings.find((m) => m.channelId === sourceOfTruth.id);
+      if (!sourceMapping) {
+        // Product has no presence on the source of truth channel — skip
+        this.log(
+          `Product ${product.sku} has no mapping on source-of-truth ${sourceOfTruth.name} — skipping`,
+          'warn'
+        );
+        continue;
+      }
+
+      // Create audit event for this product
+      const syncEventId = await this.deps.createSyncEvent({
+        tenantId,
+        eventType: 'full_sync_product',
+        channelId: sourceOfTruth.id,
+        productId: product.id,
+        oldValue: { stock: product.currentStock },
+        newValue: {},
+        status: 'processing',
+      });
+
+      try {
+        // Pull authoritative stock from the source of truth channel
+        const sourceStock = await this.deps.getChannelStock(
+          sourceOfTruth.id,
+          sourceOfTruth.type,
+          sourceMapping.externalId
+        );
+
+        if (sourceStock === null) {
+          this.log(
+            `Could not retrieve stock for product ${product.sku} from ${sourceOfTruth.name}`,
+            'warn'
+          );
+          await this.deps.updateSyncEventStatus(
+            syncEventId,
+            'failed',
+            'Could not retrieve stock from source of truth'
+          );
+          errors.push({
+            channelId: sourceOfTruth.id,
+            productId: product.id,
+            externalId: sourceMapping.externalId,
+            message: 'Could not retrieve stock from source of truth',
+            code: 'CHANNEL_STOCK_UNAVAILABLE',
+            retryable: true,
+          });
+          continue;
+        }
+
+        const oldStock = product.currentStock;
+
+        // Skip update if stock hasn't changed and sync is not forced
+        if (!force && sourceStock === oldStock) {
+          await this.deps.updateSyncEventStatus(syncEventId, 'completed');
+          continue;
+        }
+
+        // Update product stock in DB
+        await this.deps.updateProductStock(product.id, sourceStock);
+        productsUpdated++;
+
+        this.log(`Full sync updated product ${product.sku}: ${oldStock} → ${sourceStock}`);
+
+        // Propagate the canonical stock to all non-source active channels
+        for (const mapping of allMappings) {
+          if (mapping.channelId === sourceOfTruth.id) {
+            continue; // Skip the source of truth channel
+          }
+
+          if (!mapping.channel.isActive) {
+            continue; // Skip inactive channels
+          }
+
+          try {
+            // Apply buffer stock for online (non-POS) channels
+            const stockToSync = isOnlineChannel(mapping.channel.type)
+              ? calculateOnlineStock(sourceStock, product.bufferStock)
+              : sourceStock;
+
+            await this.deps.updateChannelStock(
+              mapping.channelId,
+              mapping.channel.type,
+              mapping.externalId,
+              stockToSync
+            );
+
+            channelsUpdated++;
+            this.log(
+              `Full sync propagated to ${mapping.channel.name} (${mapping.channel.type}): ` +
+                `${stockToSync} units (buffer applied: ${isOnlineChannel(mapping.channel.type)})`
+            );
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            errors.push({
+              channelId: mapping.channelId,
+              productId: product.id,
+              externalId: mapping.externalId,
+              message: errorMessage,
+              code: 'CHANNEL_UPDATE_FAILED',
+              retryable: true,
+            });
+
+            if (
+              errorMessage.toLowerCase().includes('auth') ||
+              errorMessage.toLowerCase().includes('unauthorized')
+            ) {
+              this.eventBus.emitChannelDisconnected({
+                tenantId,
+                channelId: mapping.channelId,
+                channelType: mapping.channel.type,
+                error: errorMessage,
+              });
+            }
+          }
+        }
+
+        // Mark audit event as completed
+        await this.deps.updateSyncEventStatus(syncEventId, 'completed');
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        await this.deps.updateSyncEventStatus(syncEventId, 'failed', errorMessage);
+        errors.push({
+          channelId: sourceOfTruth.id,
+          productId: product.id,
+          message: errorMessage,
+          code: 'SYNC_FAILED',
+          retryable: true,
+        });
+      }
     }
 
-    // Sync from source of truth to all other channels
-    // This is a simplified implementation - full sync would involve
-    // fetching all products and their current stock levels
-
-    this.log(`Full sync initiated for tenant ${tenantId} with ${activeChannels.length} active channels`);
+    this.log(
+      `Full sync complete for tenant ${tenantId}: ` +
+        `${productsUpdated} products updated, ${channelsUpdated} channel updates, ` +
+        `${errors.length} errors`
+    );
 
     return { channelsUpdated, productsUpdated, errors };
   }

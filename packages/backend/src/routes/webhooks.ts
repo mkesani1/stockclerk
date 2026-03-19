@@ -66,7 +66,7 @@ export function clearChannelSecretCache(): void {
   channelSecretCache.clear();
 }
 
-// Helper to get channel credentials
+// Helper to get channel by external identifier — strict tenant isolation, no fallback
 async function getChannelByExternalId(
   channelType: ChannelType,
   externalIdentifier: string
@@ -90,7 +90,6 @@ async function getChannelByExternalId(
       return {
         id: channel.id,
         tenantId: channel.tenantId,
-        webhookSecret: cached.webhookSecret || (channel as any).webhookSecret,
       };
     }
   }
@@ -105,32 +104,16 @@ async function getChannelByExternalId(
   });
 
   if (channel) {
-    const webhookSecret = (channel as any).webhookSecret || '';
     // Cache for future lookups
     channelSecretCache.set(cacheKey, {
       tenantId: channel.tenantId,
-      webhookSecret,
+      webhookSecret: '',
     });
-    return { id: channel.id, tenantId: channel.tenantId, webhookSecret: webhookSecret || undefined };
+    return { id: channel.id, tenantId: channel.tenantId };
   }
 
-  // Fallback: try finding any active channel of this type (for backwards compatibility)
-  const fallbackChannel = await db.query.channels.findFirst({
-    where: and(
-      eq(channels.type, channelType),
-      eq(channels.isActive, true)
-    ),
-  });
-
-  if (fallbackChannel) {
-    const webhookSecret = (fallbackChannel as any).webhookSecret || '';
-    return {
-      id: fallbackChannel.id,
-      tenantId: fallbackChannel.tenantId,
-      webhookSecret: webhookSecret || undefined,
-    };
-  }
-
+  // No matching channel found — do NOT fall back to any channel of this type,
+  // as that would violate tenant isolation and route webhooks to the wrong tenant.
   return null;
 }
 

@@ -69,9 +69,11 @@ export interface FullSyncJobData extends SyncJobData {
 // Initialize Redis connection
 export function getRedisConnection(): Redis {
   if (!redisConnection) {
+    const useTls = config.REDIS_URL.startsWith('rediss://');
     redisConnection = new Redis(config.REDIS_URL, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
+      ...(useTls ? { tls: {} } : {}),
     });
 
     redisConnection.on('error', (err) => {

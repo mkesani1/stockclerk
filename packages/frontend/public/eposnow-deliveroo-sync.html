@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Eposnow with Deliveroo Automatically | StockClerk</title>
+    <meta name="description" content="Stop manually updating stock between Eposnow and Deliveroo. StockClerk's AI agents sync your inventory in under 5 seconds, eliminating overselling. 14-day free trial, from £50/month.">
+
+    <link rel="canonical" href="https://stockclerk.ai/eposnow-deliveroo-sync.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sync Eposnow with Deliveroo Automatically | StockClerk">
+    <meta property="og:description" content="Stop manually updating stock between Eposnow and Deliveroo. StockClerk's AI agents sync your inventory in under 5 seconds, eliminating overselling.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://stockclerk.ai/eposnow-deliveroo-sync.html">
+    <meta property="og:image" content="https://stockclerk.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sync Eposnow with Deliveroo Automatically | StockClerk">
+    <meta name="twitter:description" content="Stop manually updating stock between Eposnow and Deliveroo. StockClerk's AI agents sync your inventory in under 5 seconds.">
+    <meta name="twitter:image" content="https://stockclerk.ai/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- Structured Data: WebPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Sync Eposnow with Deliveroo Automatically",
+      "description": "Stop manually updating stock between Eposnow and Deliveroo. StockClerk's AI agents sync your inventory in real-time, eliminating overselling on busy shifts.",
+      "url": "https://stockclerk.ai/eposnow-deliveroo-sync.html",
+      "inLanguage": "en-GB",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "StockClerk",
+        "url": "https://stockclerk.ai"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "StockClerk",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "50",
+          "priceCurrency": "GBP",
+          "description": "14-day free trial, then from £50/month"
+        },
+        "url": "https://stockclerk.ai",
+        "creator": {
+          "@type": "SoftwareApplication",
+          "name": "Perplexity Computer",
+          "url": "https://www.perplexity.ai/computer"
+        }
+      }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does StockClerk sync Eposnow with Deliveroo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "StockClerk connects to your Eposnow POS via its API and to Deliveroo via Otter. When a sale is processed at your till, our Watcher agent detects the stock change instantly. The Sync agent then pushes the updated quantity to your Deliveroo menu in under 5 seconds — with no manual work required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need technical skills to set this up?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Setup takes around 15 minutes and requires no coding. You'll enter your Eposnow API key (found in Eposnow Back Office) and link your Deliveroo account through Otter. Step-by-step instructions guide you through every part of the process."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if a sync fails or stock drifts out of alignment?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "StockClerk's Guardian agent runs a full reconciliation check every 15 minutes. If it detects any discrepancy between your Eposnow stock and your Deliveroo menu, it automatically corrects it — no alert needed, no manual fix required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does StockClerk cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Plans start at £50/month for small shops with 1–3 locations. All plans include a 14-day free trial with no credit card required. You can upgrade, downgrade, or cancel at any time."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6B5344;
+            --primary-light: #C9B8A8;
+            --muted: #E8E4DD;
+            --background: #FAF8F5;
+            --background-alt: #F5F2ED;
+            --border: #E8E4DD;
+            --text: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B958E;
+            --card: #FFFFFF;
+            --success: #5D8B55;
+            --warning: #C9A86C;
+            --error: #B85C5C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px;
+        }
+        .nav-links { display: flex; gap: 32px; }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-cta {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px;
+            background: var(--primary); color: white;
+            text-decoration: none; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .nav-cta:hover { background: var(--primary-dark); }
+
+        /* Page Hero */
+        .page-hero {
+            padding: 112px 32px 72px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .breadcrumb {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 100px; font-size: 13px;
+            color: var(--primary); font-weight: 500;
+            margin-bottom: 24px;
+        }
+        .hero-badge .dot {
+            width: 6px; height: 6px;
+            background: var(--success); border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .page-hero h1 {
+            font-size: 48px; font-weight: 700;
+            line-height: 1.1; color: var(--text);
+            margin-bottom: 20px; letter-spacing: -1px;
+            max-width: 760px;
+        }
+        .page-hero h1 span { color: var(--primary); }
+
+        .hero-subtitle {
+            font-size: 18px; color: var(--text-secondary);
+            margin-bottom: 36px; line-height: 1.7;
+            max-width: 620px;
+        }
+        .hero-cta { display: flex; gap: 12px; margin-bottom: 48px; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px 28px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; text-decoration: none;
+            cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary {
+            background: var(--card); color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--background-alt); }
+
+        .stats-row { display: flex; gap: 40px; flex-wrap: wrap; }
+        .stat { text-align: left; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--primary-dark); }
+        .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+        /* Sections */
+        .section {
+            padding: 80px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-full {
+            padding: 80px 32px;
+            background: var(--background-alt);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .section-full-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-label {
+            font-size: 13px; font-weight: 600;
+            color: var(--primary); text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 36px; font-weight: 700;
+            color: var(--text); margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+        .section-subtitle {
+            font-size: 17px; color: var(--text-secondary);
+            max-width: 580px; line-height: 1.7;
+        }
+
+        /* Pain Point Banner */
+        .pain-banner {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--error);
+            border-radius: 0 12px 12px 0;
+            padding: 24px 28px;
+            margin-bottom: 48px;
+            max-width: 740px;
+        }
+        .pain-banner h3 {
+            font-size: 16px; font-weight: 600;
+            color: var(--text); margin-bottom: 8px;
+        }
+        .pain-banner p {
+            font-size: 15px; color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* How it works steps */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
+        .step-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 24px;
+            position: relative;
+        }
+        .step-number {
+            width: 36px; height: 36px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 15px; font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .step-title {
+            font-size: 17px; font-weight: 600;
+            color: var(--text); margin-bottom: 10px;
+        }
+        .step-desc {
+            font-size: 14px; color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Agents Grid */
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 48px;
+        }
+        .agent-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .agent-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .agent-card::before {
+            content: '';
+            position: absolute; top: 0; left: 24px; right: 24px;
+            height: 3px; background: var(--primary);
+            border-radius: 0 0 3px 3px;
+        }
+        .agent-card-icon {
+            width: 56px; height: 56px;
+            background: var(--background-alt);
+            border: 1px solid var(--border); border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin: 0 auto 16px;
+        }
+        .agent-card-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .agent-card-role { font-size: 12px; color: var(--primary); font-weight: 500; margin-bottom: 12px; }
+        .agent-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* Feature rows */
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 72px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+        .feature-content { max-width: 480px; }
+        .feature-title {
+            font-size: 26px; font-weight: 700;
+            color: var(--text); margin-bottom: 14px;
+            letter-spacing: -0.3px;
+        }
+        .feature-desc { font-size: 16px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+        .feature-list { list-style: none; }
+        .feature-list li {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 0; font-size: 15px; color: var(--text-secondary);
+        }
+        .feature-list li .check {
+            width: 20px; height: 20px;
+            background: rgba(93, 139, 85, 0.1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--success); font-size: 11px; flex-shrink: 0; margin-top: 2px;
+        }
+
+        /* Visual mockup panel */
+        .mockup-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(139, 115, 85, 0.1);
+        }
+        .mockup-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .mockup-title { font-size: 13px; font-weight: 600; color: var(--text-muted); flex: 1; text-align: center; }
+        .sync-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px; background: var(--background-alt);
+            border-radius: 10px; margin-bottom: 10px;
+        }
+        .sync-icon {
+            width: 40px; height: 40px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; flex-shrink: 0;
+        }
+        .sync-info { flex: 1; }
+        .sync-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .sync-status { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .sync-badge {
+            padding: 5px 12px; border-radius: 100px;
+            font-size: 11px; font-weight: 600;
+        }
+        .sync-badge.live { background: rgba(93, 139, 85, 0.1); color: var(--success); }
+        .sync-arrow {
+            text-align: center; padding: 8px 0;
+            color: var(--primary); font-size: 18px; font-weight: 700;
+        }
+        .sync-time {
+            text-align: center; font-size: 11px;
+            color: var(--text-muted); margin-top: 4px;
+        }
+
+        /* Pricing highlight */
+        .pricing-highlight {
+            background: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 36px 32px;
+            text-align: center;
+            max-width: 380px;
+        }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .pricing-price {
+            font-size: 52px; font-weight: 700;
+            color: var(--text); margin-bottom: 4px;
+        }
+        .pricing-price span { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+        .pricing-features { list-style: none; text-align: left; margin-bottom: 24px; }
+        .pricing-features li {
+            padding: 10px 0; font-size: 14px; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pricing-features li:last-child { border-bottom: none; }
+        .pricing-features li::before {
+            content: '✓';
+            width: 18px; height: 18px;
+            background: rgba(93, 139, 85, 0.1); color: var(--success);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 10px; flex-shrink: 0;
+        }
+
+        /* FAQ */
+        .faq-list { max-width: 760px; margin: 48px auto 0; }
+        .faq-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .faq-question {
+            width: 100%; padding: 20px 24px;
+            text-align: left; background: none; border: none;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: space-between; gap: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+        .faq-question-text { font-size: 16px; font-weight: 600; color: var(--text); }
+        .faq-toggle {
+            width: 24px; height: 24px; flex-shrink: 0;
+            background: var(--background-alt); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); font-size: 16px; font-weight: 700;
+            transition: transform 0.2s;
+        }
+        .faq-answer {
+            padding: 0 24px 20px;
+            font-size: 15px; color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--primary-dark);
+            color: white;
+            padding: 80px 32px;
+            text-align: center;
+        }
+        .cta-section h2 { font-size: 36px; font-weight: 700; margin-bottom: 16px; }
+        .cta-section p {
+            font-size: 18px; opacity: 0.9; margin-bottom: 32px;
+            max-width: 500px; margin-left: auto; margin-right: auto;
+        }
+        .cta-section .btn-white {
+            background: white; color: var(--primary-dark);
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; text-decoration: none;
+            transition: background 0.2s;
+        }
+        .cta-section .btn-white:hover { background: var(--background); }
+
+        /* Footer */
+        .footer {
+            padding: 48px 32px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        .footer-text { font-size: 13px; color: var(--text-muted); }
+        .footer-links {
+            display: flex; justify-content: center;
+            gap: 32px; margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .footer-links a {
+            font-size: 13px; color: var(--text-secondary);
+            text-decoration: none; transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--primary); }
+
+        /* Prose content */
+        .prose {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        .prose h2 {
+            font-size: 28px; font-weight: 700;
+            color: var(--text); margin-bottom: 16px;
+            margin-top: 48px; letter-spacing: -0.3px;
+        }
+        .prose h2:first-child { margin-top: 0; }
+        .prose p {
+            font-size: 16px; color: var(--text-secondary);
+            line-height: 1.8; margin-bottom: 20px;
+        }
+        .prose ul {
+            margin: 0 0 20px 20px;
+        }
+        .prose ul li {
+            font-size: 16px; color: var(--text-secondary);
+            line-height: 1.8; margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .feature-row { grid-template-columns: 1fr; gap: 40px; }
+            .agent-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .page-hero h1 { font-size: 34px; }
+            .nav-links { display: none; }
+            .section-title { font-size: 28px; }
+            .agent-grid { grid-template-columns: 1fr; }
+            .stats-row { flex-direction: column; gap: 24px; }
+            .hero-cta { flex-direction: column; }
+            .hero-cta .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">◉</div>
+                StockClerk
+            </a>
+            <div class="nav-links">
+                <a href="/#features">Features</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#pricing">Pricing</a>
+                <a href="/login">Log In</a>
+            </div>
+            <a href="/register" class="nav-cta">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="breadcrumb">
+            <a href="/">StockClerk</a> › Eposnow &amp; Deliveroo Sync
+        </div>
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Real-time sync · Under 5 seconds
+        </div>
+        <h1>Sync Eposnow with Deliveroo <span>Automatically</span></h1>
+        <p class="hero-subtitle">
+            Every sale at your till updates your Deliveroo menu in seconds. No manual stock counts. No angry customers. No overselling on busy Friday nights.
+        </p>
+        <div class="hero-cta">
+            <a href="/register" class="btn btn-primary">Start 14-Day Free Trial →</a>
+            <a href="/#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-value">&lt;5 sec</div>
+                <div class="stat-label">Sync Speed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">99.9%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">15 min</div>
+                <div class="stat-label">Setup Time</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pain Point -->
+    <div class="section" style="padding-top: 0;">
+        <div class="pain-banner">
+            <h3>Sound familiar?</h3>
+            <p>
+                It's Saturday lunchtime. The restaurant is packed. A customer orders your last portion of lamb chops on Deliveroo — but you sold them at the counter 10 minutes ago and forgot to update the menu. Now you have to cancel the order, deal with an unhappy customer, and risk a poor Deliveroo rating. All because the stock wasn't in sync.
+            </p>
+        </div>
+
+        <!-- Sync Visual -->
+        <div class="feature-row" style="margin-bottom: 0;">
+            <div class="feature-content">
+                <div class="section-label">The Solution</div>
+                <h2 class="feature-title">One sale, every channel updated</h2>
+                <p class="feature-desc">
+                    StockClerk sits between your Eposnow POS and your Deliveroo menu. The moment a product is sold at the till — or via any channel — every platform is updated in real time. No spreadsheets, no manual edits, no delays.
+                </p>
+                <ul class="feature-list">
+                    <li><span class="check">✓</span><span>Sale detected on Eposnow in real time</span></li>
+                    <li><span class="check">✓</span><span>Deliveroo menu updated via Otter in under 5 seconds</span></li>
+                    <li><span class="check">✓</span><span>Guardian agent reconciles every 15 minutes for added safety</span></li>
+                    <li><span class="check">✓</span><span>Alert agent notifies you only when action is genuinely needed</span></li>
+                </ul>
+            </div>
+            <div>
+                <div class="mockup-panel">
+                    <div class="mockup-header">
+                        <div class="mockup-dot" style="background:#e25454;"></div>
+                        <div class="mockup-dot" style="background:#e2b854;"></div>
+                        <div class="mockup-dot" style="background:#54b854;"></div>
+                        <div class="mockup-title">StockClerk · Live Sync</div>
+                    </div>
+                    <div class="sync-item">
+                        <div class="sync-icon">◎</div>
+                        <div class="sync-info">
+                            <div class="sync-name">Eposnow POS</div>
+                            <div class="sync-status">Lamb Chops · 12 in stock</div>
+                        </div>
+                        <div class="sync-badge live">● Source</div>
+                    </div>
+                    <div class="sync-arrow">↓</div>
+                    <div class="sync-time">Watcher agent detected change · 0.3s ago</div>
+                    <div style="margin: 8px 0;"></div>
+                    <div class="sync-item" style="border: 1px solid rgba(93,139,85,0.3);">
+                        <div class="sync-icon">△</div>
+                        <div class="sync-info">
+                            <div class="sync-name">Deliveroo (via Otter)</div>
+                            <div class="sync-status">Lamb Chops · 12 in stock</div>
+                        </div>
+                        <div class="sync-badge live">✓ Synced</div>
+                    </div>
+                    <div class="sync-time" style="text-align:left; margin-top:12px; font-size:12px; color: var(--success);">
+                        ✓ All channels in sync · Last update 4 seconds ago
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How the agents work -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div class="section-label">Meet Your AI Team</div>
+            <h2 class="section-title">Four agents keeping your stock honest</h2>
+            <p class="section-subtitle">StockClerk uses four specialised AI agents working together around the clock, so you never have to think about stock sync again.</p>
+
+            <div class="agent-grid">
+                <div class="agent-card">
+                    <div class="agent-card-icon">◉</div>
+                    <div class="agent-card-name">Watcher</div>
+                    <div class="agent-card-role">Real-Time Monitor</div>
+                    <p class="agent-card-desc">Watches your Eposnow POS 24/7. The instant a sale is processed, Watcher catches the stock change and alerts the other agents.</p>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-card-icon">↻</div>
+                    <div class="agent-card-name">Sync</div>
+                    <div class="agent-card-role">Lightning Updater</div>
+                    <p class="agent-card-desc">Takes the stock change from Watcher and pushes it to your Deliveroo menu via Otter. Completes the update in under 5 seconds.</p>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-card-icon">⬡</div>
+                    <div class="agent-card-name">Guardian</div>
+                    <div class="agent-card-role">Drift Detector</div>
+                    <p class="agent-card-desc">Runs a full cross-channel audit every 15 minutes. If anything has drifted — even slightly — it corrects it automatically without waiting for you to notice.</p>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-card-icon">⚑</div>
+                    <div class="agent-card-name">Alert</div>
+                    <div class="agent-card-role">Escalation Filter</div>
+                    <p class="agent-card-desc">Filters out routine sync events and only sends you a notification when something genuinely needs your attention — like a connection going offline.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Process -->
+    <div class="section">
+        <div class="section-label">Getting Started</div>
+        <h2 class="section-title">Up and running in 15 minutes</h2>
+        <p class="section-subtitle">No developer needed. No complicated configuration. Just connect your accounts and StockClerk handles the rest.</p>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-title">Connect Eposnow</div>
+                <p class="step-desc">
+                    Log in to your Eposnow Back Office, copy your API key, and paste it into StockClerk. We'll import your product catalogue automatically — typically 156+ products in under 2 minutes.
+                </p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-title">Link Deliveroo via Otter</div>
+                <p class="step-desc">
+                    StockClerk connects to Deliveroo through Otter, a dedicated restaurant technology integration layer. Authenticate your Otter account and select your Deliveroo venue. It takes about 3 clicks.
+                </p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-title">Run the first sync</div>
+                <p class="step-desc">
+                    StockClerk performs an initial full sync to baseline every channel against your Eposnow stock. From that point on, all updates are automatic. Total setup time: around 15 minutes.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Long-form content -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div class="prose">
+                <h2>Why manual Eposnow–Deliveroo sync causes overselling</h2>
+                <p>
+                    Running a restaurant or takeaway across both an Eposnow POS and Deliveroo is genuinely hard. Your POS is the ground truth for your kitchen and front-of-house team. Your Deliveroo menu is what customers see when they order from their phone. The problem is these two systems have no native way to talk to each other — which means every stock change at your till has to be manually reflected in your Deliveroo back office.
+                </p>
+                <p>
+                    During a quiet Tuesday afternoon, this might feel manageable. But on a busy Friday evening when you're processing 40 orders an hour across both in-store and delivery, manually updating your Deliveroo menu when you run out of a dish becomes practically impossible. Items stay listed as available long after you've sold out. Customers place orders for dishes you can't fulfil. You cancel orders, your Deliveroo score takes a hit, and you spend the next 10 minutes explaining the situation to a disappointed customer.
+                </p>
+                <p>
+                    This is the problem StockClerk was built to solve for Eposnow users specifically.
+                </p>
+
+                <h2>How real-time Eposnow Deliveroo inventory sync works</h2>
+                <p>
+                    StockClerk's Watcher agent maintains an active connection to the Eposnow API. Every sale, every stock adjustment, every manual correction made in your Back Office is captured the moment it happens. There's no polling delay — the Watcher responds to events as they occur.
+                </p>
+                <p>
+                    Once a change is detected, the Sync agent calculates the correct stock level and immediately pushes it through the Otter integration to your Deliveroo menu. The entire process completes in under 5 seconds. For your customers browsing the Deliveroo app, this means the menu they see accurately reflects what's actually available in your kitchen right now.
+                </p>
+                <p>
+                    The Guardian agent adds a second layer of protection. Every 15 minutes it performs an independent audit: it queries your current Eposnow stock, checks your Deliveroo menu, and verifies they match. If a discrepancy exists — perhaps because an update was missed, or someone edited the Deliveroo menu manually — Guardian corrects it automatically without any intervention from you.
+                </p>
+
+                <h2>Protecting your Deliveroo score</h2>
+                <p>
+                    Deliveroo monitors order cancellation rates and uses them as a key signal in how prominently your restaurant is displayed in local search results. A high cancellation rate — even if most cancellations are caused by stock issues rather than kitchen problems — can reduce your visibility and directly impact revenue.
+                </p>
+                <p>
+                    By eliminating the root cause of stock-related cancellations, StockClerk protects your Deliveroo ranking. Customers only order items that are actually in stock. Your cancellation rate drops. Your restaurant becomes more visible to nearby customers. The compounding effect over weeks and months is significant for most venues.
+                </p>
+
+                <h2>Buffer stock for walk-in customers</h2>
+                <p>
+                    One common concern for restaurants using Deliveroo alongside in-store service is the risk of allocating all available stock to delivery orders, leaving walk-in customers with nothing. StockClerk lets you set a buffer stock reserve — for example, always keep 3 portions of any dish for in-store customers regardless of delivery demand. The system respects this buffer automatically, keeping your Deliveroo availability accurate while protecting the in-person experience.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="section" style="display: flex; flex-direction: column; align-items: center;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div class="section-label">Pricing</div>
+            <h2 class="section-title">Simple, honest pricing</h2>
+            <p class="section-subtitle" style="margin: 0 auto;">Start free. Upgrade when you're ready. No long-term contracts.</p>
+        </div>
+        <div class="pricing-highlight">
+            <div class="pricing-name">Starter</div>
+            <div class="pricing-price">£50<span>/mo</span></div>
+            <div class="pricing-desc">Perfect for small restaurants and takeaways</div>
+            <ul class="pricing-features">
+                <li>Eposnow + Deliveroo sync</li>
+                <li>4 AI agents, always on</li>
+                <li>Under-5-second updates</li>
+                <li>15-minute Guardian audits</li>
+                <li>Email alerts</li>
+            </ul>
+            <a href="/register" class="btn btn-primary" style="width: 100%; justify-content: center;">Start 14-Day Free Trial</a>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">No credit card required. Cancel anytime.</p>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section-full">
+        <div class="section-full-inner">
+            <div style="text-align: center;">
+                <div class="section-label">FAQ</div>
+                <h2 class="section-title">Common questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div style="padding: 20px 24px;">
+                        <div class="faq-question-text">How does StockClerk sync Eposnow with Deliveroo?</div>
+                    </div>
+                    <div class="faq-answer">
+                        StockClerk connects to your Eposnow POS via its API and to Deliveroo via Otter. When a sale is processed at your till, our Watcher agent detects the stock change instantly. The Sync agent then pushes the updated quantity to your Deliveroo menu in under 5 seconds — no manual work required.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div style="padding: 20px 24px;">
+                        <div class="faq-question-text">Do I need technical skills to set this up?</div>
+                    </div>
+                    <div class="faq-answer">
+                        No. Setup takes around 15 minutes and requires no coding. You'll enter your Eposnow API key (found in Eposnow Back Office) and link your Deliveroo account through Otter. Step-by-step instructions guide you through every part of the process.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div style="padding: 20px 24px;">
+                        <div class="faq-question-text">What happens if a sync fails or stock drifts out of alignment?</div>
+                    </div>
+                    <div class="faq-answer">
+                        StockClerk's Guardian agent runs a full reconciliation check every 15 minutes. If it detects any discrepancy between your Eposnow stock and your Deliveroo menu, it automatically corrects it — no alert needed, no manual fix required.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div style="padding: 20px 24px;">
+                        <div class="faq-question-text">How much does StockClerk cost?</div>
+                    </div>
+                    <div class="faq-answer">
+                        Plans start at £50/month for small shops with 1–3 locations. All plans include a 14-day free trial with no credit card required. You can upgrade, downgrade, or cancel at any time.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2>Ready to stop overselling on Deliveroo?</h2>
+        <p>Start your 14-day free trial. Setup takes 15 minutes. Your stock stays in sync forever after.</p>
+        <a href="/register" class="btn-white">Start Free Trial →</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/eposnow-wix-inventory.html">Eposnow + Wix Sync</a>
+            <a href="/restaurant-stock-sync.html">Restaurant Stock Sync</a>
+            <a href="/privacy.html">Privacy Policy</a>
+            <a href="/terms.html">Terms of Service</a>
+        </div>
+        <p class="footer-text">StockClerk · AI-powered inventory sync for restaurants and retailers · <a href="mailto:hello@stockclerk.ai" style="color: inherit;">hello@stockclerk.ai</a></p>
+        <p class="footer-text" style="margin-top: 8px; opacity: 0.7;">© 2026 · <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" style="color: inherit;">Created with Perplexity Computer</a></p>
+    </footer>
+
+</body>
+</html>

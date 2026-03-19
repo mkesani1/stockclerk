@@ -71,6 +71,13 @@ const createAlertRuleSchema = z.object({
 
 const updateAlertRuleSchema = createAlertRuleSchema.partial();
 
+// Schema for manual alert check
+const alertCheckSchema = z.object({
+  checkType: z.enum(['low_stock', 'sync_health', 'channel_status', 'all']).optional(),
+  productId: z.string().uuid('productId must be a valid UUID').optional(),
+  channelId: z.string().uuid('channelId must be a valid UUID').optional(),
+}).optional();
+
 export async function alertRoutes(app: FastifyInstance): Promise<void> {
   // All routes require authentication
   app.addHook('preHandler', authenticateRequest);
@@ -206,6 +213,20 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
   // POST /alerts - Create new alert (internal use, typically by sync engine)
   app.post<{ Body: CreateAlertInput }>(
     '/',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['type', 'message'],
+          properties: {
+            type: { type: 'string', enum: ['low_stock', 'sync_error', 'channel_disconnected', 'system'] },
+            message: { type: 'string', minLength: 1 },
+            metadata: { type: 'object' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: CreateAlertInput }>, reply: FastifyReply) => {
       try {
         const tenantId = getTenantId(request);
@@ -258,6 +279,25 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
   // PATCH /alerts/:id - Mark alert as read/unread
   app.patch<{ Params: { id: string }; Body: { isRead: boolean } }>(
     '/:id',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          required: ['isRead'],
+          properties: {
+            isRead: { type: 'boolean' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: { isRead: boolean } }>,
       reply: FastifyReply
@@ -432,6 +472,40 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
    */
   app.post<{ Body: z.infer<typeof createAlertRuleSchema> }>(
     '/rules',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['name', 'type'],
+          properties: {
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            type: { type: 'string', enum: ['low_stock', 'sync_failure', 'channel_disconnect', 'custom'] },
+            conditions: {
+              type: 'object',
+              properties: {
+                threshold: { type: 'integer', minimum: 0 },
+                productIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+                channelIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+                timeWindow: { type: 'integer', minimum: 1 },
+                failureCount: { type: 'integer', minimum: 1 },
+              },
+              additionalProperties: false,
+            },
+            actions: {
+              type: 'object',
+              properties: {
+                createAlert: { type: 'boolean' },
+                webhookUrl: { type: 'string', format: 'uri' },
+                emailNotify: { type: 'boolean' },
+              },
+              additionalProperties: false,
+            },
+            isActive: { type: 'boolean' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Body: z.infer<typeof createAlertRuleSchema> }>,
       reply: FastifyReply
@@ -501,6 +575,47 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
    */
   app.put<{ Params: { id: string }; Body: z.infer<typeof updateAlertRuleSchema> }>(
     '/rules/:id',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string' },
+          },
+        },
+        body: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            type: { type: 'string', enum: ['low_stock', 'sync_failure', 'channel_disconnect', 'custom'] },
+            conditions: {
+              type: 'object',
+              properties: {
+                threshold: { type: 'integer', minimum: 0 },
+                productIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+                channelIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+                timeWindow: { type: 'integer', minimum: 1 },
+                failureCount: { type: 'integer', minimum: 1 },
+              },
+              additionalProperties: false,
+            },
+            actions: {
+              type: 'object',
+              properties: {
+                createAlert: { type: 'boolean' },
+                webhookUrl: { type: 'string', format: 'uri' },
+                emailNotify: { type: 'boolean' },
+              },
+              additionalProperties: false,
+            },
+            isActive: { type: 'boolean' },
+          },
+          additionalProperties: false,
+          minProperties: 1,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{
         Params: { id: string };
@@ -656,6 +771,19 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
     };
   }>(
     '/check',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          properties: {
+            checkType: { type: 'string', enum: ['low_stock', 'sync_health', 'channel_status', 'all'] },
+            productId: { type: 'string', format: 'uuid' },
+            channelId: { type: 'string', format: 'uuid' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{
         Body?: {
@@ -668,6 +796,17 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       try {
         const tenantId = getTenantId(request);
+
+        // Validate body with Zod
+        const validation = alertCheckSchema.safeParse(request.body);
+        if (validation && !validation.success) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: validation.error.issues.map((i) => i.message).join(', '),
+          } satisfies ApiResponse);
+        }
+
         const checkType = request.body?.checkType || 'all';
         const productId = request.body?.productId;
         const channelId = request.body?.channelId;

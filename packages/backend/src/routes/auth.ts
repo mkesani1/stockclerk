@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { eq, and, gt } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { z } from 'zod';
 import { db, pool } from '../db/index.js';
 import { tenants, users } from '../db/schema.js';
 import {
@@ -18,6 +19,16 @@ import {
 import { authenticateRequest } from '../middleware/auth.js';
 import { sendEmail, passwordResetEmail, welcomeEmail } from '../services/email.js';
 import { config } from '../config/index.js';
+
+// Zod schemas for routes without pre-existing schemas
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(100),
+});
 
 // Password hashing configuration
 const SALT_ROUNDS = 12;
@@ -40,6 +51,23 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/register - Create new tenant and first user (owner)
   app.post<{ Body: RegisterInput }>(
     '/register',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['tenantName', 'tenantSlug', 'email', 'password'],
+          properties: {
+            tenantName: { type: 'string', minLength: 2, maxLength: 255 },
+            tenantSlug: { type: 'string', minLength: 2, maxLength: 100, pattern: '^[a-z0-9-]+$' },
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string', minLength: 8, maxLength: 100 },
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            promoCode: { type: 'string', maxLength: 50 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: RegisterInput }>, reply: FastifyReply) => {
       try {
         // Validate request body
@@ -174,6 +202,19 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/login - Authenticate user and return JWT
   app.post<{ Body: LoginInput }>(
     '/login',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['email', 'password'],
+          properties: {
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string', minLength: 1 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: LoginInput }>, reply: FastifyReply) => {
       try {
         // Validate request body
@@ -399,16 +440,30 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/forgot-password - Request password reset email
   app.post<{ Body: { email: string } }>(
     '/forgot-password',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['email'],
+          properties: {
+            email: { type: 'string', format: 'email' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) => {
       try {
-        const { email } = request.body;
-        if (!email) {
+        // Validate with Zod for detailed error messages
+        const validation = forgotPasswordSchema.safeParse(request.body);
+        if (!validation.success) {
           return reply.code(400).send({
             success: false,
             error: 'Validation error',
-            message: 'Email is required',
+            message: validation.error.issues.map((i) => i.message).join(', '),
           } satisfies ApiResponse);
         }
+        const { email } = validation.data;
 
         // Always return success to prevent email enumeration
         const successResponse = {
@@ -465,25 +520,32 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/reset-password - Reset password with token
   app.post<{ Body: { token: string; password: string } }>(
     '/reset-password',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['token', 'password'],
+          properties: {
+            token: { type: 'string', minLength: 1 },
+            password: { type: 'string', minLength: 8, maxLength: 100 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: { token: string; password: string } }>, reply: FastifyReply) => {
       try {
-        const { token, password } = request.body;
-
-        if (!token || !password) {
+        // Validate with Zod for detailed error messages
+        const validation = resetPasswordSchema.safeParse(request.body);
+        if (!validation.success) {
           return reply.code(400).send({
             success: false,
             error: 'Validation error',
-            message: 'Token and new password are required',
+            message: validation.error.issues.map((i) => i.message).join(', '),
           } satisfies ApiResponse);
         }
 
-        if (password.length < 8) {
-          return reply.code(400).send({
-            success: false,
-            error: 'Validation error',
-            message: 'Password must be at least 8 characters',
-          } satisfies ApiResponse);
-        }
+        const { token, password } = validation.data;
 
         // Find valid token
         const client = await pool.connect();

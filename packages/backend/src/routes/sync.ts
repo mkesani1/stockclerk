@@ -4,6 +4,7 @@
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../db/index.js';
 import { syncEvents, channels, products, productChannelMappings } from '../db/schema.js';
 import {
@@ -26,6 +27,26 @@ import {
   broadcastToTenant,
   createWebSocketMessage,
 } from '../websocket/index.js';
+
+// Zod schemas for sync request bodies
+const triggerFullSyncSchema = z.object({
+  force: z.boolean().optional(),
+}).optional();
+
+const triggerChannelSyncSchema = z.object({
+  operation: z.enum(['full_sync', 'incremental_sync']).optional(),
+  productIds: z.array(z.string().uuid('Each productId must be a valid UUID')).optional(),
+}).optional();
+
+const triggerProductSyncSchema = z.object({
+  channelIds: z.array(z.string().uuid('Each channelId must be a valid UUID')).optional(),
+}).optional();
+
+const alertCheckSchema = z.object({
+  checkType: z.enum(['low_stock', 'sync_health', 'channel_status', 'all']).optional(),
+  productId: z.string().uuid('productId must be a valid UUID').optional(),
+  channelId: z.string().uuid('channelId must be a valid UUID').optional(),
+}).optional();
 
 export async function syncRoutes(app: FastifyInstance): Promise<void> {
   // All routes require authentication
@@ -249,12 +270,34 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
     };
   }>(
     '/full',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          properties: {
+            force: { type: 'boolean' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Body?: { force?: boolean } }>,
       reply: FastifyReply
     ) => {
       try {
         const tenantId = getTenantId(request);
+
+        // Validate body with Zod
+        const validation = triggerFullSyncSchema.safeParse(request.body);
+        if (validation && !validation.success) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: validation.error.issues.map((i) => i.message).join(', '),
+          } satisfies ApiResponse);
+        }
+
         const force = request.body?.force || false;
 
         // Get all active channels for this tenant
@@ -337,6 +380,28 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
     };
   }>(
     '/channel/:id',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          properties: {
+            operation: { type: 'string', enum: ['full_sync', 'incremental_sync'] },
+            productIds: {
+              type: 'array',
+              items: { type: 'string', format: 'uuid' },
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{
         Params: { id: string };
@@ -350,6 +415,17 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
       try {
         const tenantId = getTenantId(request);
         const { id: channelId } = request.params;
+
+        // Validate body with Zod
+        const validation = triggerChannelSyncSchema.safeParse(request.body);
+        if (validation && !validation.success) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: validation.error.issues.map((i) => i.message).join(', '),
+          } satisfies ApiResponse);
+        }
+
         const operation = request.body?.operation || 'incremental_sync';
         const productIds = request.body?.productIds;
 
@@ -430,6 +506,27 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
     };
   }>(
     '/product/:id',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          properties: {
+            channelIds: {
+              type: 'array',
+              items: { type: 'string', format: 'uuid' },
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{
         Params: { id: string };
@@ -442,6 +539,17 @@ export async function syncRoutes(app: FastifyInstance): Promise<void> {
       try {
         const tenantId = getTenantId(request);
         const { id: productId } = request.params;
+
+        // Validate body with Zod
+        const validation = triggerProductSyncSchema.safeParse(request.body);
+        if (validation && !validation.success) {
+          return reply.code(400).send({
+            success: false,
+            error: 'Validation error',
+            message: validation.error.issues.map((i) => i.message).join(', '),
+          } satisfies ApiResponse);
+        }
+
         const specificChannelIds = request.body?.channelIds;
 
         // Verify product exists and belongs to tenant

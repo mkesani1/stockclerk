@@ -97,10 +97,12 @@ async function initialize(msg: { tenantId: string; config: TenantWorkerConfig })
 
   try {
     // Create tenant-scoped Redis connection
+    const useTls = config.redisUrl.startsWith('rediss://');
     redis = new Redis(config.redisUrl, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
       keyPrefix: `${config.queuePrefix}:`,
+      ...(useTls ? { tls: {} } : {}),
     });
 
     redis.on('error', (err) => {
@@ -112,6 +114,7 @@ async function initialize(msg: { tenantId: string; config: TenantWorkerConfig })
     const queueConnection = new Redis(config.redisUrl, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
+      ...(useTls ? { tls: {} } : {}),
     });
 
     const defaultJobOptions = {

@@ -26,6 +26,19 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
   // GET /products - List all products for tenant with pagination
   app.get<{ Querystring: { page?: string; limit?: string; search?: string } }>(
     '/',
+    {
+      schema: {
+        querystring: {
+          type: 'object',
+          properties: {
+            page: { type: 'string', pattern: '^[0-9]+$' },
+            limit: { type: 'string', pattern: '^[0-9]+$' },
+            search: { type: 'string', maxLength: 255 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Querystring: { page?: string; limit?: string; search?: string } }>,
       reply: FastifyReply
@@ -135,6 +148,22 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
   // POST /products - Create new product
   app.post<{ Body: CreateProductInput }>(
     '/',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['sku', 'name'],
+          properties: {
+            sku: { type: 'string', minLength: 1, maxLength: 100 },
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            currentStock: { type: 'integer', minimum: 0 },
+            bufferStock: { type: 'integer', minimum: 0 },
+            metadata: { type: 'object' },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Body: CreateProductInput }>, reply: FastifyReply) => {
       try {
         const tenantId = getTenantId(request);
@@ -194,6 +223,29 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
   // PATCH /products/:id - Update product
   app.patch<{ Params: { id: string }; Body: UpdateProductInput }>(
     '/:id',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          properties: {
+            sku: { type: 'string', minLength: 1, maxLength: 100 },
+            name: { type: 'string', minLength: 1, maxLength: 255 },
+            currentStock: { type: 'integer', minimum: 0 },
+            bufferStock: { type: 'integer', minimum: 0 },
+            metadata: { type: 'object' },
+          },
+          additionalProperties: false,
+          minProperties: 1,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: UpdateProductInput }>,
       reply: FastifyReply
@@ -267,6 +319,26 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
   // PUT /products/:id/stock - Update stock level (creates sync event)
   app.put<{ Params: { id: string }; Body: UpdateStockInput }>(
     '/:id/stock',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          required: ['currentStock'],
+          properties: {
+            currentStock: { type: 'integer', minimum: 0 },
+            reason: { type: 'string', maxLength: 500 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: UpdateStockInput }>,
       reply: FastifyReply
@@ -407,6 +479,27 @@ export async function productRoutes(app: FastifyInstance): Promise<void> {
   // POST /products/:id/mappings - Add channel mapping to product
   app.post<{ Params: { id: string }; Body: Omit<CreateMappingInput, 'productId'> }>(
     '/:id/mappings',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        body: {
+          type: 'object',
+          required: ['channelId', 'externalId'],
+          properties: {
+            channelId: { type: 'string', format: 'uuid' },
+            externalId: { type: 'string', minLength: 1, maxLength: 255 },
+            externalSku: { type: 'string', maxLength: 255 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: Omit<CreateMappingInput, 'productId'> }>,
       reply: FastifyReply

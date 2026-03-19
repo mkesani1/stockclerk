@@ -1,10 +1,18 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import Stripe from 'stripe';
 import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 import { config } from '../config/index.js';
 import { db } from '../db/index.js';
 import { tenants, users, channels } from '../db/schema.js';
 import { getTenantId } from '../middleware/auth.js';
+
+// Zod schema for checkout body
+const createCheckoutSchema = z.object({
+  plan: z.enum(['starter', 'growth'], {
+    errorMap: () => ({ message: 'Plan must be "starter" or "growth"' }),
+  }),
+});
 
 // Initialize Stripe
 const stripe = new Stripe(config.STRIPE_SECRET_KEY);
@@ -100,19 +108,31 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/billing/create-checkout - Create Stripe Checkout session
   app.post<{ Body: { plan: 'starter' | 'growth' } }>(
     '/create-checkout',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['plan'],
+          properties: {
+            plan: { type: 'string', enum: ['starter', 'growth'] },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const { plan } = request.body as { plan: 'starter' | 'growth' };
-        const tenantId = getTenantId(request);
-
-        // Validate plan
-        if (!['starter', 'growth'].includes(plan)) {
+        // Validate with Zod for detailed error messages
+        const validation = createCheckoutSchema.safeParse(request.body);
+        if (!validation.success) {
           return reply.code(400).send({
             success: false,
             error: 'Bad Request',
-            message: 'Invalid plan. Must be "starter" or "growth"',
+            message: validation.error.issues.map((i) => i.message).join(', '),
           });
         }
+        const { plan } = validation.data;
+        const tenantId = getTenantId(request);
 
         // Get tenant and primary user email
         const tenant = await db.query.tenants.findFirst({
